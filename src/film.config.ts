@@ -38,7 +38,7 @@ export const FILM = {
   scenes: [
     { id: 'newton', range: [0.02, 0.38] },
     { id: 'flyer', range: [0.295, 0.492] },
-    { id: 'boot', range: [0.455, 0.63] },
+    { id: 'boot', range: [0.455, 0.87] },
     { id: 'moon', range: [0.5, 0.87] },
   ] as SceneDef[],
 

@@ -6,10 +6,9 @@
  * scene uses: layered rolling contours that run edge to edge, two big grazing
  * craters whose rims exit the frame, an astronaut and the lunar module
  * silhouetted on the horizon, an Earth high in the wide, and a larger flag that
- * owns the centre at 0.68. All tonal hatch (crater rim shadows, regolith bands, the Earth
- * crescent) reads the film's one direction, LOOK.hatchAngleRad, and shares a
- * boil phase per patch; descriptive marks (rock ticks, the pole) keep their own
- * directions.
+ * owns the centre at 0.68. All tonal hatch (crater rim shadows, regolith bands)
+ * reads the film's one direction, LOOK.hatchAngleRad, and shares a boil phase
+ * per patch; descriptive marks (rock ticks, the pole) keep their own directions.
  *
  * The flag is the only colour in the film: its cloth carries flagRed and
  * flagBlue on colorBypass sets, everything else is chalk white. It flies at
@@ -103,10 +102,31 @@ function makeRng(seed: number): () => number {
 function win(c: number, w: number): [number, number] {
   return [clamp01(c), clamp01(c + w)];
 }
-/** Sample a catmull-rom curve through the control points, for confident limbs. */
-function smoothCurve(ctrl: readonly number[][], closed: boolean, samples: number): THREE.Vector3[] {
+/**
+ * A short straight tick as three points. The stroke ribbon tapers its width
+ * by aU toward both ends, so a two point polyline has no interior point and
+ * renders as a hairline; the midpoint gives small marks a full width body.
+ */
+function seg3(a: readonly number[], b: readonly number[]): THREE.Vector3[] {
+  return poly([
+    [a[0], a[1], a[2]],
+    [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2],
+    [b[0], b[1], b[2]],
+  ]);
+}
+/**
+ * Sample a catmull-rom curve through the control points. The control points are
+ * jittered once by about 0.01 before splining so the line reads hand-drawn, and
+ * the samples carry no per-vertex jitter, so the curve stays smooth not squiggly.
+ */
+function smoothCurve(ctrl: readonly number[][], closed: boolean, samples: number, seed: number): THREE.Vector3[] {
+  const rng = makeRng(seed);
   const cps: THREE.Vector3[] = [];
-  for (const c of ctrl) cps.push(new THREE.Vector3(c[0], c[1], c[2]));
+  for (const c of ctrl) {
+    cps.push(
+      new THREE.Vector3(c[0] + (rng() - 0.5) * 0.02, c[1] + (rng() - 0.5) * 0.02, c[2] + (rng() - 0.5) * 0.012),
+    );
+  }
   const cv = new THREE.CatmullRomCurve3(cps, closed, 'catmullrom');
   const out: THREE.Vector3[] = [];
   for (let i = 0; i <= samples; i++) out.push(cv.getPoint(i / samples));
@@ -160,10 +180,10 @@ function skyRing(cx: number, cy: number, r: number, z: number, seed: number): TH
   const p1 = rng() * 6.28;
   const p2 = rng() * 6.28;
   const pts: THREE.Vector3[] = [];
-  for (let i = 0; i <= 40; i++) {
-    const a = start + (i / 40) * Math.PI * 2;
-    // a smooth circle: two low-frequency harmonics, about two percent, no corners
-    const rr = r * (1 + 0.012 * Math.sin(a + p1) + 0.008 * Math.sin(a * 2 + p2));
+  for (let i = 0; i <= 48; i++) {
+    const a = start + (i / 48) * Math.PI * 2;
+    // a truly smooth circle: two low harmonics under 1.5 percent, no visible corner
+    const rr = r * (1 + 0.008 * Math.sin(a + p1) + 0.005 * Math.sin(a * 2 + p2));
     pts.push(new THREE.Vector3(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, z));
   }
   return pts;
@@ -198,8 +218,10 @@ function buildTerrain(set: StrokeSetApi): void {
     contour(-11, 0.7, 0.6, 62),
     contour(-14, 1.1, 0.7, 63),
   ];
+  // depth layering in weight: nearest ridge midweight, the far hills lightest
+  const ridgeWidth = [2.2, 2.0, 1.8];
   for (let i = 0; i < ridges.length; i++) {
-    set.addStroke(ridges[i], { widthPx: 2.4, drawWindow: win(i * 0.06, 0.18) });
+    set.addStroke(ridges[i], { widthPx: ridgeWidth[i], drawWindow: win(i * 0.06, 0.18) });
   }
   buildLunarModule(set);
 }
@@ -218,6 +240,9 @@ function buildLunarModule(set: StrokeSetApi): void {
     for (const c of coords) {
       pts.push(new THREE.Vector3(LM_POS.x + c[0] * SXZ, LM_POS.y + c[1] * SY, LM_POS.z + c[2] * SXZ));
     }
+    // seams, legs, and rungs author as two points; the ribbon needs an interior
+    // point for width, so straight pairs gain a midpoint
+    if (pts.length === 2) pts.splice(1, 0, pts[0].clone().lerp(pts[1], 0.5));
     set.addStroke(pts, { widthPx: width, drawWindow: win(base, 0.16) });
   };
   seg(
@@ -258,60 +283,57 @@ interface Crater {
   cz: number;
   r: number;
   seed: number;
-  shadowSign: number; // which side carries the rim shadow
 }
 const CRATERS: Crater[] = [
-  { cx: -1.2, cz: 3.6, r: 3.7, seed: 71, shadowSign: -1 },
-  { cx: 3.0, cz: 2.6, r: 2.9, seed: 72, shadowSign: 1 },
+  { cx: -1.2, cz: 3.6, r: 3.7, seed: 71 },
+  { cx: 3.0, cz: 2.6, r: 2.9, seed: 72 },
 ];
 
 function buildForeground(set: StrokeSetApi, hatch: number): void {
+  // a short ground arc, for the far inner lip of a crater bowl
+  const arc = (cx: number, cz: number, rx: number, rz: number, a0: number, a1: number, segs: number): THREE.Vector3[] => {
+    const out: THREE.Vector3[] = [];
+    for (let i = 0; i <= segs; i++) {
+      const a = mix(a0, a1, i / segs);
+      out.push(new THREE.Vector3(cx + Math.cos(a) * rx, 0.02, cz + Math.sin(a) * rz));
+    }
+    return out;
+  };
+  const cd = new THREE.Vector3(Math.cos(hatch), 0, Math.sin(hatch));
+  const cn = new THREE.Vector3(-Math.sin(hatch), 0, Math.cos(hatch));
   let base = 0.0;
   for (const cr of CRATERS) {
-    // the rim, big enough that its near arc runs off the bottom of the frame
-    set.addStroke(groundBlob(cr.cx, cr.cz, cr.r, cr.seed, 40), {
-      widthPx: 2.6,
-      drawWindow: win(base, 0.2),
-    });
-    set.addStroke(groundBlob(cr.cx, cr.cz, cr.r * 0.6, cr.seed + 5, 32), {
-      widthPx: 1.8,
-      drawWindow: win(base + 0.08, 0.18),
-    });
-    // a short patch of rim-shadow hatch on one side, hatched flat on the ground
-    const sx = cr.cx + cr.shadowSign * cr.r * 0.35;
-    const corner = new THREE.Vector3(sx - cr.r * 0.3, 0.02, cr.cz - cr.r * 0.32);
-    const uDir = new THREE.Vector3(cr.r * 0.6, 0, 0);
-    const vDir = new THREE.Vector3(0, 0, cr.r * 0.64);
-    addHatch(set, hatchQuad(corner, uDir, vDir, hatch, 0.2, cr.seed + 9), 1.5, base + 0.2, 0.2, cr.seed);
+    // the bold rim, big enough that its near arc runs off the bottom of the frame
+    set.addStroke(groundBlob(cr.cx, cr.cz, cr.r, cr.seed, 40), { widthPx: 2.6, drawWindow: win(base, 0.2) });
+    // the bowl: a partial far inner lip offset toward the far side, a lit crescent
+    // of hatch on the lower-right inner wall, and a few ticks outside the near rim
+    set.addStroke(
+      arc(cr.cx, cr.cz - cr.r * 0.14, cr.r * 0.6, cr.r * 0.6 * 0.62, Math.PI * 1.16, Math.PI * 1.84, 22),
+      { widthPx: 1.8, drawWindow: win(base + 0.08, 0.18) },
+    );
+    const bc = new THREE.Vector3(cr.cx + cr.r * 0.28, 0.02, cr.cz + cr.r * 0.22);
+    const crescent: THREE.Vector3[][] = [];
+    for (let i = 0; i < 5; i++) {
+      const s = i / 4;
+      const c = bc.clone().addScaledVector(cn, mix(-0.24, 0.24, s) * cr.r);
+      const half = (0.26 - 0.4 * Math.abs(s - 0.5)) * cr.r;
+      crescent.push([c.clone().addScaledVector(cd, -half), c.clone(), c.clone().addScaledVector(cd, half)]);
+    }
+    addHatch(set, crescent, 1.5, base + 0.2, 0.2, cr.seed + 9);
+    for (let i = 0; i < 3; i++) {
+      const a = mix(0.34, 0.66, i / 2) * Math.PI;
+      const bx = cr.cx + Math.cos(a) * cr.r * 1.03;
+      const bz = cr.cz + Math.sin(a) * cr.r * 0.62 * 1.03;
+      set.addStroke(seg3([bx, 0.02, bz], [bx + Math.cos(a) * 0.22, 0.05, bz + Math.sin(a) * 0.15]), {
+        widthPx: 1.4,
+        drawWindow: win(base + 0.26, 0.12),
+      });
+    }
     base += 0.32;
   }
-
-  // scattered rocks, each a small contour with a two-stroke hatch shadow
-  const rng = makeRng(77);
-  for (let i = 0; i < 6; i++) {
-    const bx = mix(-3, 5, rng());
-    const bz = mix(0.5, 4.5, rng());
-    const rr = 0.18 + rng() * 0.22;
-    set.addStroke(
-      poly([
-        [bx - rr, 0.02, bz],
-        [bx - rr * 0.3, 0.02 + rr * 0.8, bz - rr * 0.2],
-        [bx + rr * 0.5, 0.02 + rr * 0.7, bz],
-        [bx + rr, 0.02, bz + rr * 0.2],
-      ]),
-      { widthPx: 1.8, drawWindow: win(0.66 + i * 0.02, 0.12) },
-    );
-    for (let k = 0; k < 2; k++) {
-      const off = rr * (0.2 + k * 0.28);
-      set.addStroke(
-        poly([
-          [bx - rr + off, 0.02, bz + rr * 0.3],
-          [bx + rr * 0.2 + off, 0.02, bz + rr * 0.5],
-        ]),
-        { widthPx: 1.3, drawWindow: win(0.72 + i * 0.02, 0.1) },
-      );
-    }
-  }
+  // the scattered rocks and their shadow ticks are removed: they cluttered the
+  // print's foreground and read as floating debris; the crater bowls and the
+  // regolith bands carry the foreground and the immediate foreground stays clean
 
   // one or two sparse regolith bands so the ground has the hatched language
   addHatch(
@@ -359,28 +381,31 @@ interface FigurePart {
 }
 
 function buildFigure(set: StrokeSetApi): void {
-  // an astronaut from behind: a bulbous helmet, a dominant PLSS backpack wider
-  // than the helmet, puffy arms and legs into broad boots, a slight forward
-  // lean, all confident catmull-smoothed curves with no fragments
+  // an astronaut from behind, read clearly: a distinct helmet dome above a clean
+  // PLSS pack with a neck gap, puffy arms bowing from the pack sides, thick legs
+  // into wide flat boots, a slight forward lean; connected flowing curves only
   const parts: FigurePart[] = [
-    // the PLSS backpack, the widest mass, high on the back
-    { c: [[-0.29, 0.66, 0.03], [-0.24, 0.62, 0.03], [0.24, 0.62, 0.03], [0.29, 0.66, 0.03], [0.3, 1.18, 0.03], [0.24, 1.24, 0.03], [-0.24, 1.24, 0.03], [-0.3, 1.18, 0.03]], closed: true, s: 22, w: 2.5, d: 0.0 },
-    // the bulbous helmet dome, wider than a head, leaning slightly forward
-    { c: [[0, 1.47, -0.02], [0.2, 1.38, -0.02], [0.22, 1.22, -0.02], [0.12, 1.13, 0], [0, 1.11, 0], [-0.12, 1.13, 0], [-0.22, 1.22, -0.02], [-0.2, 1.38, -0.02]], closed: true, s: 20, w: 2.5, d: 0.1 },
-    // the neck ring under the helmet and a strap across the pack
-    { c: [[-0.12, 1.11, 0], [0, 1.07, 0.02], [0.12, 1.11, 0]], closed: false, s: 8, w: 2.2, d: 0.16 },
-    { c: [[-0.24, 0.92, 0.04], [0, 0.94, 0.05], [0.24, 0.92, 0.04]], closed: false, s: 8, w: 2.2, d: 0.2 },
-    // puffy arms with a hint of a ringed elbow
-    { c: [[-0.28, 1.12, 0], [-0.35, 0.98, 0], [-0.37, 0.84, 0], [-0.34, 0.72, 0], [-0.3, 0.6, 0]], closed: false, s: 14, w: 2.4, d: 0.3 },
-    { c: [[0.28, 1.12, 0], [0.35, 0.98, 0], [0.37, 0.84, 0], [0.34, 0.72, 0], [0.3, 0.6, 0]], closed: false, s: 14, w: 2.4, d: 0.35 },
-    // wide-set puffy legs into broad boots
-    { c: [[-0.15, 0.62, 0], [-0.21, 0.45, 0], [-0.24, 0.28, 0], [-0.25, 0.12, 0], [-0.28, 0.05, -0.04]], closed: false, s: 14, w: 2.6, d: 0.45 },
-    { c: [[0.15, 0.62, 0], [0.21, 0.45, 0], [0.24, 0.28, 0], [0.25, 0.12, 0], [0.28, 0.05, -0.04]], closed: false, s: 14, w: 2.6, d: 0.5 },
-    { c: [[-0.3, 0.06, 0.02], [-0.3, 0.02, -0.06], [-0.18, 0.01, -0.13]], closed: false, s: 8, w: 2.5, d: 0.6 },
-    { c: [[0.3, 0.06, 0.02], [0.3, 0.02, -0.06], [0.18, 0.01, -0.13]], closed: false, s: 8, w: 2.5, d: 0.62 },
+    // the PLSS pack, one clean rounded rectangle at shoulder width, on the back
+    { c: [[-0.3, 0.62, 0.03], [-0.25, 0.58, 0.03], [0.25, 0.58, 0.03], [0.3, 0.62, 0.03], [0.3, 1.16, 0.03], [0.25, 1.2, 0.03], [-0.25, 1.2, 0.03], [-0.3, 1.16, 0.03]], closed: true, s: 26, w: 2.6, d: 0.0 },
+    // a horizontal strap and a vertical seam on the pack
+    { c: [[-0.24, 0.9, 0.045], [0, 0.92, 0.05], [0.24, 0.9, 0.045]], closed: false, s: 10, w: 2.4, d: 0.14 },
+    { c: [[0, 0.62, 0.05], [0.01, 0.9, 0.05], [0, 1.16, 0.05]], closed: false, s: 10, w: 2.4, d: 0.18 },
+    // a thin neck collar bridging the gap up to the helmet
+    { c: [[-0.09, 1.2, 0.02], [0, 1.28, 0], [0.09, 1.2, 0.02]], closed: false, s: 8, w: 2.4, d: 0.22 },
+    // the helmet dome, distinct and above the pack, leaning slightly forward
+    { c: [[0, 1.68, -0.02], [0.18, 1.6, -0.02], [0.2, 1.46, -0.01], [0.13, 1.37, 0], [0, 1.35, 0], [-0.13, 1.37, 0], [-0.2, 1.46, -0.01], [-0.18, 1.6, -0.02]], closed: true, s: 24, w: 2.6, d: 0.28 },
+    // a small crown highlight on the helmet
+    { c: [[-0.11, 1.6, -0.01], [0, 1.65, -0.01], [0.11, 1.6, -0.01]], closed: false, s: 8, w: 2.4, d: 0.34 },
+    // puffy arms bowing outward from the pack's sides
+    { c: [[-0.29, 1.12, 0.02], [-0.4, 0.98, 0.02], [-0.42, 0.82, 0.02], [-0.36, 0.68, 0.02], [-0.3, 0.58, 0.02]], closed: false, s: 16, w: 2.5, d: 0.4 },
+    { c: [[0.29, 1.12, 0.02], [0.4, 0.98, 0.02], [0.42, 0.82, 0.02], [0.36, 0.68, 0.02], [0.3, 0.58, 0.02]], closed: false, s: 16, w: 2.5, d: 0.44 },
+    // two thick smooth legs, each flowing into a wide flat boot
+    { c: [[-0.16, 0.6, 0], [-0.2, 0.42, 0], [-0.23, 0.22, 0], [-0.24, 0.08, -0.02], [-0.29, 0.03, -0.09], [-0.13, 0.02, -0.15]], closed: false, s: 18, w: 2.6, d: 0.52 },
+    { c: [[0.16, 0.6, 0], [0.2, 0.42, 0], [0.23, 0.22, 0], [0.24, 0.08, -0.02], [0.29, 0.03, -0.09], [0.13, 0.02, -0.15]], closed: false, s: 18, w: 2.6, d: 0.56 },
   ];
-  for (const p of parts) {
-    set.addStroke(smoothCurve(p.c, p.closed, p.s), { widthPx: p.w, drawWindow: win(p.d, 0.35) });
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    set.addStroke(smoothCurve(p.c, p.closed, p.s, 900 + i), { widthPx: p.w, drawWindow: win(p.d, 0.35) });
   }
 }
 
@@ -388,29 +413,46 @@ function buildFigure(set: StrokeSetApi): void {
 /* Sky and pole: the flag pole plus the Earth, both chalk white        */
 /* ------------------------------------------------------------------ */
 
-function buildSkyPole(set: StrokeSetApi, hatch: number): void {
+function buildSkyPole(set: StrokeSetApi): void {
   if (EARTH_ENABLED) {
     // the disk outline draws first, early in the set draw space
     set.addStroke(skyRing(EARTH_POS.x, EARTH_POS.y, EARTH_R, EARTH_POS.z, 81), {
       widthPx: 1.9,
       drawWindow: win(0.0, 0.18),
     });
-    // one clean crescent of parallel hatch on the lit lower-right at the film's
-    // hatch angle, six short strokes clipped well inside the disk, sharing one
-    // boil phase; the rest of the disk stays bare board as shadow
-    const dir = new THREE.Vector3(Math.cos(hatch), Math.sin(hatch), 0);
-    const nrm = new THREE.Vector3(-Math.sin(hatch), Math.cos(hatch), 0);
-    const lowerRight = new THREE.Vector3(1, -1, 0).normalize();
-    const bandCentre = EARTH_POS.clone().addScaledVector(lowerRight, EARTH_R * 0.28);
-    const crescent: THREE.Vector3[][] = [];
-    const rows = 6;
-    for (let i = 0; i < rows; i++) {
-      const s = i / (rows - 1);
-      const c = bandCentre.clone().addScaledVector(nrm, mix(-0.24, 0.24, s) * EARTH_R);
-      const half = (0.36 - 0.5 * Math.abs(s - 0.5)) * EARTH_R; // taper to a crescent
-      crescent.push([c.clone().addScaledVector(dir, -half), c.clone().addScaledVector(dir, half)]);
-    }
-    addHatch(set, crescent, 1.5, 0.08, 0.28, 82);
+    // the western hemisphere: the Americas as three connected chalk coastlines,
+    // slightly left of centre, about half the disk wide, control-point jitter
+    // only, no per-sample jitter; the rest of the disk stays bare board
+    const cont = (ctrl: number[][], closed: boolean, samples: number, seed: number): void => {
+      const pts = smoothCurve(ctrl, closed, samples, seed);
+      for (const p of pts) p.set(EARTH_POS.x + p.x * EARTH_R, EARTH_POS.y + p.y * EARTH_R, EARTH_POS.z);
+      set.addStroke(pts, { widthPx: 1.8, drawWindow: win(0.06, 0.3) });
+    };
+    // North America, the Alaska bulge down through the Gulf
+    cont(
+      [[-0.52, 0.55, 0], [-0.22, 0.68, 0], [0.15, 0.62, 0], [0.22, 0.36, 0], [0.05, 0.19, 0], [-0.13, 0.14, 0], [-0.33, 0.3, 0], [-0.47, 0.45, 0]],
+      true,
+      28,
+      91,
+    );
+    // a short Central America isthmus link
+    cont([[-0.1, 0.14, 0], [-0.03, 0.04, 0], [0.04, -0.06, 0]], false, 10, 92);
+    // South America, tapering to the tip
+    cont(
+      [[0.02, -0.04, 0], [0.2, -0.1, 0], [0.26, -0.35, 0], [0.12, -0.58, 0], [-0.05, -0.7, 0], [-0.07, -0.4, 0], [-0.04, -0.15, 0]],
+      true,
+      24,
+      93,
+    );
+    // Africa's western bulge enters at the middle-right edge, one confident
+    // coastline hugging the rim across roughly the rightmost 15 percent of
+    // the disk
+    cont(
+      [[0.84, 0.54, 0], [0.72, 0.32, 0], [0.68, 0.1, 0], [0.74, -0.08, 0], [0.7, -0.26, 0], [0.84, -0.54, 0]],
+      false,
+      16,
+      94,
+    );
   }
 
   // the pole plants late in the set draw space, just before the cloth rises
@@ -423,7 +465,7 @@ function buildSkyPole(set: StrokeSetApi, hatch: number): void {
     { widthPx: 2.4, drawWindow: win(0.7, 0.28) },
   );
   // the finial stays a small nub continuing the pole line past the tip
-  set.addStroke(poly([[FLAG_X, POLE_TOP, 0], [FLAG_X + 0.02, POLE_TOP + 0.06, 0]]), {
+  set.addStroke(seg3([FLAG_X, POLE_TOP, 0], [FLAG_X + 0.02, POLE_TOP + 0.06, 0]), {
     widthPx: 1.9,
     drawWindow: win(0.9, 0.1),
   });
@@ -552,7 +594,10 @@ export const moonScene: FilmScene = {
   mount(ctx: FilmContext) {
     terrain = ctx.makeStrokeSet({ style: { widthPx: 2.2 }, maxPoints: 640 });
     foreground = ctx.makeStrokeSet({ style: { widthPx: 2.4, dust: false }, maxPoints: 760 });
-    figure = ctx.makeStrokeSet({ style: { widthPx: 2.4, dust: false }, maxPoints: 260 });
+    figure = ctx.makeStrokeSet({
+      style: { widthPx: 2.4, dust: false, wobbleAmp: 0.012, wobbleFreq: 1.2 },
+      maxPoints: 260,
+    });
     skyPole = ctx.makeStrokeSet({ style: { widthPx: 2.2, dust: false }, maxPoints: 260 });
     cloth = ctx.makeStrokeSet({
       style: { widthPx: 2.8, dust: true, colorBypass: true, wobbleAmp: 0.12, wobbleFreq: 2.4 },
@@ -569,7 +614,7 @@ export const moonScene: FilmScene = {
     buildTerrain(terrain);
     buildForeground(foreground, ctx.look.hatchAngleRad);
     buildFigure(figure);
-    buildSkyPole(skyPole, ctx.look.hatchAngleRad);
+    buildSkyPole(skyPole);
     buildCloth(cloth, ctx.look.flagRed, ctx.look.flagBlue);
     buildCanton(canton, ctx.look.flagBlue);
 

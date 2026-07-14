@@ -33,13 +33,12 @@ const DUST_IN = 0.528;
 const DUST_PEAK = 0.538;
 const DUST_FADE_IN = 0.545;
 const DUST_FADE_OUT = 0.578;
-const PRINT_IN = 0.538;
-const PRINT_OUT = 0.588;
-/* The sole dissolves IN PLACE directly over the print's location, so the
- * boot reads as becoming its mark: no second boot, no fly-up, and it is
- * long gone before the flag pole draws at about 0.648. */
-const SOLE_FADE_IN = 0.535;
-const SOLE_FADE_OUT = 0.558;
+/* There is NO separate print object and the sole never fades: the boot
+ * presses flat onto the regolith and its own lines simply remain as the
+ * mark, persisting through the whole lunar sequence. Only the scatter of
+ * displaced regolith draws in around it, because that is new information. */
+const SCATTER_IN = 0.535;
+const SCATTER_OUT = 0.56;
 
 /* Geometry, local units. Sole in local x-z, heel to toe along x, tread
  * ridges spaced along x and running across the width along z. */
@@ -206,11 +205,9 @@ function buildSole(set: StrokeSetApi): void {
   );
 }
 
-function buildPrint(set: StrokeSetApi): void {
-  set.addStroke(soleOutline(0.02), { widthPx: 1.8 });
-  // the print inherits the same rib-derived stations as the sole's tread, so
-  // the plane's lines become the tread become the mark, one lineage
-  buildInheritedTread(set, 0.02, 1.7);
+function buildScatter(set: StrokeSetApi): void {
+  // displaced regolith around the landing: NEW marks, so they may draw in;
+  // the boot's own lines are never duplicated or redrawn
   const rng = makeRng(37);
   for (let i = 0; i < 14; i++) {
     const a = (i / 14) * Math.PI * 2 + rng() * 0.4;
@@ -255,7 +252,7 @@ export const bootScene: FilmScene = {
     buildSole(sole);
     buildInheritedTread(tread, 0, RIB_WIDTH_PX, RIB_BOIL_SEED);
     buildDust(dust);
-    buildPrint(print);
+    buildScatter(print);
     tread.setDraw(1); // fully built; it appears by the opacity step at the swap
 
     // the one boot: free-floating group posed in absolute world space,
@@ -276,10 +273,11 @@ export const bootScene: FilmScene = {
 
   update(_local: number, g: number, ctx: FilmContext) {
     // the sole draws itself over the held ridge field; at the swap instant the
-    // flyer vanishes and the inherited, cropped ribs remain as the tread
+    // flyer vanishes and the inherited, cropped ribs remain as the tread.
+    // From then on the boot's lines are permanent: pressed flat, they ARE the
+    // print, never faded, never redrawn.
     sole.setDraw(smoothstep(OUTLINE_IN, OUTLINE_OUT, g));
-    const soleAlpha = 1 - smoothstep(SOLE_FADE_IN, SOLE_FADE_OUT, g);
-    tread.setOpacity(g >= SWAP_T ? soleAlpha : 0);
+    tread.setOpacity(g >= SWAP_T ? 1 : 0);
 
     // the carry: one continuous pose blend from wing to Moon, matched to the
     // camera sweep window so the boot stays large in frame through the dark
@@ -295,13 +293,11 @@ export const bootScene: FilmScene = {
     _pos.y = mix(_pos.y, MOON_GROUND_Y, press);
     soleGroup.position.copy(_pos);
 
-    sole.setOpacity(soleAlpha);
-
     dust.setDraw(smoothstep(DUST_IN, PRESS_OUT + 0.006, g));
     dust.setOpacity(smoothstep(DUST_IN, DUST_PEAK, g) * (1 - smoothstep(DUST_FADE_IN, DUST_FADE_OUT, g)));
     dustGroup.position.y = mix(0, 0.5, smoothstep(PRESS_OUT, DUST_FADE_OUT, g));
 
-    print.setDraw(smoothstep(PRINT_IN, PRINT_OUT, g));
+    print.setDraw(smoothstep(SCATTER_IN, SCATTER_OUT, g));
 
     const t = ctx.time();
     const cam = ctx.three.camera;
