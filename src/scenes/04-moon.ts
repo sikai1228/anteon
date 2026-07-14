@@ -209,7 +209,7 @@ function addHatch(
 /* Terrain: layered contours plus a little sparse distant detail       */
 /* ------------------------------------------------------------------ */
 
-function buildTerrain(set: StrokeSetApi): void {
+function buildTerrain(set: StrokeSetApi, hatch: number): void {
   // three overlapping rolling ridges at different depths read as layered hills,
   // each running past both frame edges so no endpoint shows mid-sky, and the
   // floating distant craters and rock ticks are gone so nothing hangs unconnected
@@ -224,6 +224,69 @@ function buildTerrain(set: StrokeSetApi): void {
     set.addStroke(ridges[i], { widthPx: ridgeWidth[i], drawWindow: win(i * 0.06, 0.18) });
   }
   buildLunarModule(set);
+  buildRocks(set, hatch);
+}
+
+/* User-placed rocks from the annotated 0.6 wide, in local x and z. Two
+ * mid-ground groups: a small pair on the left between the module and the
+ * print, and a trio on the right between the crater rim and the far hills,
+ * the middle one largest. The pair's handed-down spots (local -3.4 and -2.6)
+ * projected past the left frame edge at the 0.6 key, so they are nudged
+ * right along the same depth band to land on screen between the module's
+ * footpads and the print. */
+interface Rock {
+  x: number;
+  z: number;
+  w: number; // full width on the ground
+  h: number; // crest height
+  seed: number;
+}
+const ROCKS: Rock[] = [
+  { x: -1.1, z: -2.6, w: 0.7, h: 0.3, seed: 210 },
+  { x: -0.3, z: -2.9, w: 0.55, h: 0.26, seed: 211 },
+  { x: 4.6, z: -3.4, w: 0.8, h: 0.32, seed: 212 },
+  { x: 5.8, z: -4.2, w: 1.6, h: 0.55, seed: 213 },
+  { x: 7.0, z: -3.8, w: 0.9, h: 0.34, seed: 214 },
+];
+
+function buildRocks(set: StrokeSetApi, hatch: number): void {
+  // each rock is one bumpy top contour seated on the ground line, open ends
+  // touching it and no closed bottom, plus a short hatch shadow tick or two
+  // tucked under its lower right; contour and shadow share one boil phase
+  const cd = new THREE.Vector3(Math.cos(hatch), 0, Math.sin(hatch));
+  for (let i = 0; i < ROCKS.length; i++) {
+    const rk = ROCKS[i];
+    const rng = makeRng(rk.seed);
+    const half = rk.w / 2;
+    const n = 5 + Math.floor(rng() * 4);
+    const ctrl: number[][] = [[rk.x - half, 0.02, rk.z]];
+    for (let k = 1; k < n - 1; k++) {
+      const t = k / (n - 1);
+      const y = rk.h * Math.sin(t * Math.PI) * (0.7 + rng() * 0.3);
+      ctrl.push([
+        rk.x - half + t * rk.w + (rng() - 0.5) * rk.w * 0.08,
+        Math.max(0.03, y),
+        rk.z + (rng() - 0.5) * 0.06,
+      ]);
+    }
+    ctrl.push([rk.x + half, 0.02, rk.z]);
+    set.addStroke(smoothCurve(ctrl, false, 16, rk.seed), {
+      widthPx: 2.0,
+      drawWindow: win(0.38 + i * 0.04, 0.16),
+      boilSeed: rk.seed,
+    });
+    const ticks = rng() < 0.5 ? 1 : 2;
+    for (let k = 0; k < ticks; k++) {
+      const ax = rk.x + half * (0.1 + 0.35 * k);
+      const az = rk.z + 0.09 + 0.11 * k;
+      const len = half * (0.55 - 0.15 * k);
+      set.addStroke(seg3([ax, 0.02, az], [ax + cd.x * len, 0.02, az + cd.z * len]), {
+        widthPx: 1.5,
+        drawWindow: win(0.44 + i * 0.04, 0.12),
+        boilSeed: rk.seed,
+      });
+    }
+  }
 }
 
 function buildLunarModule(set: StrokeSetApi): void {
@@ -592,7 +655,7 @@ function buildCanton(set: StrokeSetApi, blue: string): void {
 export const moonScene: FilmScene = {
   id: 'moon',
   mount(ctx: FilmContext) {
-    terrain = ctx.makeStrokeSet({ style: { widthPx: 2.2 }, maxPoints: 640 });
+    terrain = ctx.makeStrokeSet({ style: { widthPx: 2.2 }, maxPoints: 720 });
     foreground = ctx.makeStrokeSet({ style: { widthPx: 2.4, dust: false }, maxPoints: 760 });
     figure = ctx.makeStrokeSet({
       style: { widthPx: 2.4, dust: false, wobbleAmp: 0.012, wobbleFreq: 1.2 },
@@ -611,7 +674,7 @@ export const moonScene: FilmScene = {
       maxPoints: 130,
     });
 
-    buildTerrain(terrain);
+    buildTerrain(terrain, ctx.look.hatchAngleRad);
     buildForeground(foreground, ctx.look.hatchAngleRad);
     buildFigure(figure);
     buildSkyPole(skyPole);
