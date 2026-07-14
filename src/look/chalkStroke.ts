@@ -233,7 +233,7 @@ export function createStrokeMaterials(look: LookParams, style: StrokeStyle): Str
     fragmentShader: CHALK_FRAGMENT,
     transparent: true,
     depthWrite: false,
-    depthTest: false,
+    depthTest: style.depthTest,
     blending: THREE.NormalBlending,
   });
 
@@ -247,7 +247,7 @@ export function createStrokeMaterials(look: LookParams, style: StrokeStyle): Str
     fragmentShader: DUST_FRAGMENT,
     transparent: true,
     depthWrite: false,
-    depthTest: false,
+    depthTest: style.depthTest,
     blending: THREE.NormalBlending,
   });
   dust.uniforms.uWidthMulGlobal.value = look.dustWidthMul;

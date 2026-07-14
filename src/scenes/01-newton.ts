@@ -5,33 +5,33 @@
  * A classic apple tree resolves out of the board. A heavy leaning trunk with a
  * double contour, a wide root flare and a light shade band rises into a big
  * lobed cloud of a canopy whose interior stays mostly empty; hatch patches and
- * loose leaf scribbles give it shaded mass, and small solid apples nest in the
+ * ragged leaf hatch runs give it shaded mass, and small solid apples nest in the
  * foliage. Newton, period wig and long coat and strictly from behind, sits
  * reading against the trunk base. The hero apple condenses out of the canopy,
  * drops, bonks his head, and bounces off to the ground beside him. He reacts
  * and stands as a hand drawn flipbook, then holds the apple up and looks at it.
  *
  * Everything is built once in mount and choreographed purely as a function of
- * local scroll progress, so the scene scrubs and deep links cleanly. Eight
+ * local scroll progress, so the scene scrubs and deep links cleanly. Seven
  * stroke sets:
- *   1. tree mass: trunk, canopy lobes, hatch, scribbles, nested apples, ground
- *   2. branch scaffold: draws during growth then un draws as the canopy takes
- *      over, so the finished crown carries no wiry branches
- *   3. the hero apple, authored around its origin and carried by a group
- *   4 to 8. five flipbook poses, each its own set, hard cut by opacity
+ *   1. tree mass: trunk, limb bases, canopy lobes, hatch, leaf runs, apples, ground
+ *   2. the hero apple, authored around its origin and carried by a group
+ *   3 to 7. five flipbook poses, each its own set, hard cut by opacity
+ * Plus an invisible depth occluder mesh (not a stroke set) so the frame two
+ * flythrough plane hides behind the crown contour.
  *
  * Beats are written as global t, the storyboard's own numbers, remapped into
- * this scene's [0.02, 0.34] range with g2l. Tree grows 0.04 to 0.21, the apple
+ * this scene's [0.02, 0.38] range with g2l. Tree grows 0.04 to 0.21, the apple
  * resolves 0.18 to 0.22 and falls onto his head by 0.255, bounces to rest by
  * 0.28, he rises across five poses 0.255 to 0.30 and holds the raised apple
- * from 0.30, and the whole frame holds to 0.34 while the camera tilts to sky.
+ * from 0.30, and the whole frame holds to 0.38 while the camera tilts to sky.
  */
 
 import * as THREE from 'three';
 import type { FilmContext, FilmScene, StrokeSetApi, StrokeStyle } from '../lib/types';
 import { FILM, REGIONS } from '../film.config';
 import { arcPoint } from './arc';
-import { blobOutline, hatchPatches, hatchQuad, scribbleLine } from '../look/hatch';
+import { blobOutline, hatchPatches, hatchQuad } from '../look/hatch';
 
 /* ------------------------------------------------------------------ */
 /* Range and remapping                                                 */
@@ -146,19 +146,6 @@ function curve(coords: number[][], baseX: number, baseY: number, seed: number, s
   return out;
 }
 
-/** A wobbly closed ring, used for the figure heads. */
-function ring(cx: number, cy: number, r: number, seed: number, segs: number): THREE.Vector3[] {
-  const rng = mulberry32(seed);
-  const start = rng() * Math.PI * 2;
-  const pts: THREE.Vector3[] = [];
-  for (let i = 0; i <= segs; i++) {
-    const ang = start + (i / segs) * Math.PI * 2;
-    const rr = r * (1 + (rng() - 0.5) * 0.14);
-    pts.push(new THREE.Vector3(cx + Math.cos(ang) * rr, cy + Math.sin(ang) * rr, 0));
-  }
-  return pts;
-}
-
 /** An inward spiral that fills its disk, so an apple reads as a solid mass. */
 function spiral(cx: number, cy: number, r: number, turns: number, seed: number): THREE.Vector3[] {
   const rng = mulberry32(seed);
@@ -187,12 +174,6 @@ function stretchX(pts: THREE.Vector3[], cx: number, f: number): THREE.Vector3[] 
 const TREE_SET_IN = 0.04; // the trunk starts drawing under the departing quote, no dead black
 const TREE_SET_OUT = 0.21; // tree mass fully drawn, then it holds
 
-// the branch scaffold draws during growth then un draws as the canopy takes over
-const SCAFFOLD_IN = 0.05;
-const SCAFFOLD_DRAWN = 0.15;
-const SCAFFOLD_OUT_IN = 0.16;
-const SCAFFOLD_OUT_OUT = 0.19;
-
 const APPLE_DRAW_IN = 0.18; // the hero apple resolves out of the foliage
 const APPLE_DRAW_OUT = 0.22;
 const FALL_IN = 0.22; // it lets go and falls along the arc
@@ -213,10 +194,8 @@ const P5_IN = 0.3; // upright, holding the apple raised, holds to 0.34
 const TRUNK_BAND: [number, number] = [0.0, 0.2];
 const CANOPY_BAND: [number, number] = [0.4, 0.64];
 const HATCH_BAND: [number, number] = [0.58, 0.84];
-const SCRIBBLE_BAND: [number, number] = [0.62, 0.92];
+const LEAF_BAND: [number, number] = [0.62, 0.92];
 const SCATTER_APPLE_BAND: [number, number] = [0.86, 1.0];
-// the branch scaffold occupies this much of its own set draw space, root first
-const SCAFFOLD_BAND: [number, number] = [0.0, 0.85];
 
 /* ------------------------------------------------------------------ */
 /* Stroke styles (one style per set, widths overridden per stroke)     */
@@ -245,7 +224,7 @@ function trunkCx(u: number): number {
   return TRUNK_TOP_X * u * u; // a gentle lean that grows toward the crown
 }
 
-function buildTrunk(set: StrokeSetApi): void {
+function buildTrunk(set: StrokeSetApi, angle: number): void {
   const rng = mulberry32(TRUNK_SEED);
   const N = 22;
   const left: THREE.Vector3[] = [];
@@ -260,6 +239,23 @@ function buildTrunk(set: StrokeSetApi): void {
   }
   set.addStroke(left, { widthPx: TRUNK_CONTOUR_W, drawWindow: bandWin(0.0, TRUNK_BAND[0], TRUNK_BAND[1], 0.14) });
   set.addStroke(right, { widthPx: TRUNK_CONTOUR_W, drawWindow: bandWin(0.06, TRUNK_BAND[0], TRUNK_BAND[1], 0.14) });
+
+  // the contours fork into heavy limb bases that continue up into the lobes and
+  // terminate inside the mass, so bark flows into crown as one body. These stay
+  // drawn as part of the tree mass and held.
+  const limbs: number[][][] = [
+    [[0.26, 4.5], [-0.05, 4.95], [-0.6, 5.45], [-0.95, 5.85]], // left fork, outer edge
+    [[0.42, 4.55], [0.18, 4.95], [-0.3, 5.4], [-0.62, 5.8]], // left fork, inner edge
+    [[0.4, 4.55], [0.62, 4.95], [1.0, 5.45], [1.22, 5.85]], // right fork, inner edge
+    [[0.54, 4.5], [0.85, 4.95], [1.3, 5.45], [1.52, 5.9]], // right fork, outer edge
+    [[0.4, 4.55], [0.36, 5.0], [0.32, 5.5]], // short middle limb into the low lobe
+  ];
+  for (let i = 0; i < limbs.length; i++) {
+    set.addStroke(curve(limbs[i], 0, 0, TRUNK_SEED + 70 + i, 4), {
+      widthPx: i === 4 ? 2.8 : 3.3,
+      drawWindow: bandWin(0.55 + i * 0.06, TRUNK_BAND[0], TRUNK_BAND[1], 0.16),
+    });
+  }
 
   // a wide, heavy root flare, the right side reaching toward the seated figure
   const flares: number[][][] = [
@@ -278,188 +274,123 @@ function buildTrunk(set: StrokeSetApi): void {
     });
   }
 
-  // a light hatch shade band down the left of the trunk
-  const shade = hatchQuad(
-    new THREE.Vector3(-TRUNK_HALF_BASE, 0.2, -0.02),
-    new THREE.Vector3(0.3, 0, 0),
-    new THREE.Vector3(0, 3.4, 0),
-    1.2,
-    0.16,
-    TRUNK_SEED + 60,
-  );
-  const shn = Math.max(1, shade.length - 1);
-  for (let i = 0; i < shade.length; i++) {
-    set.addStroke(shade[i], { widthPx: TRUNK_SHADE_W, drawWindow: bandWin(0.4 + (i / shn) * 0.5, TRUNK_BAND[0], TRUNK_BAND[1], 0.12) });
+  // a light hatch shade band inside the left half of the trunk, at the film
+  // angle, each short stroke kept strictly between the two contours
+  const shadeBoil = TRUNK_SEED + 60;
+  const shadeN = 12;
+  const sdx = Math.cos(angle);
+  const sdy = Math.sin(angle);
+  for (let i = 0; i < shadeN; i++) {
+    const u = 0.08 + (i / (shadeN - 1)) * 0.72;
+    const cx = trunkCx(u);
+    const cy = TRUNK_TOP_Y * u;
+    const hw = lerp(TRUNK_HALF_BASE, TRUNK_HALF_TOP, u);
+    const mx = cx - hw * 0.42;
+    const half = hw * 0.4;
+    set.addStroke(
+      [new THREE.Vector3(mx - sdx * half, cy - sdy * half, -0.02), new THREE.Vector3(mx + sdx * half, cy + sdy * half, -0.02)],
+      { widthPx: TRUNK_SHADE_W, boilSeed: shadeBoil, drawWindow: bandWin(0.4 + (i / shadeN) * 0.5, TRUNK_BAND[0], TRUNK_BAND[1], 0.12) },
+    );
   }
 
-  // short curved bark ticks between the contours
+  // short bark ticks kept well inside the contours, their own near-vertical way
   const bark = 18;
   for (let i = 0; i < bark; i++) {
     const u = 0.1 + rng() * 0.72;
     const cx = trunkCx(u);
     const cy = TRUNK_TOP_Y * u;
     const hw = lerp(TRUNK_HALF_BASE, TRUNK_HALF_TOP, u);
-    const bx = cx + (rng() - 0.5) * hw * 1.1;
-    const h = 0.14 + rng() * 0.22;
+    const bx = cx + (rng() - 0.5) * hw * 0.9;
+    const h = 0.1 + rng() * 0.16;
     const tick = [
       new THREE.Vector3(bx, cy - h * 0.5, 0.02),
-      new THREE.Vector3(bx + (rng() - 0.5) * 0.06, cy + h * 0.5, 0.02),
+      new THREE.Vector3(bx + (rng() - 0.5) * 0.05, cy + h * 0.5, 0.02),
     ];
     set.addStroke(tick, { widthPx: BARK_W, drawWindow: bandWin(0.05 + (i % 7) * 0.02, TRUNK_BAND[0], TRUNK_BAND[1], 0.12) });
   }
 
-  // one or two knot hints as tight little spirals
-  set.addStroke(spiral(trunkCx(0.4) + 0.03, TRUNK_TOP_Y * 0.4, 0.12, 2, TRUNK_SEED + 40), {
+  // knot hints as tight little spirals, well inside the contours
+  set.addStroke(spiral(trunkCx(0.4) + 0.03, TRUNK_TOP_Y * 0.4, 0.1, 2, TRUNK_SEED + 40), {
     widthPx: KNOT_W,
     drawWindow: bandWin(0.1, TRUNK_BAND[0], TRUNK_BAND[1], 0.12),
   });
-  set.addStroke(spiral(trunkCx(0.66) - 0.05, TRUNK_TOP_Y * 0.66, 0.09, 2, TRUNK_SEED + 41), {
+  set.addStroke(spiral(trunkCx(0.66) - 0.04, TRUNK_TOP_Y * 0.66, 0.08, 2, TRUNK_SEED + 41), {
     widthPx: KNOT_W,
     drawWindow: bandWin(0.13, TRUNK_BAND[0], TRUNK_BAND[1], 0.12),
   });
 }
 
 /* ------------------------------------------------------------------ */
-/* Branch scaffold: draws during growth, then un draws                 */
-/* ------------------------------------------------------------------ */
-
-const BRANCH_SEED = 1337;
-const BRANCH_MAX_DEPTH = 4;
-const BRANCH_ROOT_LEN = 1.7;
-const LENGTH_FALLOFF = 0.75;
-const BRANCH_SPREAD = 0.9;
-const BRANCH_JITTER = 0.4;
-const THREE_CHILD_CHANCE = 0.4;
-const TWIG_COUNT = 3;
-const TWIG_SPREAD = 1.2;
-const BRANCH_SEGS = 6;
-const BRANCH_CURVE = 0.14;
-const BRANCH_WOBBLE_AMP = 0.06;
-const BRANCH_WOBBLE_FREQ = 1.7;
-const BRANCH_Z_JITTER = 0.16;
-const BRANCH_BASE_W = 2.6;
-const BRANCH_TIP_W = 0.9;
-const BRANCH_MAX_STROKES = 200;
-const ORDER_JITTER = 0.85;
-
-interface Branch {
-  pts: THREE.Vector3[];
-  widthPx: number;
-  /** Growth order 0..1, base at 0 and outer twigs near 1. */
-  order: number;
-}
-
-function growBranch(
-  sx: number,
-  sy: number,
-  sz: number,
-  angle: number,
-  length: number,
-  depth: number,
-  rng: () => number,
-  out: Branch[],
-): void {
-  if (out.length >= BRANCH_MAX_STROKES) return;
-  const segs = Math.max(3, BRANCH_SEGS - depth);
-  const dx = Math.cos(angle);
-  const dy = Math.sin(angle);
-  const px = -dy;
-  const py = dx;
-  const phase = rng() * Math.PI * 2;
-  const bow = (rng() - 0.5) * 2 * BRANCH_CURVE;
-  const pts: THREE.Vector3[] = [];
-  for (let i = 0; i <= segs; i++) {
-    const u = i / segs;
-    const along = u * length;
-    const bend = Math.sin(u * Math.PI) * bow * length;
-    const wob = Math.sin(u * BRANCH_WOBBLE_FREQ * Math.PI + phase) * BRANCH_WOBBLE_AMP * length * (0.35 + 0.65 * u);
-    const off = bend + wob;
-    pts.push(
-      new THREE.Vector3(sx + dx * along + px * off, sy + dy * along + py * off, sz + (rng() - 0.5) * BRANCH_Z_JITTER * u),
-    );
-  }
-  const widthPx = lerp(BRANCH_BASE_W, BRANCH_TIP_W, depth / BRANCH_MAX_DEPTH);
-  const order = (depth + rng() * ORDER_JITTER) / (BRANCH_MAX_DEPTH + 1);
-  out.push({ pts, widthPx, order });
-  if (depth >= BRANCH_MAX_DEPTH) return;
-
-  const tip = pts[pts.length - 1];
-  if (depth === BRANCH_MAX_DEPTH - 1) {
-    for (let k = 0; k < TWIG_COUNT; k++) {
-      const frac = TWIG_COUNT > 1 ? k / (TWIG_COUNT - 1) - 0.5 : 0;
-      const a = angle + frac * TWIG_SPREAD + (rng() - 0.5) * BRANCH_JITTER;
-      growBranch(tip.x, tip.y, tip.z, a, length * LENGTH_FALLOFF * 0.8, depth + 1, rng, out);
-    }
-    return;
-  }
-
-  const n = rng() < THREE_CHILD_CHANCE ? 3 : 2;
-  for (let c = 0; c < n; c++) {
-    const frac = n > 1 ? c / (n - 1) - 0.5 : 0;
-    const a = angle + frac * BRANCH_SPREAD + (rng() - 0.5) * BRANCH_JITTER;
-    const l = length * LENGTH_FALLOFF * (0.85 + 0.3 * rng());
-    growBranch(tip.x, tip.y, tip.z, a, l, depth + 1, rng, out);
-  }
-}
-
-function buildScaffold(set: StrokeSetApi): void {
-  const branches: Branch[] = [];
-  growBranch(TRUNK_TOP_X, TRUNK_TOP_Y, 0, Math.PI / 2 - 0.12, BRANCH_ROOT_LEN, 0, mulberry32(BRANCH_SEED), branches);
-  branches.sort((a, b) => a.order - b.order);
-  for (const b of branches) {
-    set.addStroke(b.pts, { widthPx: b.widthPx, drawWindow: bandWin(b.order, SCAFFOLD_BAND[0], SCAFFOLD_BAND[1], 0.18) });
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* Canopy: lobed cloud, empty inside, hatch patches and leaf scribbles */
+/* Canopy: lobed cloud, empty inside, hatch patches and leaf runs      */
 /* ------------------------------------------------------------------ */
 
 const CANOPY_OUTLINE_W = 2.4;
-const CANOPY_HATCH_W = 2.4;
-const CANOPY_SCRIBBLE_W = 2.2;
+const CANOPY_HATCH_W = 2.2; // shading patches, midtone not flooded
+const CANOPY_LEAF_W = 1.8; // the ragged leaf hatch runs
 const CANOPY_XSTRETCH = 1.25; // wider than tall
 
 /** Overlapping closed lobes. The middle one is centered on the apple start. */
 const CANOPY_LOBES: { c: [number, number]; r: number; lobes: number; seed: number }[] = [
   { c: [-1.5, 6.2], r: 1.6, lobes: 7, seed: 301 },
   { c: [1.5, 6.25], r: 1.7, lobes: 8, seed: 302 },
-  { c: [0.3, 5.8], r: 1.5, lobes: 7, seed: 303 },
+  { c: [0.3, 5.4], r: 1.55, lobes: 7, seed: 303 }, // low lobe overlaps the trunk top
 ];
 
 /**
- * Directional hatch clustered low and inside each lobe. Denser than before,
- * around a third of the crown, so it reads as shaded mass with the interior
- * still mostly negative space. Each center sits at a lobe underside and
- * hatchPatches biases further down from there.
+ * Directional shading patches, low and inside each lobe, all at the film's one
+ * hatch angle. The board above stays bare shadow; this is the midtone mass held
+ * to about a third of the crown, not flooding it. Each center is a lobe
+ * underside and hatchPatches biases further down from there.
  */
 const CANOPY_HATCH: { c: [number, number]; r: number; count: number; pr: number; sp: number; seed: number }[] = [
-  { c: [-1.5, 5.4], r: 1.3, count: 4, pr: 0.44, sp: 0.16, seed: 311 },
-  { c: [1.5, 5.5], r: 1.4, count: 4, pr: 0.46, sp: 0.16, seed: 312 },
-  { c: [0.3, 5.0], r: 1.2, count: 4, pr: 0.44, sp: 0.15, seed: 313 },
-  { c: [-0.4, 5.9], r: 1.1, count: 4, pr: 0.42, sp: 0.16, seed: 314 },
+  { c: [-1.5, 5.4], r: 1.3, count: 3, pr: 0.44, sp: 0.16, seed: 311 },
+  { c: [1.5, 5.5], r: 1.4, count: 3, pr: 0.46, sp: 0.16, seed: 312 },
+  { c: [0.3, 5.0], r: 1.2, count: 3, pr: 0.44, sp: 0.15, seed: 313 },
+  { c: [-0.4, 5.9], r: 1.1, count: 3, pr: 0.42, sp: 0.16, seed: 314 },
 ];
 
-/** Loose leaf cluster runs, along the lobe interiors as well as the edges. */
-const CANOPY_SCRIBBLES: { a: [number, number]; b: [number, number]; amp: number; cyc: number; seed: number }[] = [
-  { a: [-2.7, 6.0], b: [-2.0, 5.6], amp: 0.14, cyc: 5, seed: 321 },
-  { a: [-0.8, 7.0], b: [-0.2, 7.1], amp: 0.12, cyc: 6, seed: 322 },
-  { a: [2.6, 6.4], b: [3.2, 6.1], amp: 0.14, cyc: 5, seed: 323 },
-  { a: [0.9, 4.6], b: [1.6, 4.7], amp: 0.12, cyc: 6, seed: 324 },
-  { a: [-1.8, 4.7], b: [-1.1, 4.6], amp: 0.13, cyc: 5, seed: 325 },
-  { a: [0.4, 7.2], b: [1.0, 7.0], amp: 0.12, cyc: 6, seed: 326 },
-  { a: [2.1, 5.0], b: [2.7, 5.2], amp: 0.13, cyc: 5, seed: 327 },
-  { a: [-3.0, 5.5], b: [-2.4, 5.6], amp: 0.12, cyc: 5, seed: 328 },
-  { a: [-1.9, 5.9], b: [-1.2, 5.7], amp: 0.13, cyc: 6, seed: 329 },
-  { a: [1.1, 5.9], b: [1.8, 5.8], amp: 0.13, cyc: 6, seed: 330 },
-  { a: [-0.2, 5.2], b: [0.6, 5.3], amp: 0.12, cyc: 5, seed: 340 },
-  { a: [0.7, 5.6], b: [1.3, 5.5], amp: 0.12, cyc: 6, seed: 341 },
-  { a: [-0.9, 6.4], b: [-0.3, 6.5], amp: 0.13, cyc: 6, seed: 342 },
-  { a: [1.7, 6.6], b: [2.3, 6.5], amp: 0.12, cyc: 5, seed: 343 },
-  { a: [-2.2, 6.5], b: [-1.6, 6.4], amp: 0.12, cyc: 6, seed: 344 },
+/**
+ * Leaf cluster runs, now short parallel hatch at the film angle instead of
+ * zigzag scribble, per the style brief (no scribble for tone). The leaf-cluster
+ * energy comes from ragged grouping, and every clump sits low and inside the
+ * lobes, off the top rim.
+ */
+const CANOPY_LEAVES: { c: [number, number]; n: number; len: number; sp: number; seed: number }[] = [
+  { c: [-1.8, 5.5], n: 5, len: 0.34, sp: 0.14, seed: 351 },
+  { c: [-1.1, 5.15], n: 4, len: 0.3, sp: 0.14, seed: 352 },
+  { c: [-0.5, 5.6], n: 5, len: 0.32, sp: 0.14, seed: 353 },
+  { c: [0.1, 5.05], n: 4, len: 0.3, sp: 0.13, seed: 354 },
+  { c: [0.7, 5.5], n: 6, len: 0.34, sp: 0.14, seed: 355 },
+  { c: [1.3, 5.15], n: 4, len: 0.3, sp: 0.13, seed: 356 },
+  { c: [1.9, 5.5], n: 5, len: 0.32, sp: 0.14, seed: 357 },
+  { c: [-0.9, 4.85], n: 3, len: 0.28, sp: 0.13, seed: 358 },
+  { c: [0.9, 4.8], n: 4, len: 0.3, sp: 0.13, seed: 359 },
+  { c: [-2.1, 5.15], n: 3, len: 0.28, sp: 0.13, seed: 360 },
 ];
 
-function buildCanopy(set: StrokeSetApi): void {
+/** A ragged clump of short parallel strokes at the given angle, one leaf cluster. */
+function hatchRun(cx: number, cy: number, count: number, len: number, spacing: number, angle: number, seed: number): THREE.Vector3[][] {
+  const rng = mulberry32(seed);
+  const dx = Math.cos(angle);
+  const dy = Math.sin(angle);
+  const nx = -dy;
+  const ny = dx;
+  const out: THREE.Vector3[][] = [];
+  for (let i = 0; i < count; i++) {
+    const off = (i - (count - 1) / 2) * spacing + (rng() - 0.5) * spacing * 0.5;
+    const l = len * (0.6 + 0.6 * rng());
+    const mx = cx + nx * off + (rng() - 0.5) * 0.1;
+    const my = cy + ny * off + (rng() - 0.5) * 0.1;
+    out.push([
+      new THREE.Vector3(mx - dx * l * 0.5, my - dy * l * 0.5, 0),
+      new THREE.Vector3(mx + dx * l * 0.5, my + dy * l * 0.5, 0),
+    ]);
+  }
+  return out;
+}
+
+function buildCanopy(set: StrokeSetApi, angle: number): void {
+  // the scallop contours, the only thing that draws the crown silhouette
   for (let i = 0; i < CANOPY_LOBES.length; i++) {
     const lo = CANOPY_LOBES[i];
     const center = new THREE.Vector3(lo.c[0], lo.c[1], 0);
@@ -468,21 +399,30 @@ function buildCanopy(set: StrokeSetApi): void {
     set.addStroke(pts, { widthPx: CANOPY_OUTLINE_W, drawWindow: bandWin(t, CANOPY_BAND[0], CANOPY_BAND[1], 0.18) });
   }
 
-  const patchLines: THREE.Vector3[][] = [];
-  for (const p of CANOPY_HATCH) {
-    const lines = hatchPatches(new THREE.Vector3(p.c[0], p.c[1], 0), p.r, p.count, p.pr, p.sp, p.seed);
-    for (let i = 0; i < lines.length; i++) patchLines.push(lines[i]);
+  // shading patches at the one hatch angle, each cluster re-registering as a unit
+  const clusters: { lines: THREE.Vector3[][]; ci: number }[] = [];
+  let total = 0;
+  for (let ci = 0; ci < CANOPY_HATCH.length; ci++) {
+    const p = CANOPY_HATCH[ci];
+    const lines = hatchPatches(new THREE.Vector3(p.c[0], p.c[1], 0), p.r, p.count, p.pr, p.sp, p.seed, angle);
+    clusters.push({ lines, ci });
+    total += lines.length;
   }
-  const hn = Math.max(1, patchLines.length - 1);
-  for (let i = 0; i < patchLines.length; i++) {
-    set.addStroke(patchLines[i], { widthPx: CANOPY_HATCH_W, drawWindow: bandWin(i / hn, HATCH_BAND[0], HATCH_BAND[1], 0.14) });
+  const hn = Math.max(1, total - 1);
+  let gi = 0;
+  for (const cl of clusters) {
+    for (const line of cl.lines) {
+      set.addStroke(line, { widthPx: CANOPY_HATCH_W, boilSeed: 600 + cl.ci, drawWindow: bandWin(gi / hn, HATCH_BAND[0], HATCH_BAND[1], 0.14) });
+      gi++;
+    }
   }
 
-  const sn = Math.max(1, CANOPY_SCRIBBLES.length - 1);
-  for (let i = 0; i < CANOPY_SCRIBBLES.length; i++) {
-    const s = CANOPY_SCRIBBLES[i];
-    const line = scribbleLine(new THREE.Vector3(s.a[0], s.a[1], 0), new THREE.Vector3(s.b[0], s.b[1], 0), s.amp, s.cyc, s.seed);
-    set.addStroke(line, { widthPx: CANOPY_SCRIBBLE_W, drawWindow: bandWin(i / sn, SCRIBBLE_BAND[0], SCRIBBLE_BAND[1], 0.16) });
+  // ragged leaf hatch runs, low and inside, each clump boiling as one unit
+  const ln = Math.max(1, CANOPY_LEAVES.length - 1);
+  for (let i = 0; i < CANOPY_LEAVES.length; i++) {
+    const lf = CANOPY_LEAVES[i];
+    const runs = hatchRun(lf.c[0], lf.c[1], lf.n, lf.len, lf.sp, angle, lf.seed);
+    for (const r of runs) set.addStroke(r, { widthPx: CANOPY_LEAF_W, boilSeed: 700 + i, drawWindow: bandWin(i / ln, LEAF_BAND[0], LEAF_BAND[1], 0.16) });
   }
 }
 
@@ -552,122 +492,94 @@ function pulseAt(local: number, gCenter: number, gWidth: number): number {
 /* ------------------------------------------------------------------ */
 
 const FIG_X = 0.75; // world x of the figure, at the trunk base
-const FIG_WIDTH = 2.5;
-const WIG_W = 2.8; // the wig mass reads a touch heavier
+const FIG_WIDTH = 2.7; // wider so the figure holds against the trunk's weight
+const WIG_W = 2.8; // the wig curls read a touch heavier
 const POSE_SUBDIV = 5; // catmull samples per control segment
 
 interface Pose {
-  /** Head circle in local space: x offset, y, radius. */
-  head: [number, number, number];
+  /** Count of leading strokes that are wig curls, drawn a touch heavier. */
+  wig: number;
+  /** Master-sketch curves: about eight long connected lines, wig curls first. */
   strokes: number[][][];
   /** The raised apple in pose five, local x, y, radius. */
   held?: [number, number, number];
 }
 
-// pose one: seated reading, leaning on the trunk, head crown pinned to arc.end
-// ([0.85, 1.12] world, so head center is [0.10, 0.95] local at FIG_X 0.75)
+// pose one: seated reading, leaning on the trunk. The wig crown is pinned to
+// arc.end ([0.85, 1.12] world) so the apple bonks it; nothing rises above y1.12
 const POSE1: Pose = {
-  head: [0.1, 0.95, 0.17],
+  wig: 2,
   strokes: [
-    [[-0.1, 1.08], [-0.15, 0.95], [-0.08, 0.85]], // left wig curl
-    [[0.28, 1.06], [0.33, 0.93], [0.25, 0.84]], // right wig curl
-    [[-0.05, 0.86], [0.1, 0.82], [0.26, 0.86]], // wig at the nape
-    [[0.02, 0.82], [-0.04, 0.62], [-0.01, 0.42], [0.06, 0.3]], // coat back, leaning on the trunk
-    [[-0.12, 0.8], [0.1, 0.86], [0.3, 0.82]], // broad coat shoulders
-    [[0.04, 0.6], [0.06, 0.42], [0.08, 0.3]], // coat vent
-    [[-0.14, 0.32], [0.08, 0.26], [0.34, 0.3], [0.54, 0.36]], // coat skirt on the ground
-    [[-0.1, 0.78], [0.04, 0.6], [0.22, 0.5]], // left arm holding a book
-    [[0.28, 0.78], [0.36, 0.6], [0.26, 0.5]], // right arm holding a book
-    [[0.16, 0.5], [0.34, 0.52], [0.46, 0.48]], // the book on his lap
-    [[0.14, 0.3], [0.54, 0.26], [0.94, 0.14], [1.16, 0.08]], // near leg extended
-    [[0.18, 0.28], [0.54, 0.18], [0.89, 0.1], [1.06, 0.06]], // far leg
-    [[1.16, 0.08], [1.32, 0.06]], // near foot
-    [[1.06, 0.06], [1.22, 0.045]], // far foot
+    [[-0.04, 0.98], [-0.02, 1.1], [0.1, 1.12], [0.2, 1.08], [0.24, 0.96]], // wig dome over the crown
+    [[-0.02, 0.94], [0.1, 0.9], [0.22, 0.94]], // nested wig curl at the nape
+    [[0.1, 1.1], [0.02, 0.88], [-0.03, 0.64], [0.02, 0.44], [0.1, 0.33]], // crown down the back to the seat
+    [[-0.08, 0.82], [0.08, 0.66], [0.28, 0.56], [0.42, 0.52]], // near arm sweeping to the book
+    [[0.26, 0.82], [0.36, 0.64], [0.42, 0.54]], // far arm to the book
+    [[-0.12, 0.34], [0.14, 0.28], [0.4, 0.32], [0.56, 0.4]], // coat skirt on the ground
+    [[0.14, 0.34], [0.54, 0.28], [0.96, 0.15], [1.22, 0.08]], // near leg extended into the ground
+    [[0.18, 0.3], [0.54, 0.2], [0.9, 0.11], [1.08, 0.06]], // far leg
   ],
 };
 
-// pose two: startled, head ducked, one hand thrown up over the bonk
+// pose two: startled, head ducked, one arm thrown up over the bonk
 const POSE2: Pose = {
-  head: [0.07, 0.82, 0.17],
+  wig: 2,
   strokes: [
-    [[-0.12, 0.94], [-0.17, 0.82], [-0.1, 0.73]], // left wig curl
-    [[0.24, 0.93], [0.29, 0.8], [0.21, 0.72]], // right wig curl
-    [[-0.08, 0.73], [0.07, 0.7], [0.22, 0.74]], // wig at the nape
-    [[0.0, 0.7], [-0.06, 0.52], [-0.02, 0.36], [0.06, 0.28]], // coat back, hunched
-    [[-0.16, 0.72], [0.06, 0.8], [0.28, 0.74]], // shoulders shrugged up
-    [[0.04, 0.52], [0.06, 0.38], [0.08, 0.28]], // coat vent
-    [[-0.16, 0.3], [0.08, 0.24], [0.34, 0.28], [0.54, 0.34]], // coat skirt
-    [[0.26, 0.74], [0.32, 1.0], [0.24, 1.28], [0.16, 1.44]], // right arm up over his head
-    [[-0.12, 0.7], [-0.2, 0.45], [-0.24, 0.24]], // left arm bracing
-    [[0.14, 0.28], [0.49, 0.24], [0.84, 0.16], [1.04, 0.1]], // near leg pulling in
-    [[0.18, 0.26], [0.49, 0.16], [0.79, 0.1], [0.96, 0.07]], // far leg
-    [[1.04, 0.1], [1.19, 0.08]], // near foot
-    [[0.96, 0.07], [1.1, 0.05]], // far foot
-    [[0.39, 0.16], [0.56, 0.12]], // the dropped book
+    [[-0.06, 0.86], [-0.04, 0.97], [0.06, 0.99], [0.16, 0.96], [0.2, 0.85]], // wig dome, ducked
+    [[-0.04, 0.82], [0.06, 0.78], [0.16, 0.82]], // nested wig curl
+    [[0.06, 0.96], [-0.01, 0.78], [-0.05, 0.56], [0.0, 0.4], [0.08, 0.3]], // crown down the hunched back
+    [[0.18, 0.74], [0.3, 1.02], [0.26, 1.32], [0.15, 1.5]], // one bold arm thrown up over the head
+    [[-0.1, 0.72], [-0.2, 0.48], [-0.26, 0.28]], // other arm bracing down
+    [[-0.14, 0.3], [0.1, 0.24], [0.36, 0.28], [0.54, 0.34]], // coat skirt
+    [[0.12, 0.32], [0.46, 0.26], [0.82, 0.15], [1.02, 0.1]], // near leg pulling in
+    [[0.16, 0.28], [0.46, 0.18], [0.78, 0.11], [0.95, 0.07]], // far leg
   ],
 };
 
 // pose three: rising, knees bent, one hand planted on the ground
 const POSE3: Pose = {
-  head: [0.18, 1.35, 0.17],
+  wig: 2,
   strokes: [
-    [[-0.02, 1.48], [-0.07, 1.35], [0.0, 1.25]], // left wig curl
-    [[0.38, 1.46], [0.43, 1.33], [0.35, 1.24]], // right wig curl
-    [[0.03, 1.25], [0.18, 1.22], [0.33, 1.26]], // wig at the nape
-    [[0.15, 1.22], [0.08, 0.98], [0.03, 0.72], [0.05, 0.5]], // coat back, tipping forward
-    [[-0.01, 1.2], [0.19, 1.26], [0.37, 1.18]], // shoulders
-    [[0.08, 0.95], [0.07, 0.7], [0.08, 0.52]], // coat vent
-    [[-0.08, 0.5], [0.09, 0.42], [0.27, 0.46], [0.43, 0.52]], // coat skirt hanging
-    [[0.01, 1.15], [-0.12, 0.7], [-0.22, 0.3], [-0.26, 0.06]], // left arm planted on the ground
-    [[0.35, 1.16], [0.45, 0.85], [0.43, 0.6]], // right arm pushing off the knee
-    [[0.13, 0.5], [0.38, 0.62], [0.53, 0.4], [0.45, 0.08]], // near leg bent, knee up
-    [[0.17, 0.48], [0.37, 0.55], [0.49, 0.35], [0.43, 0.06]], // far leg bent
-    [[0.45, 0.08], [0.63, 0.06]], // near foot
-    [[0.43, 0.06], [0.59, 0.045]], // far foot
-    [[-0.26, 0.06], [-0.16, 0.05]], // the planted hand
+    [[0.06, 1.48], [0.08, 1.59], [0.18, 1.61], [0.28, 1.58], [0.32, 1.46]], // wig dome
+    [[0.08, 1.44], [0.18, 1.4], [0.28, 1.44]], // nested wig curl
+    [[0.18, 1.58], [0.12, 1.4], [0.06, 1.1], [0.05, 0.82], [0.07, 0.58]], // crown down the pitched-forward back
+    [[0.03, 1.3], [-0.1, 0.9], [-0.2, 0.42], [-0.26, 0.08]], // one arm planted on the ground
+    [[0.34, 1.3], [0.44, 0.98], [0.46, 0.7]], // other arm pushing off the knee
+    [[-0.06, 0.58], [0.12, 0.48], [0.3, 0.52], [0.42, 0.6]], // coat skirt
+    [[0.1, 0.58], [0.42, 0.68], [0.54, 0.42], [0.47, 0.08]], // near leg, knee up, into the ground
+    [[0.16, 0.54], [0.4, 0.58], [0.5, 0.36], [0.45, 0.06]], // far leg
   ],
 };
 
 // pose four: standing, bent from the waist, reaching for the apple at [1.55, 0.1]
 const POSE4: Pose = {
-  head: [0.38, 1.6, 0.17],
+  wig: 2,
   strokes: [
-    [[0.18, 1.72], [0.13, 1.6], [0.2, 1.5]], // left wig curl
-    [[0.56, 1.7], [0.61, 1.57], [0.53, 1.48]], // right wig curl
-    [[0.22, 1.5], [0.37, 1.47], [0.52, 1.5]], // wig at the nape
-    [[0.32, 1.47], [0.24, 1.2], [0.14, 0.98], [0.08, 0.85]], // coat back, bent forward
-    [[0.18, 1.46], [0.36, 1.5], [0.52, 1.42]], // shoulders
-    [[0.16, 1.15], [0.1, 0.95], [0.08, 0.82]], // coat vent
-    [[-0.04, 0.82], [0.12, 0.72], [0.3, 0.76], [0.44, 0.84]], // coat skirt swinging forward
-    [[0.46, 1.44], [0.6, 1.0], [0.7, 0.5], [0.8, 0.12]], // reaching arm down to the apple
-    [[0.2, 1.44], [0.07, 1.1], [-0.03, 0.85]], // trailing arm as counterweight
-    [[0.02, 0.8], [0.02, 0.45], [0.02, 0.06]], // left leg
-    [[0.2, 0.8], [0.22, 0.45], [0.24, 0.06]], // right leg
-    [[0.02, 0.06], [-0.1, 0.03]], // left shoe
-    [[0.24, 0.06], [0.36, 0.03]], // right shoe
+    [[0.3, 1.66], [0.32, 1.77], [0.42, 1.79], [0.52, 1.76], [0.56, 1.64]], // wig dome, head forward
+    [[0.32, 1.6], [0.42, 1.56], [0.52, 1.6]], // nested wig curl
+    [[0.42, 1.76], [0.34, 1.48], [0.2, 1.18], [0.1, 0.98], [0.05, 0.82]], // crown down the bent back
+    [[0.5, 1.5], [0.64, 1.05], [0.74, 0.55], [0.8, 0.12]], // reaching arm all the way to the apple
+    [[0.22, 1.5], [0.09, 1.15], [-0.02, 0.86]], // trailing arm as counterweight
+    [[-0.02, 0.82], [0.16, 0.7], [0.36, 0.74], [0.48, 0.84]], // coat skirt swinging forward
+    [[0.05, 0.82], [0.03, 0.44], [0.02, 0.06]], // near leg into the ground
+    [[0.22, 0.82], [0.24, 0.44], [0.26, 0.06]], // far leg
   ],
 };
 
-// pose five: upright, holding the apple raised, looking at it, held to 0.34
+// pose five: upright, the apple raised clear above the wig, held to 0.38. He
+// stands about 15 percent taller here (crown near y2.82) than the earlier build
 const POSE5: Pose = {
-  head: [0.06, 2.28, 0.17],
-  held: [0.5, 2.32, 0.15],
+  wig: 2,
+  held: [0.66, 3.12, 0.16],
   strokes: [
-    [[-0.12, 2.4], [-0.17, 2.27], [-0.1, 2.17]], // left wig curl
-    [[0.26, 2.4], [0.31, 2.27], [0.22, 2.17]], // right wig curl
-    [[-0.08, 2.17], [0.07, 2.14], [0.22, 2.18]], // wig at the nape
-    [[0.03, 2.14], [0.01, 1.75], [0.01, 1.35], [0.0, 1.05]], // coat back, upright
-    [[-0.22, 2.1], [0.05, 2.16], [0.32, 2.1]], // shoulders
-    [[-0.24, 2.08], [-0.28, 1.55], [-0.32, 1.05]], // coat left side
-    [[0.32, 2.08], [0.35, 1.6], [0.37, 1.1]], // coat right side
-    [[-0.32, 1.05], [0.0, 0.98], [0.37, 1.05]], // coat skirt hem
-    [[0.0, 1.45], [0.0, 1.1], [0.0, 0.95]], // coat vent
-    [[-0.24, 2.06], [-0.3, 1.6], [-0.3, 1.2]], // left arm at his side
-    [[0.28, 2.05], [0.46, 1.98], [0.48, 2.22]], // right arm raised, holding the apple
-    [[-0.12, 0.95], [-0.13, 0.5], [-0.14, 0.06]], // left leg
-    [[0.12, 0.95], [0.13, 0.5], [0.14, 0.06]], // right leg
-    [[-0.14, 0.06], [-0.26, 0.03]], // left shoe
-    [[0.14, 0.06], [0.26, 0.03]], // right shoe
+    [[-0.1, 2.68], [-0.06, 2.8], [0.06, 2.82], [0.18, 2.79], [0.22, 2.66]], // wig dome at the crown
+    [[-0.08, 2.62], [0.06, 2.58], [0.2, 2.62]], // nested wig curl
+    [[0.06, 2.78], [0.03, 2.3], [0.01, 1.8], [0.0, 1.35], [0.0, 1.0]], // crown straight down the back
+    [[0.24, 2.52], [0.48, 2.66], [0.6, 2.92], [0.64, 3.04]], // raised arm, elbow high, up to the apple
+    [[-0.24, 2.5], [-0.3, 2.0], [-0.3, 1.5]], // other arm at his side
+    [[-0.26, 2.45], [-0.32, 1.7], [-0.34, 1.08], [0.0, 1.0], [0.34, 1.08]], // coat left side sweeping to the hem
+    [[-0.1, 1.0], [-0.12, 0.5], [-0.14, 0.06]], // near leg into the ground
+    [[0.12, 1.0], [0.13, 0.5], [0.14, 0.06]], // far leg
   ],
 };
 
@@ -675,9 +587,9 @@ const POSES: Pose[] = [POSE1, POSE2, POSE3, POSE4, POSE5];
 const POSE_SEED_BASE = 4100;
 
 function buildPose(set: StrokeSetApi, pose: Pose, seed: number): void {
-  set.addStroke(ring(FIG_X + pose.head[0], pose.head[1], pose.head[2], seed, 18), { widthPx: WIG_W, drawWindow: dw(0, 1) });
   for (let i = 0; i < pose.strokes.length; i++) {
-    set.addStroke(curve(pose.strokes[i], FIG_X, 0, seed + i + 1, POSE_SUBDIV), { widthPx: FIG_WIDTH, drawWindow: dw(0, 1) });
+    const w = i < pose.wig ? WIG_W : FIG_WIDTH;
+    set.addStroke(curve(pose.strokes[i], FIG_X, 0, seed + i + 1, POSE_SUBDIV), { widthPx: w, drawWindow: dw(0, 1) });
   }
   if (pose.held) {
     set.addStroke(spiral(FIG_X + pose.held[0], pose.held[1], pose.held[2], 3, seed + 500), { widthPx: APPLE_FILL_W, drawWindow: dw(0, 1) });
@@ -686,39 +598,34 @@ function buildPose(set: StrokeSetApi, pose: Pose, seed: number): void {
 }
 
 /* ------------------------------------------------------------------ */
-/* Ground: a hatched band, grass fans, a horizon further back          */
+/* Ground: a hatched band at the film angle, plus a horizon             */
 /* ------------------------------------------------------------------ */
 
 const GROUND_SEED = 7007;
-const GROUND_X0 = -4.5;
-const GROUND_X1 = 6.5;
+const GROUND_X0 = -14; // the band spans the full visible ground at the frame 1 framings
+const GROUND_X1 = 16;
 const GROUND_Y_LO = -0.45;
 const GROUND_Y_HI = 0.35;
-const GROUND_HATCH_ANGLE = 0.6;
 const GROUND_HATCH_SPACING = 0.28;
 const GROUND_HATCH_W = 1.2;
 const GROUND_BAND: [number, number] = [0.0, 0.16]; // ground draws early with the trunk
-const HORIZON_X0 = -9;
-const HORIZON_X1 = 11;
+const HORIZON_X0 = -15;
+const HORIZON_X1 = 17;
 const HORIZON_Y = 0.25;
 const HORIZON_W = 1.8;
-const GRASS_CLUSTERS = [0, FIG_X, LAND_X];
-const GRASS_PER = 4;
-const GRASS_SPREAD = 1.2;
-const GRASS_MIN = 0.12;
-const GRASS_VAR = 0.18;
-const GRASS_W = 1.4;
 
-function buildGround(set: StrokeSetApi): void {
+function buildGround(set: StrokeSetApi, angle: number): void {
+  // one hatched ground band at the film angle, boiling as a single unit
   const corner = new THREE.Vector3(GROUND_X0, GROUND_Y_LO, 0);
   const uDir = new THREE.Vector3(GROUND_X1 - GROUND_X0, 0, 0);
   const vDir = new THREE.Vector3(0, GROUND_Y_HI - GROUND_Y_LO, 0);
-  const band = hatchQuad(corner, uDir, vDir, GROUND_HATCH_ANGLE, GROUND_HATCH_SPACING, GROUND_SEED);
+  const band = hatchQuad(corner, uDir, vDir, angle, GROUND_HATCH_SPACING, GROUND_SEED);
   const bn = Math.max(1, band.length - 1);
   for (let i = 0; i < band.length; i++) {
-    set.addStroke(band[i], { widthPx: GROUND_HATCH_W, drawWindow: bandWin(i / bn, GROUND_BAND[0], GROUND_BAND[1], 0.08) });
+    set.addStroke(band[i], { widthPx: GROUND_HATCH_W, boilSeed: GROUND_SEED, drawWindow: bandWin(i / bn, GROUND_BAND[0], GROUND_BAND[1], 0.08) });
   }
 
+  // a single faint horizon further back, the only other mark on the ground
   const rng = mulberry32(GROUND_SEED + 1);
   const horizon: THREE.Vector3[] = [];
   const steps = 40;
@@ -727,20 +634,52 @@ function buildGround(set: StrokeSetApi): void {
     horizon.push(new THREE.Vector3(lerp(HORIZON_X0, HORIZON_X1, u), HORIZON_Y + (rng() - 0.5) * 0.08, -1.0));
   }
   set.addStroke(horizon, { widthPx: HORIZON_W, drawWindow: dw(0.0, 0.08) });
+}
 
-  let gi = 0;
-  for (const cx of GRASS_CLUSTERS) {
-    for (let k = 0; k < GRASS_PER; k++) {
-      const bx = cx + (rng() - 0.5) * GRASS_SPREAD;
-      const h = GRASS_MIN + rng() * GRASS_VAR;
-      for (let f = 0; f < 3; f++) {
-        const lean = (f - 1) * 0.16 + (rng() - 0.5) * 0.08;
-        const tuft = [new THREE.Vector3(bx, 0, 0.02), new THREE.Vector3(bx + lean * h, h * (0.8 + 0.3 * rng()), 0.02)];
-        set.addStroke(tuft, { widthPx: GRASS_W, drawWindow: bandWin(0.02 + (gi % 5) * 0.02, GROUND_BAND[0], GROUND_BAND[1], 0.08) });
-      }
-      gi++;
-    }
+/* ------------------------------------------------------------------ */
+/* Depth occluder: an invisible solid of the tree, for the flythrough  */
+/* ------------------------------------------------------------------ */
+
+// The flythrough plane depth-tests against this. It writes only depth, in the
+// opaque pass, so the plane is hidden behind the tree's silhouette and its lines
+// stop at the crown contour. None of the tree's own stroke sets depth-test, so
+// they draw exactly as before.
+const OCCLUDER_ON = 0.2; // gate it on once the canopy is complete
+
+let occluder: THREE.Group;
+let occluderMat: THREE.MeshBasicMaterial;
+
+function buildOccluder(): THREE.Group {
+  occluderMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: true, depthTest: true });
+  const g = new THREE.Group();
+
+  // one filled shape per canopy lobe, the same outline the contour draws
+  for (const lo of CANOPY_LOBES) {
+    const pts = stretchX(blobOutline(new THREE.Vector3(lo.c[0], lo.c[1], 0), lo.r, lo.lobes, lo.seed), lo.c[0], CANOPY_XSTRETCH);
+    const shape = new THREE.Shape();
+    shape.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) shape.lineTo(pts[i].x, pts[i].y);
+    shape.closePath();
+    g.add(new THREE.Mesh(new THREE.ShapeGeometry(shape), occluderMat));
   }
+
+  // the trunk band, closed across the flared base
+  const trunk = new THREE.Shape();
+  const steps = 16;
+  trunk.moveTo(-0.9, 0);
+  for (let i = 0; i <= steps; i++) {
+    const u = i / steps;
+    trunk.lineTo(trunkCx(u) - lerp(TRUNK_HALF_BASE, TRUNK_HALF_TOP, u), TRUNK_TOP_Y * u);
+  }
+  for (let i = steps; i >= 0; i--) {
+    const u = i / steps;
+    trunk.lineTo(trunkCx(u) + lerp(TRUNK_HALF_BASE, TRUNK_HALF_TOP, u), TRUNK_TOP_Y * u);
+  }
+  trunk.lineTo(0.95, 0);
+  trunk.closePath();
+  g.add(new THREE.Mesh(new THREE.ShapeGeometry(trunk), occluderMat));
+
+  return g;
 }
 
 /* ------------------------------------------------------------------ */
@@ -753,7 +692,6 @@ const _p = new THREE.Vector3();
 let root: THREE.Group;
 let appleGroup: THREE.Group;
 let treeSet: StrokeSetApi;
-let scaffoldSet: StrokeSetApi;
 let appleSet: StrokeSetApi;
 let poseSets: StrokeSetApi[] = [];
 let allSets: StrokeSetApi[] = [];
@@ -795,39 +733,39 @@ export const newtonScene: FilmScene = {
     appleGroup = new THREE.Group();
 
     treeSet = ctx.makeStrokeSet({ style: TREE_STYLE, maxPoints: 9000 });
-    scaffoldSet = ctx.makeStrokeSet({ style: TREE_STYLE, maxPoints: 1500 });
     appleSet = ctx.makeStrokeSet({ style: APPLE_STYLE, maxPoints: 300 });
     poseSets = POSES.map(() => ctx.makeStrokeSet({ style: FIG_STYLE, maxPoints: 800 }));
 
-    buildTrunk(treeSet);
-    buildCanopy(treeSet);
+    const hatchAngle = ctx.look.hatchAngleRad;
+    buildTrunk(treeSet, hatchAngle);
+    buildCanopy(treeSet, hatchAngle);
     buildScatterApples(treeSet);
-    buildGround(treeSet);
-    buildScaffold(scaffoldSet);
+    buildGround(treeSet, hatchAngle);
     buildHeroApple(appleSet);
     for (let i = 0; i < POSES.length; i++) buildPose(poseSets[i], POSES[i], POSE_SEED_BASE + i * 100);
 
     root.add(treeSet.object3d);
-    root.add(scaffoldSet.object3d);
     appleGroup.add(appleSet.object3d);
     root.add(appleGroup);
     for (const p of poseSets) root.add(p.object3d);
 
+    occluder = buildOccluder();
+    occluder.visible = false; // gated on in update once the canopy is complete
+    root.add(occluder);
+
     treeSet.setOpacity(1);
-    scaffoldSet.setOpacity(1);
     appleSet.setOpacity(1);
     for (const p of poseSets) p.setOpacity(0); // hidden until their flipbook frame
 
-    allSets = [treeSet, scaffoldSet, appleSet, ...poseSets];
+    allSets = [treeSet, appleSet, ...poseSets];
     ctx.three.scene.add(root);
   },
 
   update(local: number, _global: number, ctx: FilmContext) {
     if (!mounted) return;
 
-    // the tree mass draws and holds; the scaffold draws then un draws under it
+    // the tree mass draws and holds
     treeSet.setDraw(ramp(local, TREE_SET_IN, TREE_SET_OUT));
-    scaffoldSet.setDraw(ramp(local, SCAFFOLD_IN, SCAFFOLD_DRAWN) * (1 - ramp(local, SCAFFOLD_OUT_IN, SCAFFOLD_OUT_OUT)));
     // the hero apple resolves out of the foliage, then un draws as he lifts it
     appleSet.setDraw(ramp(local, APPLE_DRAW_IN, APPLE_DRAW_OUT) * (1 - ramp(local, APPLE_HIDE_IN, APPLE_HIDE_OUT)));
     updateApple(local);
@@ -838,6 +776,10 @@ export const newtonScene: FilmScene = {
     poseSets[2].setOpacity(within(local, P3_IN, P4_IN));
     poseSets[3].setOpacity(within(local, P4_IN, P5_IN));
     poseSets[4].setOpacity(local >= g2l(P5_IN) ? 1 : 0);
+
+    // the depth occluder is on once the canopy is complete, hiding the flythrough
+    // plane where it slides behind the crown
+    occluder.visible = local >= g2l(OCCLUDER_ON);
 
     // one update per set per frame keeps the boil and the px widths correct
     const time = ctx.time();
@@ -853,6 +795,10 @@ export const newtonScene: FilmScene = {
   dispose() {
     if (!mounted) return;
     for (const s of allSets) s.dispose();
+    occluder.traverse((o) => {
+      if (o instanceof THREE.Mesh) o.geometry.dispose();
+    });
+    occluderMat.dispose();
     root.removeFromParent();
     mounted = false;
   },

@@ -3,7 +3,7 @@
  * a number here, nothing else moves. Global t runs 0..1 over the scroll.
  *
  * Beat map (from the brief):
- * 0.00 quote held on black          0.46 match cut: ribs become tread
+ * 0.00 quote held on black          0.47 boot cutout: ribs become tread
  * 0.05 sapling draws itself         0.52 sole presses, pull back to print
  * 0.10 tree grows, camera orbits    0.58 lunar wide, distant figure
  * 0.18 apple resolves, caption      0.68 flag rises, the only color
@@ -35,9 +35,9 @@ export const FILM = {
   refAspect: 1.6,
 
   scenes: [
-    { id: 'newton', range: [0.02, 0.34] },
-    { id: 'flyer', range: [0.295, 0.48] },
-    { id: 'boot', range: [0.455, 0.62] },
+    { id: 'newton', range: [0.02, 0.38] },
+    { id: 'flyer', range: [0.295, 0.492] },
+    { id: 'boot', range: [0.487, 0.63] },
     { id: 'moon', range: [0.5, 0.87] },
   ] as SceneDef[],
 
@@ -72,13 +72,14 @@ export const FILM = {
     { t: 0.25, pos: [1.7, 1.5, 6.5], target: [0.85, 1.15, 0] },
     { t: 0.285, pos: [0.6, 1.0, 9.0], target: [1.0, 1.2, 0] },
     { t: 0.31, pos: [1.1, 1.9, 10.3], target: [0.85, 1.7, 0] },
-    { t: 0.325, pos: [1.0, 2.8, 10.5], target: [-2.5, 8.0, -16], fov: 36 },
-    { t: 0.35, pos: [2.6, 4.6, 9.0], target: [3, 8.9, -12], fov: 34 },
-    { t: 0.39, pos: [8.5, 7.6, 2.5], target: [13, 8.3, -6], fov: 32 },
-    { t: 0.43, pos: [20.5, 7.5, 3.6], target: [25, 7.2, -2], fov: 31 },
-    { t: 0.465, pos: [29.6, 6.7, 3.0], target: [31.8, 6.5, -0.2], roll: 78, fov: 30 },
-    { t: 0.475, pos: [180, 5.2, 4.4], target: [180, 0.6, 0], roll: 96 },
-    { t: 0.5, pos: [180, 4.4, 6.0], target: [180, 0.4, 0], roll: 30 },
+    { t: 0.325, pos: [1.0, 2.8, 10.5], target: [-3, 12.5, -16], fov: 36 },
+    { t: 0.35, pos: [2.6, 4.6, 9.0], target: [3, 12.4, -12], fov: 34 },
+    { t: 0.39, pos: [8.5, 11.4, 2.5], target: [13, 12.3, -6], fov: 32 },
+    { t: 0.43, pos: [20.5, 11.5, 3.6], target: [25, 12.0, -2], fov: 31 },
+    { t: 0.465, pos: [29.6, 11.9, 3.0], target: [31.8, 11.85, -0.2], roll: 78, fov: 30 },
+    { t: 0.487, pos: [29.6, 11.9, 3.0], target: [31.8, 11.85, -0.2], roll: 78, fov: 30 },
+    { t: 0.488, pos: [180, 5.2, 4.4], target: [180, 0.6, 0], roll: 96 },
+    { t: 0.505, pos: [180, 4.4, 6.0], target: [180, 0.4, 0], roll: 30 },
     { t: 0.54, pos: [179, 2.6, 9.0], target: [180.6, 0.3, 0], roll: 0 },
     { t: 0.6, pos: [177.2, 1.25, 7.2], target: [182.2, 1.05, 0] },
     { t: 0.68, pos: [178.6, 1.5, 8.6], target: [183, 1.5, 0] },
@@ -111,10 +112,11 @@ export const FILM = {
    * above are staged against the same rows.
    */
   flythrough: [
-    [0.315, -6, 8.5, -16],
-    [0.35, 3, 8.9, -12],
-    [0.39, 13, 8.3, -6],
-    [0.43, 25, 7.2, -2],
-    [0.475, 34, 6.3, 0.2],
+    [0.315, -6, 12.8, -16],
+    [0.35, 3, 12.6, -12],
+    [0.39, 13, 12.3, -6],
+    [0.43, 25, 12.0, -2],
+    [0.46, 33.4, 11.86, 0.1],
+    [0.49, 33.6, 11.84, 0.1],
   ] as [number, number, number, number][],
 };

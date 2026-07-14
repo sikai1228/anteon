@@ -6,8 +6,10 @@
  * scene uses: layered rolling contours for the ground, two big grazing craters
  * that cut the bottom edge at the 0.6 key, a mid-ground figure that silhouettes
  * against the sky, an Earth high in the wide, and a larger flag that owns the
- * centre at 0.68. Hatching is real hand hatch via hatchQuad on the ground and
- * hatchDisk on the sky-facing Earth disk.
+ * centre at 0.68. All tonal hatch (crater rim shadows, regolith bands, the Earth
+ * crescent, the flag canton) reads the film's one direction, LOOK.hatchAngleRad,
+ * and shares a boil phase per patch; descriptive marks (rock ticks, the pole)
+ * keep their own directions.
  *
  * The flag is the only colour in the film: its cloth carries flagRed and
  * flagBlue on a colorBypass set, everything else is chalk white. It rises around
@@ -149,10 +151,12 @@ function addHatch(
   width: number,
   base: number,
   span: number,
+  boilSeed: number,
 ): void {
+  // one boilSeed for the whole patch, so it re-registers as a unit, not a shimmer
   const n = Math.max(1, lines.length - 1);
   for (let i = 0; i < lines.length; i++) {
-    set.addStroke(lines[i], { widthPx: width, drawWindow: win(base + (i / n) * span, 0.14) });
+    set.addStroke(lines[i], { widthPx: width, drawWindow: win(base + (i / n) * span, 0.14), boilSeed });
   }
 }
 
@@ -212,7 +216,7 @@ const CRATERS: Crater[] = [
   { cx: 2.6, cz: 2.4, r: 2.3, seed: 72, shadowSign: 1 },
 ];
 
-function buildForeground(set: StrokeSetApi): void {
+function buildForeground(set: StrokeSetApi, hatch: number): void {
   let base = 0.0;
   for (const cr of CRATERS) {
     // the rim, big enough that its near arc runs off the bottom of the frame
@@ -229,7 +233,7 @@ function buildForeground(set: StrokeSetApi): void {
     const corner = new THREE.Vector3(sx - cr.r * 0.3, 0.02, cr.cz - cr.r * 0.32);
     const uDir = new THREE.Vector3(cr.r * 0.6, 0, 0);
     const vDir = new THREE.Vector3(0, 0, cr.r * 0.64);
-    addHatch(set, hatchQuad(corner, uDir, vDir, 0.9, 0.2, cr.seed + 9), 1.5, base + 0.2, 0.2);
+    addHatch(set, hatchQuad(corner, uDir, vDir, hatch, 0.2, cr.seed + 9), 1.5, base + 0.2, 0.2, cr.seed);
     base += 0.32;
   }
 
@@ -267,13 +271,14 @@ function buildForeground(set: StrokeSetApi): void {
       new THREE.Vector3(-2, 0.02, 1.2),
       new THREE.Vector3(5.5, 0, 0),
       new THREE.Vector3(0, 0, 2.2),
-      0.32,
+      hatch,
       0.55,
       78,
     ),
     1.3,
     0.8,
     0.16,
+    78,
   );
   addHatch(
     set,
@@ -281,13 +286,14 @@ function buildForeground(set: StrokeSetApi): void {
       new THREE.Vector3(1.5, 0.02, 4.2),
       new THREE.Vector3(4.5, 0, 0),
       new THREE.Vector3(0, 0, 1.6),
-      0.5,
+      hatch,
       0.6,
       79,
     ),
     1.3,
     0.86,
     0.14,
+    79,
   );
 }
 
@@ -329,7 +335,7 @@ function buildFigure(set: StrokeSetApi): void {
 /* Sky and pole: the flag pole plus the Earth, both chalk white        */
 /* ------------------------------------------------------------------ */
 
-function buildSkyPole(set: StrokeSetApi): void {
+function buildSkyPole(set: StrokeSetApi, hatch: number): void {
   if (EARTH_ENABLED) {
     // the disk outline draws first, early in the set draw space
     set.addStroke(skyRing(EARTH_POS.x, EARTH_POS.y, EARTH_R, EARTH_POS.z, 81), {
@@ -343,12 +349,14 @@ function buildSkyPole(set: StrokeSetApi): void {
       for (const p of line) sum += p.x;
       return sum / line.length < lit;
     };
-    const a = hatchDisk(EARTH_POS, EARTH_R, 0.7, 0.09, 82).filter(shade);
-    const b = hatchDisk(EARTH_POS, EARTH_R * 0.9, 0.7 + 1.1, 0.12, 83).filter(
+    // single hatch direction; the darker limb is a second same-angle pass at
+    // tighter spacing, so tone comes from density, not a crossed second angle
+    const a = hatchDisk(EARTH_POS, EARTH_R, hatch, 0.09, 82).filter(shade);
+    const b = hatchDisk(EARTH_POS, EARTH_R * 0.9, hatch, 0.06, 83).filter(
       (line) => shade(line) && line[0].x < EARTH_POS.x - EARTH_R * 0.1,
     );
-    addHatch(set, a, 1.4, 0.05, 0.28);
-    addHatch(set, b, 1.3, 0.12, 0.24);
+    addHatch(set, a, 1.4, 0.05, 0.28, 82);
+    addHatch(set, b, 1.3, 0.12, 0.24, 82);
   }
 
   // the pole plants late in the set draw space, just before the cloth rises
@@ -407,7 +415,7 @@ function wavedEdge(
   }
 }
 
-function buildCloth(set: StrokeSetApi, red: string, blue: string): void {
+function buildCloth(set: StrokeSetApi, red: string, blue: string, hatch: number): void {
   // a light outline ties the stripes and the canton into one cloth: hoist top,
   // along the fly, and back to hoist bottom, each edge slightly waved
   const outline: THREE.Vector3[] = [new THREE.Vector3(FLAG_X, CLOTH_TOP, clothZ(FLAG_X, CLOTH_TOP))];
@@ -430,17 +438,17 @@ function buildCloth(set: StrokeSetApi, red: string, blue: string): void {
     set.addStroke(stripe, { color: red, widthPx: 2.8, drawWindow: win(w * 0.5, 0.45) });
   }
 
-  // the canton as ordered diagonal hatch clipped to its rectangle: one angle,
-  // tight spacing, with a border, its top flush with the cloth top and all of
-  // it inside the outline
+  // the canton as ordered diagonal hatch clipped to its rectangle: the film's
+  // one hatch angle, tight spacing, a border, top flush with the cloth top and
+  // all of it inside the outline, sharing one boil phase
   const corner = new THREE.Vector3(CANTON_LEFT, CANTON_BOTTOM, 0);
   const uDir = new THREE.Vector3(CANTON_RIGHT - CANTON_LEFT, 0, 0);
   const vDir = new THREE.Vector3(0, CLOTH_TOP - CANTON_BOTTOM, 0);
-  const block = hatchQuad(corner, uDir, vDir, -0.5, 0.045, 84);
+  const block = hatchQuad(corner, uDir, vDir, hatch, 0.045, 84);
   for (const line of block) for (const p of line) p.z = clothZ(p.x, p.y);
   const n = Math.max(1, block.length - 1);
   for (let i = 0; i < block.length; i++) {
-    set.addStroke(block[i], { color: blue, widthPx: 2.2, drawWindow: win(0.5 + (i / n) * 0.35, 0.12) });
+    set.addStroke(block[i], { color: blue, widthPx: 2.2, drawWindow: win(0.5 + (i / n) * 0.35, 0.12), boilSeed: 84 });
   }
   // a single border stroke frames the canton flush with the cloth top edge
   const border: THREE.Vector3[] = [];
@@ -453,7 +461,7 @@ function buildCloth(set: StrokeSetApi, red: string, blue: string): void {
   ]) {
     border.push(new THREE.Vector3(c[0], c[1], clothZ(c[0], c[1])));
   }
-  set.addStroke(border, { color: blue, widthPx: 1.8, drawWindow: win(0.5, 0.45) });
+  set.addStroke(border, { color: blue, widthPx: 1.8, drawWindow: win(0.5, 0.45), boilSeed: 84 });
 }
 
 /* ------------------------------------------------------------------ */
@@ -473,10 +481,10 @@ export const moonScene: FilmScene = {
     });
 
     buildTerrain(terrain);
-    buildForeground(foreground);
+    buildForeground(foreground, ctx.look.hatchAngleRad);
     buildFigure(figure);
-    buildSkyPole(skyPole);
-    buildCloth(cloth, ctx.look.flagRed, ctx.look.flagBlue);
+    buildSkyPole(skyPole, ctx.look.hatchAngleRad);
+    buildCloth(cloth, ctx.look.flagRed, ctx.look.flagBlue, ctx.look.hatchAngleRad);
 
     figureGroup.position.copy(FIG_POS);
     figureGroup.scale.setScalar(FIG_SCALE);

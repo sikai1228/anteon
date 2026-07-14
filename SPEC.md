@@ -32,6 +32,16 @@ clock. This file is the working agreement between modules. The contracts in
 Contract files already written: `types.ts`, `film.config.ts`, `copy.ts`,
 `scenes/arc.ts`, `scenes/index.ts`, `index.html`, `styles.css`.
 
+## The hatching style (all scenes)
+
+One hatch direction for the whole film: LOOK.hatchAngleRad, about 30 degrees
+descending left to right. All tonal hatching reads it; only descriptive marks
+(bark ticks, grass, tread ridges) keep their own directions. Value roles:
+the board is shadow and stays bare, hatch density is midtone, the brightest
+solid marks are rare highlights. No crosshatch, no scribble for tone. Tonal
+patches share a boilSeed so they re-register as one redrawn unit. Rationale
+and citations: docs/hatching-brief.md.
+
 ## The chalk look (render-core)
 
 Strokes, not surfaces. One `StrokeSet` = one merged geometry = one draw call

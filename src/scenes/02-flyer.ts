@@ -11,11 +11,20 @@
  *
  * Geometry is built once at mount in a presentation-native local frame: the wing
  * lives in the local x-y plane, span along x, ribs running along y (the chord),
- * biplane gap along z. Flying, the plane holds a level attitude with its nose on
- * the path tangent. Into the presentation it banks so the upper wing turns to
- * the 0.465 camera and its ribs read as a row of parallel ridges filling the
- * frame, matched to the boot tread at 0.475. The plane sits close and large
- * there, so the ribs are pitched fine enough that a dozen still fill the frame.
+ * biplane gap along z. Crossing, the plane holds a lightly banked attitude with
+ * its nose on the path tangent, tipped toward the chase camera so it reads as an
+ * upper three-quarter view rather than the flat underside. The ribs are the
+ * match-cut payload, so they stay undrawn through the crossing and draw in only
+ * as the camera closes: the distant plane is a clean silhouette and the ridge row
+ * arrives just before the presentation. Into the presentation the plane banks so
+ * the upper wing turns to the 0.465 camera and its ribs read as a row of parallel
+ * ridges filling the frame, matched to the boot tread at 0.475. It sits close and
+ * large there, so the ribs are pitched fine enough that a dozen still fill it.
+ *
+ * Both sets depth-test against the scene, so the newton tree's invisible depth
+ * occluder hides the plane where it crosses the crown rather than tangling with
+ * the canopy strokes. The plane's position and the presentation pose are read
+ * from FILM.flythrough and the 0.465 camera key, so retimed rows need no edit.
  */
 
 import * as THREE from 'three';
@@ -25,9 +34,14 @@ import { FILM } from '../film.config';
 /* Timing, all in global t. */
 const DRAW_IN = 0.295; // fully drawn while still tiny in the background
 const DRAW_OUT = 0.31;
-const BANK_IN = 0.42; // the plane flies level until here, then turns to present
+const BANK_IN = 0.42; // the plane holds the crossing attitude until here, then presents
 const BANK_OUT = 0.465;
 const PRESENT_T = 0.465; // the rib presentation camera key this pose is built from
+const RIB_DRAW_IN = 0.42; // ribs held back through the crossing, drawn as the camera closes
+const RIB_DRAW_OUT = 0.45;
+const CROSS_BANK = (11 * Math.PI) / 180; // bank toward the camera for an upper three-quarter read
+const CROSS_COS = Math.cos(CROSS_BANK);
+const CROSS_SIN = Math.sin(CROSS_BANK);
 
 /* Geometry, world units. Wing in local x-y, span x, chord y, biplane gap z. */
 const HS = 4.5; // half span
@@ -40,17 +54,22 @@ const RIB_BOIL_SEED = 7; // the dense ribs share one boil phase, re-registering 
 const STATIONS = [-4, -2, 0, 2, 4] as const;
 
 const FT = FILM.flythrough;
+const TAN_DELTA = 0.001; // curve-u delta for the finite-difference tangent
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
 
 const root = new THREE.Group();
 // preallocated scratch, so update never allocates
 const _pos = new THREE.Vector3();
 const _tan = new THREE.Vector3();
+const _tanA = new THREE.Vector3();
 const _spanAxis = new THREE.Vector3();
 const _upAxis = new THREE.Vector3();
+const _rSpan = new THREE.Vector3();
+const _rUp = new THREE.Vector3();
 const _mat = new THREE.Matrix4();
 const _qFly = new THREE.Quaternion();
 const _qOut = new THREE.Quaternion();
+let curve!: THREE.CatmullRomCurve3;
 let airframe!: StrokeSetApi;
 let ribs!: StrokeSetApi;
 
@@ -91,55 +110,33 @@ const Q_PRESENT = (() => {
   return new THREE.Quaternion().setFromRotationMatrix(m);
 })();
 
-/** Plane world position, piecewise linear across the flythrough rows by t. */
-function flythroughPos(g: number, out: THREE.Vector3): void {
+/**
+ * Map global t to curve parameter u in [0..1], piecewise linear through the row
+ * t values, so the plane reaches each row at its authored time while the curve
+ * itself stays smooth with no per-bracket velocity kink.
+ */
+function tToU(g: number): number {
   const n = FT.length;
-  const first = FT[0];
-  const last = FT[n - 1];
-  if (g <= first[0]) {
-    out.set(first[1], first[2], first[3]);
-    return;
-  }
-  if (g >= last[0]) {
-    out.set(last[1], last[2], last[3]);
-    return;
-  }
+  if (g <= FT[0][0]) return 0;
+  if (g >= FT[n - 1][0]) return 1;
   for (let i = 0; i < n - 1; i++) {
-    const a = FT[i];
-    const b = FT[i + 1];
-    if (g <= b[0]) {
-      const f = (g - a[0]) / (b[0] - a[0]);
-      out.set(mix(a[1], b[1], f), mix(a[2], b[2], f), mix(a[3], b[3], f));
-      return;
+    if (g <= FT[i + 1][0]) {
+      const f = (g - FT[i][0]) / (FT[i + 1][0] - FT[i][0]);
+      return (i + f) / (n - 1);
     }
   }
-  out.set(last[1], last[2], last[3]);
+  return 1;
 }
 
-/** Travel direction of the active flythrough segment, normalized. */
-function flythroughTangent(g: number, out: THREE.Vector3): void {
-  const n = FT.length;
-  let i = 0;
-  if (g >= FT[n - 1][0]) {
-    i = n - 2;
-  } else {
-    for (let k = 0; k < n - 1; k++) {
-      if (g <= FT[k + 1][0]) {
-        i = k;
-        break;
-      }
-    }
-  }
-  const a = FT[i];
-  const b = FT[i + 1];
-  out.set(b[1] - a[1], b[2] - a[2], b[3] - a[3]).normalize();
-}
-
-/** Level flying attitude: nose on the tangent, span horizontal, gap up. */
+/** Crossing attitude: nose on the tangent, banked a few degrees toward the camera. */
 function buildFlyQuat(f: THREE.Vector3, out: THREE.Quaternion): void {
   _spanAxis.crossVectors(f, WORLD_UP).normalize();
   _upAxis.crossVectors(_spanAxis, f).normalize();
-  _mat.makeBasis(_spanAxis, f, _upAxis);
+  // bank about the nose so the near wing lifts: the chase camera sits below and
+  // off the wingtip, so this shows the upper three-quarter rather than the belly
+  _rSpan.copy(_spanAxis).multiplyScalar(CROSS_COS).addScaledVector(_upAxis, -CROSS_SIN);
+  _rUp.copy(_spanAxis).multiplyScalar(CROSS_SIN).addScaledVector(_upAxis, CROSS_COS);
+  _mat.makeBasis(_rSpan, f, _rUp);
   out.setFromRotationMatrix(_mat);
 }
 
@@ -224,8 +221,16 @@ function buildRibs(set: StrokeSetApi): void {
 export const flyerScene: FilmScene = {
   id: 'flyer',
   mount(ctx: FilmContext) {
-    airframe = ctx.makeStrokeSet({ style: { widthPx: 2.4 }, maxPoints: 420 });
-    ribs = ctx.makeStrokeSet({ style: { widthPx: 1.9 }, maxPoints: 240 });
+    // one smooth centripetal curve through the flythrough rows, sampled by t,
+    // so the crossing has no velocity kink at the row boundaries
+    const pts: THREE.Vector3[] = [];
+    for (const r of FT) pts.push(new THREE.Vector3(r[1], r[2], r[3]));
+    curve = new THREE.CatmullRomCurve3(pts, false, 'centripetal');
+
+    // depthTest on both sets: the newton tree's invisible occluder hides the
+    // plane where it crosses the crown instead of tangling with canopy strokes
+    airframe = ctx.makeStrokeSet({ style: { widthPx: 2.4, depthTest: true }, maxPoints: 420 });
+    ribs = ctx.makeStrokeSet({ style: { widthPx: 1.9, depthTest: true }, maxPoints: 240 });
     buildAirframe(airframe);
     buildRibs(ribs);
     root.add(airframe.object3d, ribs.object3d);
@@ -233,16 +238,24 @@ export const flyerScene: FilmScene = {
   },
 
   update(_local: number, global: number, ctx: FilmContext) {
-    const draw = smoothstep(DRAW_IN, DRAW_OUT, global);
-    airframe.setDraw(draw);
-    ribs.setDraw(draw);
+    airframe.setDraw(smoothstep(DRAW_IN, DRAW_OUT, global));
+    // the ribs are the match-cut payload, held back through the crossing so the
+    // distant plane stays a clean silhouette, then drawn in as the camera closes
+    ribs.setDraw(smoothstep(RIB_DRAW_IN, RIB_DRAW_OUT, global));
 
-    // cross the sky along the flythrough rows
-    flythroughPos(global, _pos);
+    // cross the sky along one smooth curve, position and tangent sampled by u
+    const u = tToU(global);
+    curve.getPoint(u, _pos);
     root.position.copy(_pos);
 
-    // hold a level attitude on the tangent, then bank into the rib presentation
-    flythroughTangent(global, _tan);
+    // tangent by finite difference on the curve, no allocation
+    const u1 = u - TAN_DELTA < 0 ? 0 : u - TAN_DELTA;
+    const u2 = u + TAN_DELTA > 1 ? 1 : u + TAN_DELTA;
+    curve.getPoint(u2, _tan);
+    curve.getPoint(u1, _tanA);
+    _tan.sub(_tanA).normalize();
+
+    // hold the banked crossing attitude on the tangent, then turn to present
     buildFlyQuat(_tan, _qFly);
     const present = smoothstep(BANK_IN, BANK_OUT, global);
     _qOut.copy(_qFly).slerp(Q_PRESENT, present);

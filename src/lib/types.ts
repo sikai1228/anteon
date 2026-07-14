@@ -69,6 +69,15 @@ export interface LookParams {
   /** Boil amplitude as a fraction of viewport height (0.002 = 0.2%). */
   boilAmpPct: number;
 
+  /**
+   * The film's one hatch direction, radians from horizontal. Descending
+   * left to right, about 30 degrees, per the style research: light rakes
+   * from the upper left, and shallow parallels rhyme with a wide frame.
+   * Every tonal hatch in every scene reads this; descriptive marks (bark
+   * ticks, grass, tread) are the only exceptions.
+   */
+  hatchAngleRad: number;
+
   /** Tooth: board grain feature size in physical px, and its contrast 0..1. */
   toothPx: number;
   toothContrast: number;
@@ -103,6 +112,8 @@ export const LOOK: LookParams = {
 
   boilHz: 8,
   boilAmpPct: 0.0022,
+
+  hatchAngleRad: -0.52,
 
   toothPx: 3.5,
   toothContrast: 0.55,
@@ -145,6 +156,13 @@ export interface StrokeStyle {
    * Everything else in the film must leave this false.
    */
   colorBypass: boolean;
+  /**
+   * Depth-test this set against scene depth. Off by default (drawings
+   * composite like ink on glass). The flythrough plane turns it on so the
+   * tree's invisible depth occluder can hide it: lines stop at the crown's
+   * contour the way a hand would stop drawing them.
+   */
+  depthTest: boolean;
   seed: number;
 }
 
@@ -156,6 +174,7 @@ export const DEFAULT_STROKE_STYLE: StrokeStyle = {
   dust: true,
   color: LOOK.chalkWhite,
   colorBypass: false,
+  depthTest: false,
   seed: 1,
 };
 
