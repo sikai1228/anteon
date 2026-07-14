@@ -122,8 +122,13 @@ export function createPost(
 
   const renderPass = new RenderPass(scene, camera, undefined, new THREE.Color(look.board), 1.0);
 
+  // Run bloom at a quarter of the framebuffer pixel count (half the framebuffer
+  // per axis). The glow is faint, so the lower resolution does not visibly
+  // change it, and it roughly quarters the bloom's fill cost on the heavy beats.
+  const bloomW = Math.max(1, Math.round((size.x * dpr) / 2));
+  const bloomH = Math.max(1, Math.round((size.y * dpr) / 2));
   const bloom = new UnrealBloomPass(
-    new THREE.Vector2(size.x, size.y),
+    new THREE.Vector2(bloomW, bloomH),
     look.bloomStrength,
     look.bloomRadius,
     look.bloomThreshold,
@@ -154,6 +159,12 @@ export function createPost(
     resize(v: Viewport): void {
       composer.setPixelRatio(v.dpr);
       composer.setSize(v.w, v.h);
+      // composer.setSize just resized bloom to the full framebuffer; put it back
+      // to quarter resolution (half per axis).
+      bloom.setSize(
+        Math.max(1, Math.round((v.w * v.dpr) / 2)),
+        Math.max(1, Math.round((v.h * v.dpr) / 2)),
+      );
       finalPass.uniforms.uResolution.value.set(v.w * v.dpr, v.h * v.dpr);
     },
     dispose(): void {
