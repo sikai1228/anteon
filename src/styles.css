@@ -39,7 +39,6 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   padding: 0 22px;
   background: var(--paper);
   z-index: 5;
-  opacity: var(--chrome-alpha, 1);
   pointer-events: none;
 }
 
@@ -63,9 +62,12 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   right: var(--box-inset, 14px);
   bottom: var(--box-inset, 14px);
   background: var(--board);
-  border: 1px solid #dedcd5;
+  border: 1px solid var(--box-border, #dedcd5);
   border-radius: var(--box-radius, 10px);
   overflow: hidden;
+  /* Above the header: the expanding box covers the solid white chrome
+   * instead of the chrome fading (a fade reads as a gray band). */
+  z-index: 6;
 }
 
 /* The board fills the viewport regardless of the box, so expansion reads as
@@ -94,6 +96,16 @@ canvas#gl,
 }
 
 #skip:hover { opacity: 1; }
+
+#skip {
+  transition: opacity 0.3s ease;
+  pointer-events: auto;
+}
+
+#skip.gone {
+  opacity: 0;
+  pointer-events: none;
+}
 
 canvas#gl {
   position: absolute;
