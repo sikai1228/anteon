@@ -30,6 +30,17 @@ export interface CaptionBeat {
   small?: boolean;
   /** Beats can ship disabled; the runtime skips them. */
   enabled?: boolean;
+  /**
+   * Anchor point inside the STAGE BOX (the centered ref-aspect region the
+   * camera fills), as fractions 0..1 of its width and height. Captions
+   * anchored this way stay glued to the composition at any viewport aspect.
+   * Omitted: the beat keeps the full-screen centered layout (quote, cards).
+   */
+  anchor?: [number, number];
+  /** Which edge of the text block pins to the anchor. Default center. */
+  align?: 'left' | 'center' | 'right';
+  /** Max line width in ch for anchored captions. Default 24. */
+  maxCh?: number;
 }
 
 export interface FadeBeat {

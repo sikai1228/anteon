@@ -64,7 +64,32 @@ canvas#gl {
   text-wrap: balance;
 }
 
-.caption.card span { font-size: clamp(26px, 4.2vw, 46px); }
+/* Anchored captions: pinned to a spot inside the stage box by the runtime,
+ * with a confident refrain scale and a whisper of chalk-dust glow. */
+.caption.anchored {
+  inset: auto;
+  display: block;
+  padding: 0;
+  text-align: inherit;
+}
+
+.caption.anchored span {
+  font-size: clamp(21px, 2.6vw, 31px);
+  line-height: 1.38;
+  text-shadow: 0 0 16px rgba(236, 234, 228, 0.22);
+}
+
+/* Liquid reveal: the runtime drives each word's opacity and rise from the
+ * scroll, so lines pour in and un-pour when scrubbing backward. */
+.caption .w {
+  display: inline-block;
+  will-change: opacity, transform;
+}
+
+.caption.card span {
+  font-size: clamp(26px, 4.2vw, 46px);
+  text-shadow: 0 0 22px rgba(236, 234, 228, 0.26);
+}
 
 .caption.small span {
   font-size: clamp(14px, 1.6vw, 18px);

@@ -1,8 +1,9 @@
 /**
- * Captions and the color fade. Beats are built from FILM.captions plus the
- * strings in COPY; opacity eases in and out of each beat window, the opening
- * quote rides up off the top as it exits, and #fade washes the frame per
- * FILM.fades. In static mode the same beats stack visibly, styled by styles.css.
+ * Captions and the color fade. Anchored beats pin to composition-aware spots
+ * inside the stage box; every built caption reveals word by word, a liquid pour
+ * driven purely by scroll, under a slow whole-caption float. The opening quote
+ * rides up off the top instead, and #fade washes the frame per FILM.fades. In
+ * static mode the beats stack as plain text, styled by styles.css.
  */
 
 import { FILM } from '../film.config';
@@ -14,24 +15,54 @@ export interface CaptionsApi {
   buildStatic(): void;
 }
 
-/** Fade in and out over this fraction of each beat window. */
+/** Fade edge as a fraction of each beat window. */
 const EDGE_FRAC = 0.18;
 /** Hold the quote still until this p, then it rides up and off the top. */
 const QUOTE_HOLD_END = 0.015;
 /** Clearance above the top once the quote has fully exited, viewport fraction. */
 const QUOTE_EXIT_MARGIN = 0.04;
+/** Word stagger as a fraction of the fade edge: anchored lines vs heavier cards. */
+const STAGGER_ANCHORED = 0.6;
+const STAGGER_CARD = 0.8;
+/** Each word rises from this far below as it pours in, em. */
+const WORD_RISE_EM = 0.35;
+/** The whole caption drifts up this far across its window, em. */
+const FLOAT_EM = 0.25;
+/** Default max line width for anchored captions, ch. */
+const DEFAULT_MAXCH = 24;
+/** The camera keys stage against this aspect; the stage box matches it. */
+const REF_ASPECT = FILM.refAspect;
+
+interface Word {
+  el: HTMLElement;
+  /** Position along the line, 0..1 (0 for a lone word). */
+  r: number;
+  lastA: number;
+  lastRise: number;
+}
 
 interface Beat {
   key: string;
   el: HTMLElement | null;
+  spanEl: HTMLElement | null;
+  words: Word[];
   tIn: number;
   tOut: number;
   edge: number;
   isQuote: boolean;
-  text: string;
-  card: boolean;
+  isAnchored: boolean;
+  isCard: boolean;
   small: boolean;
-  lastA: number;
+  anchor: [number, number] | null;
+  align: 'left' | 'center' | 'right';
+  /** translateX for the align edge, applied with the anchor. */
+  txPct: string;
+  maxCh: number;
+  /** Word-start spread and per-word fade duration, in p units (set at build). */
+  spread: number;
+  wordDur: number;
+  text: string;
+  lastFloat: number;
   lastDy: number;
 }
 
@@ -46,6 +77,10 @@ interface Fade {
 
 function clamp01(x: number): number {
   return x < 0 ? 0 : x > 1 ? 1 : x;
+}
+
+function round2(x: number): number {
+  return Math.round(x * 100) / 100;
 }
 
 /** Cubic (smoothstep) ease, t in 0..1. */
@@ -68,18 +103,29 @@ export function createCaptions(): CaptionsApi {
   for (const c of FILM.captions) {
     if (c.enabled === false) continue;
     const isQuote = c.el === 'quote';
+    const anchor = c.anchor ?? null;
+    const align = c.align ?? 'center';
     const w = c.tOut - c.tIn;
     beats.push({
       key: c.key,
       el: null,
+      spanEl: null,
+      words: [],
       tIn: c.tIn,
       tOut: c.tOut,
       edge: EDGE_FRAC * (w > 0 ? w : 0),
       isQuote,
-      text: isQuote ? '' : COPY.captions[c.key as keyof typeof COPY.captions] ?? '',
-      card: c.card === true,
+      isAnchored: anchor !== null,
+      isCard: c.card === true,
       small: c.small === true,
-      lastA: -1,
+      anchor,
+      align,
+      txPct: align === 'left' ? '0' : align === 'right' ? '-100%' : '-50%',
+      maxCh: c.maxCh ?? DEFAULT_MAXCH,
+      spread: 0,
+      wordDur: 0,
+      text: isQuote ? '' : COPY.captions[c.key as keyof typeof COPY.captions] ?? '',
+      lastFloat: NaN,
       lastDy: 0,
     });
   }
@@ -89,17 +135,31 @@ export function createCaptions(): CaptionsApi {
     return { tIn: f.tIn, tPeak: f.tPeak, tOut: f.tOut, r, g, b };
   });
 
-  // The quote centers a small content block (blockquote plus figcaption) in a
-  // full-stage element. Its exit travels only far enough for that content's
-  // bottom edge to clear the top of the viewport, so it stays visible while it
-  // rides up. viewportH and the content height are cached and refreshed on
-  // resize so the render loop stays free of layout reads.
+  // The stage box is the centered ref-aspect region the camera fills; anchored
+  // captions pin inside it. The quote's exit needs the viewport and its content
+  // height. All cached here and refreshed on resize so update() reads no layout.
   const quoteBlock = quoteEl?.querySelector<HTMLElement>('blockquote') ?? null;
   const quoteCap = quoteEl?.querySelector<HTMLElement>('figcaption') ?? null;
   let viewportH = window.innerHeight;
   let contentH = 0;
-  function measureQuote(): void {
+  let boxW = 0;
+  let boxH = 0;
+  let boxLeft = 0;
+
+  function applyAnchor(b: Beat): void {
+    const el = b.el;
+    if (!el || !b.anchor) return;
+    el.style.left = round2(boxLeft + b.anchor[0] * boxW) + 'px';
+    el.style.top = round2(b.anchor[1] * boxH) + 'px';
+    el.style.textAlign = b.align;
+  }
+
+  function measureStage(): void {
     viewportH = window.innerHeight;
+    const vw = window.innerWidth;
+    boxW = Math.min(vw, viewportH * REF_ASPECT);
+    boxH = viewportH;
+    boxLeft = (vw - boxW) / 2;
     if (quoteBlock && quoteCap) {
       // offsetTop and offsetHeight are relative to the positioned #quote, so
       // they are unaffected by any transform already applied to it.
@@ -109,17 +169,45 @@ export function createCaptions(): CaptionsApi {
     } else {
       contentH = viewportH;
     }
+    for (const b of beats) {
+      if (b.isAnchored && b.el) applyAnchor(b);
+    }
   }
 
-  function makeCaption(b: Beat): HTMLElement {
+  function buildWords(b: Beat, container: HTMLElement): void {
+    const parts = b.text.split(/\s+/).filter((s) => s.length > 0);
+    const n = parts.length;
+    for (let i = 0; i < n; i++) {
+      if (i > 0) container.appendChild(document.createTextNode(' '));
+      const wEl = document.createElement('span');
+      wEl.className = 'w';
+      wEl.textContent = parts[i];
+      container.appendChild(wEl);
+      b.words.push({ el: wEl, r: n > 1 ? i / (n - 1) : 0, lastA: -1, lastRise: -1 });
+    }
+    const frac = b.isCard ? STAGGER_CARD : STAGGER_ANCHORED;
+    b.spread = n > 1 ? frac * b.edge : 0;
+    b.wordDur = b.edge - b.spread;
+  }
+
+  function makeCaptionLiquid(b: Beat): HTMLElement {
     const div = document.createElement('div');
     let cls = 'caption';
-    if (b.card) cls += ' card';
+    if (b.isAnchored) cls += ' anchored';
+    if (b.isCard) cls += ' card';
     if (b.small) cls += ' small';
     div.className = cls;
+    div.style.opacity = '1';
     const span = document.createElement('span');
-    span.textContent = b.text;
+    if (b.isAnchored) {
+      // Constrain the line on the span itself so the ch unit tracks the rendered
+      // font size, not the smaller inherited size of the block element.
+      span.style.display = 'inline-block';
+      span.style.maxWidth = b.maxCh + 'ch';
+    }
+    buildWords(b, span);
     div.appendChild(span);
+    b.spanEl = span;
     return div;
   }
 
@@ -130,23 +218,82 @@ export function createCaptions(): CaptionsApi {
         b.el = quoteEl;
         continue;
       }
-      const div = makeCaption(b);
+      const div = makeCaptionLiquid(b);
       captionsEl?.appendChild(div);
       b.el = div;
     }
-    measureQuote();
-    window.addEventListener('resize', measureQuote);
+    measureStage();
+    window.addEventListener('resize', measureStage);
     built = true;
   }
 
-  function beatOpacity(b: Beat, p: number): number {
+  /**
+   * Per-word envelope: word r fades in over its own slot, staggered across the
+   * first part of the edge (word 0 first, last word landing as the edge ends),
+   * and out in reverse. The min of the two eased ramps gives the plateau.
+   */
+  function wordAlpha(b: Beat, r: number, p: number): number {
     if (p <= b.tIn || p >= b.tOut) return 0;
-    if (b.edge <= 0) return 1;
-    const inEnd = b.tIn + b.edge;
-    const outStart = b.tOut - b.edge;
-    if (p < inEnd) return easeCubic((p - b.tIn) / b.edge);
-    if (p > outStart) return easeCubic((b.tOut - p) / b.edge);
-    return 1;
+    const dd = b.wordDur > 0 ? b.wordDur : b.edge;
+    if (dd <= 0) return 1;
+    const si = r * b.spread;
+    const aIn = easeCubic((p - b.tIn - si) / dd);
+    const aOut = easeCubic((b.tOut - p - si) / dd);
+    return aIn < aOut ? aIn : aOut;
+  }
+
+  function updateLiquid(b: Beat, p: number): void {
+    const el = b.el;
+    if (!el) return;
+    // Whole-caption float, linear across the window, on the positioned element.
+    const floatEm = -FLOAT_EM * clamp01((p - b.tIn) / (b.tOut - b.tIn));
+    const rf = round2(floatEm);
+    if (rf !== b.lastFloat) {
+      if (b.isAnchored) {
+        el.style.transform =
+          rf !== 0
+            ? `translate(${b.txPct}, calc(-50% - ${-rf}em))`
+            : `translate(${b.txPct}, -50%)`;
+      } else {
+        el.style.transform = rf !== 0 ? `translateY(${rf}em)` : '';
+      }
+      b.lastFloat = rf;
+    }
+    // Per-word pour: opacity and a small settling rise, both eased and from p.
+    for (const wd of b.words) {
+      const a = wordAlpha(b, wd.r, p);
+      const ra = a >= 0.999 ? 1 : a <= 0.001 ? 0 : round2(a);
+      if (ra !== wd.lastA) {
+        wd.el.style.opacity = ra === 1 ? '1' : ra === 0 ? '0' : String(ra);
+        wd.lastA = ra;
+      }
+      const rise = round2((1 - a) * WORD_RISE_EM);
+      if (rise !== wd.lastRise) {
+        wd.el.style.transform = rise !== 0 ? `translateY(${rise}em)` : '';
+        wd.lastRise = rise;
+      }
+    }
+  }
+
+  function updateQuote(b: Beat, p: number): void {
+    const el = b.el;
+    if (!el) return;
+    // The quote leads the film, then rides up and off the top as the drawing
+    // appears beneath it, tied to the scroll rather than eased. Opacity stays at
+    // 1; it leaves the frame instead of fading in place.
+    let dy = 0;
+    if (p > QUOTE_HOLD_END) {
+      const span = b.tOut - QUOTE_HOLD_END;
+      let k = span > 0 ? (p - QUOTE_HOLD_END) / span : 1;
+      if (k > 1) k = 1;
+      const travel = (viewportH + contentH) / 2 + QUOTE_EXIT_MARGIN * viewportH;
+      dy = -k * travel;
+    }
+    const rdy = Math.round(dy);
+    if (rdy !== b.lastDy) {
+      el.style.transform = rdy !== 0 ? `translateY(${rdy}px)` : '';
+      b.lastDy = rdy;
+    }
   }
 
   function fadeOpacity(f: Fade, p: number): number {
@@ -199,61 +346,36 @@ export function createCaptions(): CaptionsApi {
     }
   }
 
-  function updateQuote(el: HTMLElement, b: Beat, p: number): void {
-    // The quote leads the film, then rides up and off the top as the drawing
-    // appears beneath it, tied to the scroll rather than eased. It holds still
-    // until the hold end, then translates linearly with p until it clears the
-    // top of the viewport by the beat's tOut. Opacity stays at 1 the whole
-    // time; it leaves the frame instead of fading in place.
-    let dy = 0;
-    if (p > QUOTE_HOLD_END) {
-      const span = b.tOut - QUOTE_HOLD_END;
-      let k = span > 0 ? (p - QUOTE_HOLD_END) / span : 1;
-      if (k > 1) k = 1;
-      // Travel only far enough for the centered content's bottom edge to clear
-      // the top by a small margin, so it rides up through the whole window
-      // rather than clearing at twice the needed distance.
-      const travel = (viewportH + contentH) / 2 + QUOTE_EXIT_MARGIN * viewportH;
-      dy = -k * travel;
-    }
-    const rdy = Math.round(dy);
-    if (rdy !== b.lastDy) {
-      el.style.transform = rdy !== 0 ? `translateY(${rdy}px)` : '';
-      b.lastDy = rdy;
-    }
-  }
-
   function update(p: number): void {
     if (!built) buildDynamic();
-
     for (const b of beats) {
-      const el = b.el;
-      if (!el) continue;
-
-      if (b.isQuote) {
-        updateQuote(el, b, p);
-        continue;
-      }
-
-      const a = beatOpacity(b, p);
-      const ra = a >= 0.999 ? 1 : a <= 0.001 ? 0 : Math.round(a * 1000) / 1000;
-      if (ra !== b.lastA) {
-        el.style.opacity = ra === 1 ? '1' : ra === 0 ? '0' : String(ra);
-        b.lastA = ra;
-      }
+      if (!b.el) continue;
+      if (b.isQuote) updateQuote(b, p);
+      else updateLiquid(b, p);
     }
-
     updateFade(p);
   }
 
+  function makeCaptionStatic(b: Beat): HTMLElement {
+    const div = document.createElement('div');
+    let cls = 'caption';
+    if (b.isCard) cls += ' card';
+    if (b.small) cls += ' small';
+    div.className = cls;
+    const span = document.createElement('span');
+    span.textContent = b.text;
+    div.appendChild(span);
+    return div;
+  }
+
   function buildStatic(): void {
-    // The quote reads first in the stacked transcript.
+    // The quote reads first in the stacked transcript; captions are plain text.
     if (quoteEl && captionsEl && captionsEl.parentElement) {
       captionsEl.parentElement.insertBefore(quoteEl, captionsEl);
     }
     for (const b of beats) {
       if (b.isQuote) continue;
-      captionsEl?.appendChild(makeCaption(b));
+      captionsEl?.appendChild(makeCaptionStatic(b));
     }
   }
 
