@@ -101,16 +101,19 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   letter-spacing: 0.01em;
   color: var(--ink);
   background: var(--paper);
-  border: 1.5px solid var(--ink);
+  border: 1.5px solid rgba(23, 23, 26, 0.4);
   border-radius: 8px;
   padding: 9px 17px;
   cursor: pointer;
-  /* Muted like the links until engaged. */
+  /* Muted like the links until engaged: text and hairline both grey. */
   opacity: 0.72;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, border-color 0.2s ease;
 }
 
-.book-call:hover { opacity: 1; }
+.book-call:hover {
+  opacity: 1;
+  border-color: var(--ink);
+}
 
 .book-call .bc-arrow {
   display: grid;
