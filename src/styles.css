@@ -1,0 +1,146 @@
+/* One board, one value. Chalk white on near-black slate, nothing else. */
+
+:root {
+  --chalk: #eceae4;
+  --board: #0b0b0d;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--board);
+  color: var(--chalk);
+  font-family: var(--serif);
+}
+
+html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
+
+/* Film container: its height is the clock. JS syncs it to FILM.scrollLengthVh. */
+#film { position: relative; }
+
+#stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+canvas#gl {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Full-screen color fade, used once: the flag fills the frame, then black. */
+#fade {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Captions */
+#captions { position: absolute; inset: 0; pointer-events: none; }
+
+.caption {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  opacity: 0;
+  padding: 0 6vw;
+  will-change: opacity, transform;
+}
+
+.caption span {
+  max-width: 26ch;
+  font-size: clamp(20px, 3vw, 34px);
+  line-height: 1.45;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+.caption.card span { font-size: clamp(26px, 4.2vw, 46px); }
+
+.caption.small span {
+  font-size: clamp(14px, 1.6vw, 18px);
+  opacity: 0.8;
+}
+
+/* The opening quote, plain HTML so it is the first paint */
+#quote {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  padding: 0 6vw;
+  will-change: opacity, transform;
+}
+
+#quote blockquote {
+  margin: 0 0 1.1em;
+  font-size: clamp(22px, 3.4vw, 40px);
+  line-height: 1.5;
+  max-width: 26ch;
+  text-wrap: balance;
+}
+
+#quote figcaption {
+  font-size: clamp(13px, 1.4vw, 16px);
+  opacity: 0.62;
+  letter-spacing: 0.02em;
+}
+
+/* The site below the film */
+#site {
+  position: relative;
+  min-height: 70vh;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 0.6em;
+}
+
+#logo { font-size: clamp(34px, 5vw, 64px); letter-spacing: 0.04em; margin: 0; font-weight: 500; }
+#site-note { opacity: 0.5; margin: 0; }
+
+/* Static mode: reduced motion or no WebGL. The runtime adds .static to <html>. */
+html.static #film { height: auto; }
+html.static #stage { position: static; height: auto; overflow: visible; }
+html.static canvas#gl, html.static #fade { display: none; }
+html.static #quote { position: relative; min-height: 100vh; }
+html.static .caption {
+  position: relative;
+  min-height: 88vh;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .caption, #quote { transition: none; }
+}
+
+/* Debug scrub bar (?debug) */
+#debug {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(10, 10, 12, 0.86);
+  border-top: 1px solid #26262b;
+  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #b9b7b0;
+}
+
+#debug input[type="range"] { flex: 1; }
+#debug .t { min-width: 64px; text-align: right; }
