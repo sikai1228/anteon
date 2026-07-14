@@ -304,6 +304,9 @@ canvas#gl {
 .caption.card span {
   font-size: clamp(26px, 4.2vw, 46px);
   text-shadow: 0 0 22px rgba(236, 234, 228, 0.26);
+  /* The closing statements hold one line. */
+  max-width: none;
+  white-space: nowrap;
 }
 
 .caption.small span {
