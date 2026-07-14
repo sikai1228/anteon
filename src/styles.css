@@ -105,7 +105,12 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   border-radius: 8px;
   padding: 9px 17px;
   cursor: pointer;
+  /* Muted like the links until engaged. */
+  opacity: 0.72;
+  transition: opacity 0.2s ease;
 }
+
+.book-call:hover { opacity: 1; }
 
 .book-call .bc-arrow {
   display: grid;
