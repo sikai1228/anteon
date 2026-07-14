@@ -142,7 +142,7 @@ export const LOOK: LookParams = {
   bloomThreshold: 0.5,
 
   fov: 38,
-  dprCap: 1.75,
+  dprCap: 1.6,
 };
 
 /* ------------------------------------------------------------------ */
