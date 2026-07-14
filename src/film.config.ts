@@ -3,7 +3,8 @@
  * a number here, nothing else moves. Global t runs 0..1 over the scroll.
  *
  * Beat map (from the brief):
- * 0.00 quote held on black          0.47 boot cutout: ribs become tread
+ * 0.00 quote held on black          0.47 boot cutout: ribs become tread,
+ *                                        one boot, carried to the Moon
  * 0.05 sapling draws itself         0.52 sole presses, pull back to print
  * 0.10 tree grows, camera orbits    0.58 lunar wide, distant figure
  * 0.18 apple resolves, caption      0.68 flag rises, the only color
@@ -37,14 +38,14 @@ export const FILM = {
   scenes: [
     { id: 'newton', range: [0.02, 0.38] },
     { id: 'flyer', range: [0.295, 0.492] },
-    { id: 'boot', range: [0.487, 0.63] },
+    { id: 'boot', range: [0.455, 0.63] },
     { id: 'moon', range: [0.5, 0.87] },
   ] as SceneDef[],
 
   captions: [
     { key: 'quoteHold', el: 'quote', tIn: 0.0, tOut: 0.06 },
-    { key: 'newton1', tIn: 0.175, tOut: 0.225 },
-    { key: 'newton2', tIn: 0.215, tOut: 0.265 },
+    { key: 'newton1', tIn: 0.125, tOut: 0.165 },
+    { key: 'newton2', tIn: 0.16, tOut: 0.195 },
     { key: 'wrights', tIn: 0.345, tOut: 0.42 },
     { key: 'lilienthal', tIn: 0.4, tOut: 0.45, small: true, enabled: false },
     { key: 'nasa', tIn: 0.515, tOut: 0.575 },
@@ -53,11 +54,11 @@ export const FILM = {
     { key: 'card2', tIn: 0.945, tOut: 0.998, card: true },
   ] as CaptionBeat[],
 
-  /** The flag fills the frame with the film's only color, then black holds. */
-  fades: [
-    { key: 'flagFill', color: 'flagRed', tIn: 0.775, tPeak: 0.82, tOut: 0.825 },
-    { key: 'toBlack', color: 'board', tIn: 0.82, tPeak: 0.865, tOut: 1.1 },
-  ] as FadeBeat[],
+  /**
+   * The drawn cloth itself carries the color moment (the camera pushes into
+   * the flag's center); the only wash is the hold to black for the cards.
+   */
+  fades: [{ key: 'toBlack', color: 'board', tIn: 0.82, tPeak: 0.865, tOut: 1.1 }] as FadeBeat[],
 
   /**
    * One camera, one continuous take. Sampled by lib/timeline.
@@ -67,25 +68,23 @@ export const FILM = {
     { t: 0.0, pos: [0.8, 1.6, 7.6], target: [0, 1.5, 0], fov: 38 },
     { t: 0.06, pos: [1.0, 1.7, 7.0], target: [0, 1.7, 0] },
     { t: 0.12, pos: [2.8, 3.2, 9.8], target: [0.1, 3.1, 0] },
-    { t: 0.18, pos: [2.2, 5.6, 8.0], target: [1.5, 6.3, 0] },
-    { t: 0.225, pos: [1.8, 3.8, 8.0], target: [1.1, 2.4, 0] },
-    { t: 0.25, pos: [1.7, 1.5, 6.5], target: [0.85, 1.15, 0] },
-    { t: 0.285, pos: [0.6, 1.0, 9.0], target: [1.0, 1.2, 0] },
-    { t: 0.31, pos: [1.1, 1.9, 10.3], target: [0.85, 1.7, 0] },
+    { t: 0.155, pos: [1.9, 6.6, 7.5], target: [0.6, 7.1, 0] },
+    { t: 0.19, pos: [1.9, 6.6, 7.5], target: [0.6, 7.1, 0] },
+    { t: 0.233, pos: [2.15, 0.62, 7.5], target: [0.85, 1.12, 0] },
+    { t: 0.255, pos: [0.6, 1.0, 9.0], target: [1.0, 1.2, 0] },
+    { t: 0.285, pos: [1.1, 1.9, 10.3], target: [0.85, 1.7, 0] },
     { t: 0.325, pos: [1.0, 2.8, 10.5], target: [-3, 12.5, -16], fov: 36 },
     { t: 0.35, pos: [2.6, 4.6, 9.0], target: [3, 12.4, -12], fov: 34 },
     { t: 0.39, pos: [8.5, 11.4, 2.5], target: [13, 12.3, -6], fov: 32 },
     { t: 0.43, pos: [20.5, 11.5, 3.6], target: [25, 12.0, -2], fov: 31 },
     { t: 0.465, pos: [29.6, 11.9, 3.0], target: [31.8, 11.85, -0.2], roll: 78, fov: 30 },
     { t: 0.487, pos: [29.6, 11.9, 3.0], target: [31.8, 11.85, -0.2], roll: 78, fov: 30 },
-    { t: 0.488, pos: [180, 5.2, 4.4], target: [180, 0.6, 0], roll: 96 },
-    { t: 0.505, pos: [180, 4.4, 6.0], target: [180, 0.4, 0], roll: 30 },
+    { t: 0.507, pos: [180, 4.4, 6.0], target: [180, 0.4, 0], roll: 30, fov: 34 },
     { t: 0.54, pos: [179, 2.6, 9.0], target: [180.6, 0.3, 0], roll: 0 },
     { t: 0.6, pos: [177.2, 1.25, 7.2], target: [182.2, 1.05, 0] },
-    { t: 0.68, pos: [178.6, 1.5, 8.6], target: [183, 1.5, 0] },
-    { t: 0.8, pos: [182.2, 1.7, 2.2], target: [183, 1.7, 0], fov: 26 },
-    { t: 0.86, pos: [182.6, 1.7, 1.2], target: [183, 1.7, 0], fov: 22 },
-    { t: 1.0, pos: [182.6, 1.7, 1.2], target: [183, 1.7, 0], fov: 22 },
+    { t: 0.68, pos: [178.6, 1.9, 8.6], target: [183.6, 2.4, 0] },
+    { t: 0.875, pos: [184.1, 2.5, 2.6], target: [183.78, 2.7, 0], fov: 23 },
+    { t: 1.0, pos: [184.1, 2.5, 2.6], target: [183.78, 2.7, 0], fov: 23 },
   ] as CameraKey[],
 
   /**
@@ -93,15 +92,33 @@ export const FILM = {
    * trunk; the bounce off his head is authored in the scene.
    */
   arc: {
-    /** Apple release point, in the newton region. */
-    start: [1.5, 6.3, 0] as [number, number, number],
+    /** Apple release point, high inside the crown so the fall is long. */
+    start: [0.6, 7.1, 0] as [number, number, number],
     /** Mid control point. */
-    apex: [1.9, 6.8, 0] as [number, number, number],
+    apex: [0.72, 7.35, 0] as [number, number, number],
     /** Impact point: the crown of the seated figure's head. */
     end: [0.85, 1.12, 0] as [number, number, number],
     /** Legacy of the reversed takeoff arc; unused since the flythrough. */
     flyerScale: 3.2,
     flyerLift: 0.4,
+  },
+
+  /**
+   * The hero apple's fall, one source of truth for the scene and the camera.
+   * During [tIn, tHit] the camera FOLLOWS the apple: its target is the arc
+   * position (fall progress = eased ramp with easePow), its position sits at
+   * target plus offset, and it blends with the keyed camera over blend at
+   * both edges. The apple stays centered while the world rushes past.
+   */
+  fall: {
+    tIn: 0.19,
+    tHit: 0.225,
+    easePow: 2,
+    /**
+     * Offset equals the crown key's own offset from the release point, so
+     * the follow is a pure ride-along at constant distance, no zoom.
+     */
+    follow: { offset: [1.3, -0.5, 7.5] as [number, number, number], blend: 0.008 },
   },
 
   /**

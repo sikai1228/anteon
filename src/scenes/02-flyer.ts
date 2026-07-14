@@ -25,6 +25,13 @@
  * occluder hides the plane where it crosses the crown rather than tangling with
  * the canopy strokes. The plane's position and the presentation pose are read
  * from FILM.flythrough and the 0.465 camera key, so retimed rows need no edit.
+ *
+ * The handoff to the boot: the frame locks at the presentation (camera held 0.465
+ * to 0.487, plane frozen and settled onto the camera aim so the ridge field owns
+ * the centre). The boot scene owns the single boot and draws its own sole and
+ * tread over the held ribs; this scene then fades every set to zero across 0.479
+ * to 0.4855, so the ribs dissolve and the boot's tread is what remains. There is
+ * no cutout or occluder here any more.
  */
 
 import * as THREE from 'three';
@@ -52,6 +59,14 @@ const LOWER_Z = -0.75;
 const RIBS = 48; // fine pitch so a dozen fill the close presentation frame
 const RIB_BOIL_SEED = 7; // the dense ribs share one boil phase, re-registering as a unit
 const STATIONS = [-4, -2, 0, 2, 4] as const;
+
+/* Presentation and handoff, all in global t. The frame is locked 0.465 to 0.487.
+ * The handoff is an INSTANT step, not a fade: at SWAP_T the whole plane
+ * vanishes in the same frame the boot's inherited, cropped ribs remain, so the
+ * viewer sees the existing lines simply lose everything outside the sole. The
+ * constant must equal SWAP_T in 03-boot.ts. */
+const SETTLE_OUT = 0.468; // plane eased onto the camera aim by here
+const SWAP_T = 0.4795;
 
 const FT = FILM.flythrough;
 const TAN_DELTA = 0.001; // curve-u delta for the finite-difference tangent
@@ -108,6 +123,13 @@ const Q_PRESENT = (() => {
   const zAxis = new THREE.Vector3().crossVectors(screenUp, screenRight).normalize();
   const m = new THREE.Matrix4().makeBasis(screenUp, screenRight, zAxis);
   return new THREE.Quaternion().setFromRotationMatrix(m);
+})();
+
+/** The presentation camera aim, where the frozen plane settles to own the frame. */
+const PRESENT_AIM = (() => {
+  const key = FILM.camera.find((k) => Math.abs(k.t - PRESENT_T) < 1e-6);
+  const t = key ? key.target : [31.8, 11.85, -0.2];
+  return new THREE.Vector3(t[0], t[1], t[2]);
 })();
 
 /**
@@ -243,9 +265,12 @@ export const flyerScene: FilmScene = {
     // distant plane stays a clean silhouette, then drawn in as the camera closes
     ribs.setDraw(smoothstep(RIB_DRAW_IN, RIB_DRAW_OUT, global));
 
-    // cross the sky along one smooth curve, position and tangent sampled by u
-    const u = tToU(global);
+    // cross the sky along one smooth curve; at the lock the plane freezes and
+    // settles onto the camera aim so the held ridge field owns the frame centre
+    const gPath = global < PRESENT_T ? global : PRESENT_T;
+    const u = tToU(gPath);
     curve.getPoint(u, _pos);
+    _pos.lerp(PRESENT_AIM, smoothstep(PRESENT_T, SETTLE_OUT, global));
     root.position.copy(_pos);
 
     // tangent by finite difference on the curve, no allocation
@@ -260,6 +285,13 @@ export const flyerScene: FilmScene = {
     const present = smoothstep(BANK_IN, BANK_OUT, global);
     _qOut.copy(_qFly).slerp(Q_PRESENT, present);
     root.quaternion.copy(_qOut);
+
+    // the boot scene draws its own sole and tread over the held ribs; here every
+    // the instant handoff: the whole plane vanishes in one step at SWAP_T, the
+    // same frame the boot's inherited cropped ribs remain
+    const on = global < SWAP_T ? 1 : 0;
+    airframe.setOpacity(on);
+    ribs.setOpacity(on);
 
     const t = ctx.time();
     const cam = ctx.three.camera;

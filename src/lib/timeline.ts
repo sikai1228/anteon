@@ -9,6 +9,7 @@ import Lenis from 'lenis';
 import * as THREE from 'three';
 import { FILM } from '../film.config';
 import { LOOK } from './types';
+import { arcPoint } from '../scenes/arc';
 
 export interface TimelineApi {
   /** Raw film t in 0..1 from the current scroll over the film span. */
@@ -109,6 +110,8 @@ const _tgt = new THREE.Vector3();
 const _fwd = new THREE.Vector3();
 const _up = new THREE.Vector3();
 const _tmp = new THREE.Vector3();
+const _arc = new THREE.Vector3();
+const _follow = new THREE.Vector3();
 
 const DEG = Math.PI / 180;
 
@@ -117,16 +120,38 @@ const REF_ASPECT = FILM.refAspect;
 /** Cap on the vertical fov widening so portrait phones do not go fisheye. */
 const MAX_WIDEN = 1.55;
 
+// The hero apple fall, shared with the scene through FILM.fall. During the
+// window the camera follows the apple; see sampleCamera.
+const FALL_TIN = FILM.fall.tIn;
+const FALL_THIT = FILM.fall.tHit;
+const FALL_EASEPOW = FILM.fall.easePow;
+const FALL_BLEND = FILM.fall.follow.blend;
+const FALL_OFFSET = new THREE.Vector3(
+  FILM.fall.follow.offset[0],
+  FILM.fall.follow.offset[1],
+  FILM.fall.follow.offset[2],
+);
+
 function smoothstep(t: number): number {
   if (t <= 0) return 0;
   if (t >= 1) return 1;
   return t * t * (3 - 2 * t);
 }
 
+/** Follow weight 0..1 across the fall window: 1 in the core, eased at the edges. */
+function fallFollow(p: number): number {
+  if (p < FALL_TIN - FALL_BLEND || p > FALL_THIT + FALL_BLEND) return 0;
+  if (p < FALL_TIN) return smoothstep((p - (FALL_TIN - FALL_BLEND)) / FALL_BLEND);
+  if (p > FALL_THIT) return smoothstep((FALL_THIT + FALL_BLEND - p) / FALL_BLEND);
+  return 1;
+}
+
 /**
  * Place the camera at film t by interpolating FILM.camera. Position, target,
  * fov, and roll are eased with smoothstep inside each key bracket. Roll rotates
- * the world up around the view axis, so lookAt banks the horizon.
+ * the world up around the view axis, so lookAt banks the horizon. Inside the
+ * FILM.fall window the camera hands off to a follow rig locked to the apple,
+ * blended in and out at the edges.
  */
 export function sampleCamera(p: number, camera: THREE.PerspectiveCamera): void {
   const n = CAM.length;
@@ -176,7 +201,28 @@ export function sampleCamera(p: number, camera: THREE.PerspectiveCamera): void {
 
   const rollA = a.roll ?? 0;
   const rollB = b.roll ?? 0;
-  const roll = (rollA + (rollB - rollA) * s) * DEG;
+  let rollDeg = rollA + (rollB - rollA) * s;
+
+  // Hero apple follow. Inside the fall window the camera tracks the apple dead
+  // centered: its target rides the shared arc and its position sits at that
+  // target plus a fixed offset. Across the blend margins at each edge it lerps
+  // between the keyed camera and the follow camera so entry and exit are
+  // seamless. Fov stays keyed, so the aspect compensation above still holds;
+  // roll eases to zero as the follow takes over.
+  const follow = fallFollow(p);
+  if (follow > 0) {
+    const sLin = clamp01((p - FALL_TIN) / (FALL_THIT - FALL_TIN));
+    const sFall = Math.pow(sLin, FALL_EASEPOW);
+    // arcPoint already returns newton-region world coords, so it is used
+    // directly with no region offset added.
+    arcPoint(sFall, _arc);
+    _follow.copy(_arc).add(FALL_OFFSET);
+    _pos.lerp(_follow, follow);
+    _tgt.lerp(_arc, follow);
+    rollDeg *= 1 - follow;
+  }
+
+  const roll = rollDeg * DEG;
 
   _fwd.copy(_tgt).sub(_pos);
   if (_fwd.lengthSq() < 1e-12) _fwd.set(0, 0, -1);

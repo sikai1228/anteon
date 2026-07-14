@@ -3,19 +3,23 @@
  *
  * Fill pass. The earlier version read as a thin band in an empty viewport, so
  * this one gives the frame mass and depth in the pen-sketch language the Newton
- * scene uses: layered rolling contours for the ground, two big grazing craters
- * that cut the bottom edge at the 0.6 key, a mid-ground figure that silhouettes
- * against the sky, an Earth high in the wide, and a larger flag that owns the
- * centre at 0.68. All tonal hatch (crater rim shadows, regolith bands, the Earth
- * crescent, the flag canton) reads the film's one direction, LOOK.hatchAngleRad,
- * and shares a boil phase per patch; descriptive marks (rock ticks, the pole)
- * keep their own directions.
+ * scene uses: layered rolling contours that run edge to edge, two big grazing
+ * craters whose rims exit the frame, an astronaut and the lunar module
+ * silhouetted on the horizon, an Earth high in the wide, and a larger flag that
+ * owns the centre at 0.68. All tonal hatch (crater rim shadows, regolith bands, the Earth
+ * crescent) reads the film's one direction, LOOK.hatchAngleRad, and shares a
+ * boil phase per patch; descriptive marks (rock ticks, the pole) keep their own
+ * directions.
  *
  * The flag is the only colour in the film: its cloth carries flagRed and
- * flagBlue on a colorBypass set, everything else is chalk white. It rises around
- * global 0.68 by drawing on upward while the cloth group lifts; the wave is left
- * to the baked stroke wobble and the boil. After 0.78 the camera pushes in and
- * the DOM fade owns the frame, so the scene just keeps the cloth drawn.
+ * flagBlue on colorBypass sets, everything else is chalk white. It flies at
+ * full hoist, the cloth's top edge at the pole tip and its centre at
+ * [183.8, 2.7, 0], the point the closing camera keys push into. The canton is a
+ * clean star field of short dashed rows rather than hatch. The flag rises
+ * around global 0.68 by drawing on upward while the cloth group lifts to the
+ * tip; the wave is left to the baked stroke wobble and the boil. After 0.78 the
+ * camera pushes in and the DOM fade owns the frame, so the scene just keeps the
+ * cloth drawn.
  *
  * Widths are authored plain: the global LOOK.widthMul carries the pen weight, so
  * nothing here compensates for it.
@@ -54,6 +58,11 @@ const EARTH_POS = new THREE.Vector3(0.5, 5.8, -14);
 const EARTH_R = 0.55;
 const FIG_POS = new THREE.Vector3(2.4, 0, -6.5); // sits fully inside frame at 0.6, 0.68, 0.75
 const FIG_SCALE = 1.15;
+// The lunar module on the ground, silhouetted on the horizon. World 176.5 (the
+// suggested spot) projects off the left edge at the 0.6 camera, so it sits a
+// little right of there, landing mid-left and below the Earth, the frame reading
+// module, astronaut, flag left to right.
+const LM_POS = new THREE.Vector3(0, 0, -7);
 const FLAG_X = 3; // world 183
 const POLE_TOP = 3.2;
 
@@ -65,6 +74,7 @@ let foreground!: StrokeSetApi;
 let figure!: StrokeSetApi;
 let skyPole!: StrokeSetApi; // the pole plus the Earth, both chalk white
 let cloth!: StrokeSetApi;
+let canton!: StrokeSetApi; // the star field dashes, in their own calm set
 
 function clamp01(x: number): number {
   return x < 0 ? 0 : x > 1 ? 1 : x;
@@ -93,18 +103,30 @@ function makeRng(seed: number): () => number {
 function win(c: number, w: number): [number, number] {
   return [clamp01(c), clamp01(c + w)];
 }
+/** Sample a catmull-rom curve through the control points, for confident limbs. */
+function smoothCurve(ctrl: readonly number[][], closed: boolean, samples: number): THREE.Vector3[] {
+  const cps: THREE.Vector3[] = [];
+  for (const c of ctrl) cps.push(new THREE.Vector3(c[0], c[1], c[2]));
+  const cv = new THREE.CatmullRomCurve3(cps, closed, 'catmullrom');
+  const out: THREE.Vector3[] = [];
+  for (let i = 0; i <= samples; i++) out.push(cv.getPoint(i / samples));
+  return out;
+}
 
 /** A rolling hill contour across the region, confident and sparse. */
 function contour(z: number, baseY: number, amp: number, seed: number): THREE.Vector3[] {
   const rng = makeRng(seed);
   const p1 = rng() * 6.28;
   const p2 = rng() * 6.28;
-  const steps = 72; // dense enough that the visible arc up close reads smooth
+  const steps = 150; // spans well past both frame edges at every aspect
   const pts: THREE.Vector3[] = [];
   for (let i = 0; i <= steps; i++) {
     const u = i / steps;
-    const x = mix(-9, 13, u);
-    const y = baseY + Math.sin(u * 3.1 + p1) * amp + Math.sin(u * 7.3 + p2) * amp * 0.4;
+    // world 160 to 246; the far right end clears the right edge at 0.6 even on an
+    // ultrawide, where the vanishing point sits out near world 242, so no endpoint
+    // shows mid-sky at any aspect
+    const x = mix(-20, 66, u);
+    const y = baseY + Math.sin(x * 0.22 + p1) * amp + Math.sin(x * 0.5 + p2) * amp * 0.4;
     pts.push(new THREE.Vector3(x, Math.max(0.02, y), z));
   }
   return pts;
@@ -165,7 +187,9 @@ function addHatch(
 /* ------------------------------------------------------------------ */
 
 function buildTerrain(set: StrokeSetApi): void {
-  // three overlapping rolling ridges at different depths read as layered hills
+  // three overlapping rolling ridges at different depths read as layered hills,
+  // each running past both frame edges so no endpoint shows mid-sky, and the
+  // floating distant craters and rock ticks are gone so nothing hangs unconnected
   const ridges: THREE.Vector3[][] = [
     contour(-8.5, 0.25, 0.5, 61),
     contour(-11, 0.7, 0.6, 62),
@@ -174,30 +198,52 @@ function buildTerrain(set: StrokeSetApi): void {
   for (let i = 0; i < ridges.length; i++) {
     set.addStroke(ridges[i], { widthPx: 2.4, drawWindow: win(i * 0.06, 0.18) });
   }
+  buildLunarModule(set);
+}
 
-  // a few distant craters and rock ticks, kept sparse so the ridges stay clean
-  const rng = makeRng(64);
-  for (let i = 0; i < 3; i++) {
-    const cx = mix(-6, 10, rng());
-    const cz = mix(-12, -7, rng());
-    set.addStroke(groundBlob(cx, cz, 0.5 + rng() * 0.5, 640 + i, 24), {
-      widthPx: 1.6,
-      drawWindow: win(0.4 + i * 0.05, 0.14),
-    });
-  }
-  for (let i = 0; i < 8; i++) {
-    const bx = mix(-7, 11, rng());
-    const bz = mix(-12, -6.5, rng());
-    const a = rng() * Math.PI;
-    const len = 0.12 + rng() * 0.22;
-    set.addStroke(
-      poly([
-        [bx, 0.02, bz],
-        [bx + Math.cos(a) * len, 0.02 + rng() * 0.14, bz + Math.sin(a) * len],
-      ]),
-      { widthPx: 1.5, drawWindow: win(0.5 + (i % 4) * 0.05, 0.12) },
-    );
-  }
+function buildLunarModule(set: StrokeSetApi): void {
+  // Apollo lunar module as chalk, three-quarter from behind, silhouetted on the
+  // horizon, about 2.8 units tall: a descent octagon with panel seams, four wide
+  // splayed legs at body weight each on a clear footpad, a ladder hint, the
+  // stepped ascent stage with a dome, and an antenna tick
+  // taller by 1.4 for the 2.8 unit height, only a little wider so it keeps its
+  // clearances: the near footpads stay left of the astronaut and inside the frame
+  const SY = 1.4;
+  const SXZ = 1.15;
+  const seg = (coords: readonly number[][], width: number, base: number): void => {
+    const pts: THREE.Vector3[] = [];
+    for (const c of coords) {
+      pts.push(new THREE.Vector3(LM_POS.x + c[0] * SXZ, LM_POS.y + c[1] * SY, LM_POS.z + c[2] * SXZ));
+    }
+    set.addStroke(pts, { widthPx: width, drawWindow: win(base, 0.16) });
+  };
+  seg(
+    [[-0.5, 0.55, -0.05], [-0.3, 0.5, -0.05], [0.3, 0.5, 0.05], [0.5, 0.55, 0.05], [0.5, 1.15, 0.05], [0.3, 1.25, 0.05], [-0.3, 1.25, -0.05], [-0.5, 1.15, -0.05], [-0.5, 0.55, -0.05]],
+    2.4,
+    0.16,
+  );
+  seg([[-0.15, 0.6, 0.05], [-0.15, 1.2, 0.05]], 1.8, 0.22);
+  seg([[-0.5, 0.92, 0], [0.5, 0.92, 0.02]], 1.8, 0.22);
+  // four legs, all at body weight, splayed wider than before, each on a footpad
+  seg([[0.42, 0.55, 0.12], [1.0, 0.02, 0.4]], 2.4, 0.26);
+  seg([[-0.42, 0.55, 0.12], [-1.0, 0.02, 0.4]], 2.4, 0.26);
+  seg([[0.38, 0.55, -0.16], [0.8, 0.02, -0.45]], 2.4, 0.28);
+  seg([[-0.38, 0.55, -0.16], [-0.8, 0.02, -0.45]], 2.4, 0.28);
+  seg([[0.88, 0.02, 0.34], [1.12, 0.02, 0.46]], 2.2, 0.3);
+  seg([[-1.12, 0.02, 0.46], [-0.88, 0.02, 0.34]], 2.2, 0.3);
+  seg([[0.68, 0.02, -0.39], [0.92, 0.02, -0.51]], 2.2, 0.31);
+  seg([[-0.92, 0.02, -0.51], [-0.68, 0.02, -0.39]], 2.2, 0.31);
+  // a ladder hint of three rungs on the near-left leg, at similar weight
+  seg([[-0.55, 0.42, 0.2], [-0.72, 0.42, 0.26]], 2.2, 0.34);
+  seg([[-0.62, 0.29, 0.28], [-0.79, 0.29, 0.34]], 2.2, 0.35);
+  seg([[-0.69, 0.16, 0.36], [-0.86, 0.16, 0.42]], 2.2, 0.36);
+  seg(
+    [[-0.32, 1.25, 0], [0.32, 1.25, 0], [0.34, 1.5, 0], [0.22, 1.5, 0], [0.22, 1.68, 0], [-0.22, 1.68, 0], [-0.22, 1.5, 0], [-0.34, 1.5, 0], [-0.32, 1.25, 0]],
+    2.4,
+    0.2,
+  );
+  seg([[-0.18, 1.68, 0], [0, 1.8, 0.02], [0.18, 1.68, 0]], 1.8, 0.24);
+  seg([[0.05, 1.8, 0], [0.13, 2.05, 0]], 1.4, 0.26);
 }
 
 /* ------------------------------------------------------------------ */
@@ -212,8 +258,8 @@ interface Crater {
   shadowSign: number; // which side carries the rim shadow
 }
 const CRATERS: Crater[] = [
-  { cx: -0.6, cz: 3.4, r: 3.0, seed: 71, shadowSign: -1 },
-  { cx: 2.6, cz: 2.4, r: 2.3, seed: 72, shadowSign: 1 },
+  { cx: -1.2, cz: 3.6, r: 3.7, seed: 71, shadowSign: -1 },
+  { cx: 3.0, cz: 2.6, r: 2.9, seed: 72, shadowSign: 1 },
 ];
 
 function buildForeground(set: StrokeSetApi, hatch: number): void {
@@ -301,34 +347,38 @@ function buildForeground(set: StrokeSetApi, hatch: number): void {
 /* Figure: a small suited silhouette from behind, no face              */
 /* ------------------------------------------------------------------ */
 
+interface FigurePart {
+  c: number[][];
+  closed: boolean;
+  s: number; // samples along the curve
+  w: number; // width px
+  d: number; // draw window base
+}
+
 function buildFigure(set: StrokeSetApi): void {
-  const circle: THREE.Vector3[] = [];
-  for (let i = 0; i <= 12; i++) {
-    const a = (i / 12) * Math.PI * 2;
-    circle.push(new THREE.Vector3(Math.cos(a) * 0.16, 1.12 + Math.sin(a) * 0.16, 0));
+  // an astronaut from behind: a bulbous helmet, a dominant PLSS backpack wider
+  // than the helmet, puffy arms and legs into broad boots, a slight forward
+  // lean, all confident catmull-smoothed curves with no fragments
+  const parts: FigurePart[] = [
+    // the PLSS backpack, the widest mass, high on the back
+    { c: [[-0.29, 0.66, 0.03], [-0.24, 0.62, 0.03], [0.24, 0.62, 0.03], [0.29, 0.66, 0.03], [0.3, 1.18, 0.03], [0.24, 1.24, 0.03], [-0.24, 1.24, 0.03], [-0.3, 1.18, 0.03]], closed: true, s: 22, w: 2.5, d: 0.0 },
+    // the bulbous helmet dome, wider than a head, leaning slightly forward
+    { c: [[0, 1.47, -0.02], [0.2, 1.38, -0.02], [0.22, 1.22, -0.02], [0.12, 1.13, 0], [0, 1.11, 0], [-0.12, 1.13, 0], [-0.22, 1.22, -0.02], [-0.2, 1.38, -0.02]], closed: true, s: 20, w: 2.5, d: 0.1 },
+    // the neck ring under the helmet and a strap across the pack
+    { c: [[-0.12, 1.11, 0], [0, 1.07, 0.02], [0.12, 1.11, 0]], closed: false, s: 8, w: 2.2, d: 0.16 },
+    { c: [[-0.24, 0.92, 0.04], [0, 0.94, 0.05], [0.24, 0.92, 0.04]], closed: false, s: 8, w: 2.2, d: 0.2 },
+    // puffy arms with a hint of a ringed elbow
+    { c: [[-0.28, 1.12, 0], [-0.35, 0.98, 0], [-0.37, 0.84, 0], [-0.34, 0.72, 0], [-0.3, 0.6, 0]], closed: false, s: 14, w: 2.4, d: 0.3 },
+    { c: [[0.28, 1.12, 0], [0.35, 0.98, 0], [0.37, 0.84, 0], [0.34, 0.72, 0], [0.3, 0.6, 0]], closed: false, s: 14, w: 2.4, d: 0.35 },
+    // wide-set puffy legs into broad boots
+    { c: [[-0.15, 0.62, 0], [-0.21, 0.45, 0], [-0.24, 0.28, 0], [-0.25, 0.12, 0], [-0.28, 0.05, -0.04]], closed: false, s: 14, w: 2.6, d: 0.45 },
+    { c: [[0.15, 0.62, 0], [0.21, 0.45, 0], [0.24, 0.28, 0], [0.25, 0.12, 0], [0.28, 0.05, -0.04]], closed: false, s: 14, w: 2.6, d: 0.5 },
+    { c: [[-0.3, 0.06, 0.02], [-0.3, 0.02, -0.06], [-0.18, 0.01, -0.13]], closed: false, s: 8, w: 2.5, d: 0.6 },
+    { c: [[0.3, 0.06, 0.02], [0.3, 0.02, -0.06], [0.18, 0.01, -0.13]], closed: false, s: 8, w: 2.5, d: 0.62 },
+  ];
+  for (const p of parts) {
+    set.addStroke(smoothCurve(p.c, p.closed, p.s), { widthPx: p.w, drawWindow: win(p.d, 0.35) });
   }
-  set.addStroke(circle, { widthPx: 2.0, drawWindow: win(0, 0.4) }); // helmet
-  set.addStroke(
-    poly([
-      [-0.15, 0.5, -0.02],
-      [0.15, 0.5, -0.02],
-      [0.15, 1.0, -0.02],
-      [-0.15, 1.0, -0.02],
-      [-0.15, 0.5, -0.02],
-    ]),
-    { widthPx: 2.0, drawWindow: win(0.1, 0.4) },
-  ); // backpack
-  set.addStroke(
-    poly([
-      [-0.28, 0.6, 0],
-      [-0.24, 0.98, 0],
-      [0.24, 0.98, 0],
-      [0.28, 0.6, 0],
-    ]),
-    { widthPx: 1.9, drawWindow: win(0.25, 0.4) },
-  ); // shoulders and arms
-  set.addStroke(poly([[-0.14, 0.55, 0], [-0.13, 0.05, 0]]), { widthPx: 2.1, drawWindow: win(0.4, 0.4) });
-  set.addStroke(poly([[0.14, 0.55, 0], [0.13, 0.05, 0]]), { widthPx: 2.1, drawWindow: win(0.5, 0.4) });
 }
 
 /* ------------------------------------------------------------------ */
@@ -362,13 +412,14 @@ function buildSkyPole(set: StrokeSetApi, hatch: number): void {
   // the pole plants late in the set draw space, just before the cloth rises
   set.addStroke(
     poly([
-      [FLAG_X, 0, 0],
-      [FLAG_X + 0.04, POLE_TOP * 0.5, 0],
-      [FLAG_X + 0.08, POLE_TOP, 0],
+      [FLAG_X - 0.07, 0, 0],
+      [FLAG_X - 0.03, POLE_TOP * 0.5, 0],
+      [FLAG_X, POLE_TOP, 0],
     ]),
     { widthPx: 2.4, drawWindow: win(0.7, 0.28) },
   );
-  set.addStroke(poly([[FLAG_X + 0.08, POLE_TOP, 0], [FLAG_X + 0.2, POLE_TOP + 0.1, 0]]), {
+  // the finial stays a small nub continuing the pole line past the tip
+  set.addStroke(poly([[FLAG_X, POLE_TOP, 0], [FLAG_X + 0.02, POLE_TOP + 0.06, 0]]), {
     widthPx: 1.9,
     drawWindow: win(0.9, 0.1),
   });
@@ -378,14 +429,14 @@ function buildSkyPole(set: StrokeSetApi, hatch: number): void {
 /* Cloth: seven red stripes and a blue canton, the film's only colour  */
 /* ------------------------------------------------------------------ */
 
-const STRIPE_Y = [1.42, 1.61, 1.81, 2.0, 2.19, 2.39, 2.58];
-const CANTON_BOTTOM = 2.0;
+const STRIPE_Y = [2.3, 2.43, 2.57, 2.7, 2.83, 2.97, 3.1];
+const CANTON_BOTTOM = 2.7;
 const CANTON_LEFT = FLAG_X + 0.04;
-const CANTON_RIGHT = FLAG_X + 1.2;
-const STRIPE_FAR = FLAG_X + 2.8;
+const CANTON_RIGHT = FLAG_X + 0.66;
+const STRIPE_FAR = FLAG_X + 1.6;
 const HOIST_GAP = 0.05; // stripes anchor this close to the pole or the canton edge
-const CLOTH_TOP = 2.68;
-const CLOTH_BOTTOM = 1.32;
+const CLOTH_TOP = POLE_TOP; // full hoist, the top edge hangs at the pole tip
+const CLOTH_BOTTOM = 2.2; // centre lands on [183.8, 2.7, 0], the closing camera target
 
 /**
  * The cloth hangs on one gently furled surface whose amplitude grows toward the
@@ -415,14 +466,14 @@ function wavedEdge(
   }
 }
 
-function buildCloth(set: StrokeSetApi, red: string, blue: string, hatch: number): void {
+function buildCloth(set: StrokeSetApi, red: string, blue: string): void {
   // a light outline ties the stripes and the canton into one cloth: hoist top,
   // along the fly, and back to hoist bottom, each edge slightly waved
   const outline: THREE.Vector3[] = [new THREE.Vector3(FLAG_X, CLOTH_TOP, clothZ(FLAG_X, CLOTH_TOP))];
   wavedEdge(FLAG_X, CLOTH_TOP, STRIPE_FAR, CLOTH_TOP, 6, outline);
   wavedEdge(STRIPE_FAR, CLOTH_TOP, STRIPE_FAR, CLOTH_BOTTOM, 6, outline);
   wavedEdge(STRIPE_FAR, CLOTH_BOTTOM, FLAG_X, CLOTH_BOTTOM, 6, outline);
-  set.addStroke(outline, { color: red, widthPx: 1.6, drawWindow: win(0.0, 0.9) });
+  set.addStroke(outline, { color: red, widthPx: 2.2, drawWindow: win(0.0, 0.9) });
 
   // stripes anchor at the pole, except the four at canton height which anchor at
   // the canton's right edge, all ending on the shared waved fly line
@@ -435,21 +486,9 @@ function buildCloth(set: StrokeSetApi, red: string, blue: string, hatch: number)
       stripe.push(new THREE.Vector3(x, y, clothZ(x, y)));
     }
     const w = i / (STRIPE_Y.length - 1);
-    set.addStroke(stripe, { color: red, widthPx: 2.8, drawWindow: win(w * 0.5, 0.45) });
+    set.addStroke(stripe, { color: red, widthPx: 3.4, drawWindow: win(w * 0.5, 0.45) });
   }
 
-  // the canton as ordered diagonal hatch clipped to its rectangle: the film's
-  // one hatch angle, tight spacing, a border, top flush with the cloth top and
-  // all of it inside the outline, sharing one boil phase
-  const corner = new THREE.Vector3(CANTON_LEFT, CANTON_BOTTOM, 0);
-  const uDir = new THREE.Vector3(CANTON_RIGHT - CANTON_LEFT, 0, 0);
-  const vDir = new THREE.Vector3(0, CLOTH_TOP - CANTON_BOTTOM, 0);
-  const block = hatchQuad(corner, uDir, vDir, hatch, 0.045, 84);
-  for (const line of block) for (const p of line) p.z = clothZ(p.x, p.y);
-  const n = Math.max(1, block.length - 1);
-  for (let i = 0; i < block.length; i++) {
-    set.addStroke(block[i], { color: blue, widthPx: 2.2, drawWindow: win(0.5 + (i / n) * 0.35, 0.12), boilSeed: 84 });
-  }
   // a single border stroke frames the canton flush with the cloth top edge
   const border: THREE.Vector3[] = [];
   for (const c of [
@@ -464,6 +503,42 @@ function buildCloth(set: StrokeSetApi, red: string, blue: string, hatch: number)
   set.addStroke(border, { color: blue, widthPx: 1.8, drawWindow: win(0.5, 0.45), boilSeed: 84 });
 }
 
+/**
+ * The canton star field, five rows of six short blue dashes. Each dash carries
+ * interior points because the ribbon width tapers by aU, so a two point stroke
+ * sits at both taper ends and collapses to a near invisible hairline. The rows
+ * populate bottom to top with the draw, each row shares one boil phase, and a
+ * small jitter per dash keeps the hand.
+ */
+function buildCanton(set: StrokeSetApi, blue: string): void {
+  const rng = makeRng(90);
+  const rows = 5;
+  const cols = 6;
+  const dashLen = 0.07;
+  const left = CANTON_LEFT + 0.05 + dashLen / 2;
+  const right = CANTON_RIGHT - 0.05 - dashLen / 2;
+  const bottom = CANTON_BOTTOM + 0.07;
+  const top = CLOTH_TOP - 0.07;
+  for (let r = 0; r < rows; r++) {
+    const rowY = mix(bottom, top, r / (rows - 1));
+    for (let c = 0; c < cols; c++) {
+      const cx = mix(left, right, c / (cols - 1)) + (rng() - 0.5) * 0.02;
+      const y = rowY + (rng() - 0.5) * 0.016;
+      const half = (dashLen + (rng() - 0.5) * 0.016) / 2;
+      const dash: THREE.Vector3[] = [];
+      for (let k = 0; k <= 3; k++) {
+        const x = cx - half + (k / 3) * half * 2;
+        dash.push(new THREE.Vector3(x, y, clothZ(x, y)));
+      }
+      set.addStroke(dash, {
+        color: blue,
+        drawWindow: win(0.1 + (r / (rows - 1)) * 0.5 + c * 0.02, 0.28),
+        boilSeed: 90 + r,
+      });
+    }
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Scene                                                               */
 /* ------------------------------------------------------------------ */
@@ -471,25 +546,33 @@ function buildCloth(set: StrokeSetApi, red: string, blue: string, hatch: number)
 export const moonScene: FilmScene = {
   id: 'moon',
   mount(ctx: FilmContext) {
-    terrain = ctx.makeStrokeSet({ style: { widthPx: 2.2 }, maxPoints: 560 });
+    terrain = ctx.makeStrokeSet({ style: { widthPx: 2.2 }, maxPoints: 640 });
     foreground = ctx.makeStrokeSet({ style: { widthPx: 2.4, dust: false }, maxPoints: 760 });
-    figure = ctx.makeStrokeSet({ style: { widthPx: 2.0, dust: false }, maxPoints: 160 });
+    figure = ctx.makeStrokeSet({ style: { widthPx: 2.4, dust: false }, maxPoints: 260 });
     skyPole = ctx.makeStrokeSet({ style: { widthPx: 2.2, dust: false }, maxPoints: 260 });
     cloth = ctx.makeStrokeSet({
-      style: { widthPx: 2.8, dust: false, colorBypass: true, wobbleAmp: 0.12, wobbleFreq: 2.4 },
+      style: { widthPx: 2.8, dust: true, colorBypass: true, wobbleAmp: 0.12, wobbleFreq: 2.4 },
       maxPoints: 380,
+    });
+    // the star field needs interior points at full ribbon width, and marks
+    // this small cannot ride the cloth set's big baked wobble, so the canton
+    // dashes draw from their own calm set, one extra chalk pass draw call
+    canton = ctx.makeStrokeSet({
+      style: { widthPx: 3.0, dust: false, colorBypass: true, wobbleAmp: 0.01, wobbleFreq: 3 },
+      maxPoints: 130,
     });
 
     buildTerrain(terrain);
     buildForeground(foreground, ctx.look.hatchAngleRad);
     buildFigure(figure);
     buildSkyPole(skyPole, ctx.look.hatchAngleRad);
-    buildCloth(cloth, ctx.look.flagRed, ctx.look.flagBlue, ctx.look.hatchAngleRad);
+    buildCloth(cloth, ctx.look.flagRed, ctx.look.flagBlue);
+    buildCanton(canton, ctx.look.flagBlue);
 
     figureGroup.position.copy(FIG_POS);
     figureGroup.scale.setScalar(FIG_SCALE);
     figureGroup.add(figure.object3d);
-    clothGroup.add(cloth.object3d);
+    clothGroup.add(cloth.object3d, canton.object3d);
     root.add(terrain.object3d, foreground.object3d, skyPole.object3d, figureGroup, clothGroup);
     root.position.set(REGIONS.moon, 0, 0);
     ctx.three.scene.add(root);
@@ -502,8 +585,10 @@ export const moonScene: FilmScene = {
     // the pole and Earth share one set: Earth draws first, the pole plants late
     skyPole.setDraw(smoothstep(0, g2l(SKY_POLE_OUT), local));
 
-    // the cloth draws on upward while its group lifts into place
-    cloth.setDraw(smoothstep(g2l(CLOTH_DRAW_IN), g2l(CLOTH_DRAW_OUT), local));
+    // the cloth and its canton draw on upward while the group lifts into place
+    const clothDraw = smoothstep(g2l(CLOTH_DRAW_IN), g2l(CLOTH_DRAW_OUT), local);
+    cloth.setDraw(clothDraw);
+    canton.setDraw(clothDraw);
     clothGroup.position.y = mix(-CLOTH_LIFT, 0, smoothstep(g2l(LIFT_IN), g2l(LIFT_OUT), local));
 
     const t = ctx.time();
@@ -514,6 +599,7 @@ export const moonScene: FilmScene = {
     figure.update(t, cam, vp);
     skyPole.update(t, cam, vp);
     cloth.update(t, cam, vp);
+    canton.update(t, cam, vp);
   },
 
   setVisible(v: boolean) {
@@ -526,5 +612,6 @@ export const moonScene: FilmScene = {
     figure.dispose();
     skyPole.dispose();
     cloth.dispose();
+    canton.dispose();
   },
 };

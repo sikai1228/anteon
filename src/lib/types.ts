@@ -107,8 +107,8 @@ export interface LookParams {
 export const LOOK: LookParams = {
   chalkWhite: '#eceae4',
   board: '#0b0b0d',
-  flagRed: '#b5473c',
-  flagBlue: '#40548c',
+  flagRed: '#e8503f',
+  flagBlue: '#5f7fd6',
 
   boilHz: 8,
   boilAmpPct: 0.0022,
