@@ -3,14 +3,23 @@
 :root {
   --chalk: #eceae4;
   --board: #0b0b0d;
+  --paper: #f4f3ef;
+  --ink: #17171a;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
 }
 
 * { box-sizing: border-box; }
 
-html, body {
+/* The outer layer is paper white; the film is the black box set into it.
+ * Once the box expands to full bleed, the white is gone until the site. */
+html {
   margin: 0;
   background: var(--board);
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
   color: var(--chalk);
   font-family: var(--serif);
 }
@@ -28,7 +37,7 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   display: flex;
   align-items: center;
   padding: 0 22px;
-  background: var(--board);
+  background: var(--paper);
   z-index: 5;
   opacity: var(--chrome-alpha, 1);
   pointer-events: none;
@@ -38,7 +47,7 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   font-family: var(--serif);
   font-size: 21px;
   letter-spacing: 0.03em;
-  color: var(--chalk);
+  color: var(--ink);
 }
 
 /* Film container: its height is the clock. JS syncs it to FILM.scrollLengthVh. */
@@ -53,7 +62,8 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   left: var(--box-inset, 14px);
   right: var(--box-inset, 14px);
   bottom: var(--box-inset, 14px);
-  border: 1px solid #26262b;
+  background: var(--board);
+  border: 1px solid #dedcd5;
   border-radius: var(--box-radius, 10px);
   overflow: hidden;
 }
@@ -184,6 +194,7 @@ canvas#gl {
 
 /* The site below the film */
 #site {
+  background: var(--board);
   position: relative;
   min-height: 70vh;
   display: grid;
