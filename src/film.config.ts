@@ -49,7 +49,7 @@ export const FILM = {
    */
   captions: [
     { key: 'quoteHold', el: 'quote', tIn: 0.0, tOut: 0.06 },
-    { key: 'newton1', tIn: 0.125, tOut: 0.165, anchor: [0.16, 0.38], align: 'left' },
+    { key: 'newton1', tIn: 0.125, tOut: 0.165, anchor: [0.16, 0.2], align: 'left' },
     { key: 'newton2', tIn: 0.16, tOut: 0.195, anchor: [0.15, 0.78], align: 'left' },
     { key: 'wrights', tIn: 0.345, tOut: 0.42, anchor: [0.5, 0.84], align: 'center' },
     { key: 'lilienthal', tIn: 0.4, tOut: 0.45, small: true, enabled: false, anchor: [0.15, 0.88], align: 'left' },
