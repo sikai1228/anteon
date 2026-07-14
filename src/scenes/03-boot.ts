@@ -52,9 +52,16 @@ const SOLE_HALF_WID = 1.132;
  * boil phase), clipped to the sole outline's width at each station, so the
  * viewer sees the existing lines lose everything outside the boot. */
 const SWAP_T = 0.4795;
-const RIB_PITCH_WORLD = (4.5 * 0.95 * 2) / 47; // flyer HS 4.5, 48 ribs
 const RIB_WIDTH_PX = 1.9;
 const RIB_BOIL_SEED = 7; // matches the flyer's rib boil phase exactly
+/* The rib row sits on the wing plane, 0.75 world units BEYOND the aim at
+ * the presentation (the model flip maps it away from camera; aim distance
+ * about 3.885), so its screen pitch is narrower than the world pitch by
+ * D / (D + 0.75). The inherited tread bakes that in so the surviving line
+ * segments coincide exactly across the swap; verified numerically. */
+const AIM_DIST = 3.885;
+const DEPTH_COMP = AIM_DIST / (AIM_DIST + 0.75);
+const RIB_PITCH_WORLD = ((4.5 * 0.95 * 2) / 47) * DEPTH_COMP; // flyer HS 4.5, 48 ribs
 
 /* The wing pose: centred on the held camera's aim, facing the camera, scaled
  * so the sole owns the middle of the locked frame. */
@@ -181,7 +188,7 @@ function buildInheritedTread(set: StrokeSetApi, y: number, widthPx: number, boil
     set.addStroke(
       poly([
         [x, y, -half],
-        [x, y + 0.05, 0],
+        [x, y, 0],
         [x, y, half],
       ]),
       boil !== undefined ? { widthPx, boilSeed: boil } : { widthPx },
@@ -242,7 +249,7 @@ export const bootScene: FilmScene = {
   id: 'boot',
   mount(ctx: FilmContext) {
     sole = ctx.makeStrokeSet({ style: { widthPx: 2.6 }, maxPoints: 280 });
-    tread = ctx.makeStrokeSet({ style: { widthPx: RIB_WIDTH_PX, dust: false }, maxPoints: 120 });
+    tread = ctx.makeStrokeSet({ style: { widthPx: RIB_WIDTH_PX, dust: false, wobbleAmp: 0 }, maxPoints: 120 });
     dust = ctx.makeStrokeSet({ style: { widthPx: 1.4, dust: false }, maxPoints: 128 });
     print = ctx.makeStrokeSet({ style: { widthPx: 1.9, dust: false }, maxPoints: 300 });
     buildSole(sole);

@@ -58,6 +58,7 @@ const UPPER_Z = 0.75; // wing nearest the camera at the presentation pose
 const LOWER_Z = -0.75;
 const RIBS = 48; // fine pitch so a dozen fill the close presentation frame
 const RIB_BOIL_SEED = 7; // the dense ribs share one boil phase, re-registering as a unit
+const RIB_Z = LOWER_Z; // the model flip maps this to the visually upper wing
 const STATIONS = [-4, -2, 0, 2, 4] as const;
 
 /* Presentation and handoff, all in global t. The frame is locked 0.465 to 0.487.
@@ -228,16 +229,17 @@ function buildRibs(set: StrokeSetApi): void {
   // a dense row of chordwise ribs on the upper wing, drawn tip to tip; at the
   // 0.465 presentation the span runs vertically, so this reads as a row of
   // parallel ridges filling the frame, matched to the boot tread at 0.475
-  // the rib row lives on the aim plane (z 0), so at the presentation its
-  // screen pitch equals the world pitch exactly, and the boot's inherited
-  // tread (built from the same world pitch) matches it by construction
+  // the rib row lives on the top wing (LOWER_Z here because the model group
+  // flips about its span; the flip maps it to the visually upper wing). The
+  // ribs are dead straight: zero wobble and zero camber, so the boot's
+  // inherited tread can coincide with them exactly across the swap.
   for (let i = 0; i < RIBS; i++) {
     const x = mix(-HS * 0.95, HS * 0.95, i / (RIBS - 1));
     set.addStroke(
       poly([
-        [x, TRAIL_Y, 0],
-        [x, 0, 0.05], // faint camber out of the wing plane
-        [x, LEAD_Y, 0],
+        [x, TRAIL_Y, RIB_Z],
+        [x, 0, RIB_Z],
+        [x, LEAD_Y, RIB_Z],
       ]),
       { widthPx: 1.9, boilSeed: RIB_BOIL_SEED },
     );
@@ -256,7 +258,7 @@ export const flyerScene: FilmScene = {
     // depthTest on both sets: the newton tree's invisible occluder hides the
     // plane where it crosses the crown instead of tangling with canopy strokes
     airframe = ctx.makeStrokeSet({ style: { widthPx: 2.4, depthTest: true }, maxPoints: 420 });
-    ribs = ctx.makeStrokeSet({ style: { widthPx: 1.9, depthTest: true }, maxPoints: 240 });
+    ribs = ctx.makeStrokeSet({ style: { widthPx: 1.9, depthTest: true, wobbleAmp: 0 }, maxPoints: 240 });
     buildAirframe(airframe);
     buildRibs(ribs);
     // user direction: the prop circles lead toward the flight direction and
@@ -279,7 +281,7 @@ export const flyerScene: FilmScene = {
     const gPath = global < PRESENT_T ? global : PRESENT_T;
     const u = tToU(gPath);
     curve.getPoint(u, _pos);
-    _pos.lerp(PRESENT_AIM, smoothstep(PRESENT_T, SETTLE_OUT, global));
+    _pos.lerp(PRESENT_AIM, smoothstep(SETTLE_IN, SETTLE_OUT, global));
     root.position.copy(_pos);
 
     // tangent by finite difference on the curve, no allocation
