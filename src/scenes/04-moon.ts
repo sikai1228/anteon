@@ -28,7 +28,7 @@
 import * as THREE from 'three';
 import type { FilmContext, FilmScene, StrokeSetApi } from '../lib/types';
 import { REGIONS } from '../film.config';
-import { hatchDisk, hatchQuad } from '../look/hatch';
+import { hatchQuad } from '../look/hatch';
 
 /* Range remap, so beats read as the global t the storyboard uses. */
 const RANGE_IN = 0.5;
@@ -157,10 +157,13 @@ function groundBlob(cx: number, cz: number, r: number, seed: number, segs: numbe
 function skyRing(cx: number, cy: number, r: number, z: number, seed: number): THREE.Vector3[] {
   const rng = makeRng(seed);
   const start = rng() * 6.28;
+  const p1 = rng() * 6.28;
+  const p2 = rng() * 6.28;
   const pts: THREE.Vector3[] = [];
-  for (let i = 0; i <= 22; i++) {
-    const a = start + (i / 22) * Math.PI * 2;
-    const rr = r * (1 + (rng() - 0.5) * 0.08);
+  for (let i = 0; i <= 40; i++) {
+    const a = start + (i / 40) * Math.PI * 2;
+    // a smooth circle: two low-frequency harmonics, about two percent, no corners
+    const rr = r * (1 + 0.012 * Math.sin(a + p1) + 0.008 * Math.sin(a * 2 + p2));
     pts.push(new THREE.Vector3(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr, z));
   }
   return pts;
@@ -392,21 +395,22 @@ function buildSkyPole(set: StrokeSetApi, hatch: number): void {
       widthPx: 1.9,
       drawWindow: win(0.0, 0.18),
     });
-    // crescent shading: hatch the disk, keep the lines on the shaded limb only
-    const lit = EARTH_POS.x + EARTH_R * 0.15; // terminator, shade to negative x
-    const shade = (line: THREE.Vector3[]): boolean => {
-      let sum = 0;
-      for (const p of line) sum += p.x;
-      return sum / line.length < lit;
-    };
-    // single hatch direction; the darker limb is a second same-angle pass at
-    // tighter spacing, so tone comes from density, not a crossed second angle
-    const a = hatchDisk(EARTH_POS, EARTH_R, hatch, 0.09, 82).filter(shade);
-    const b = hatchDisk(EARTH_POS, EARTH_R * 0.9, hatch, 0.06, 83).filter(
-      (line) => shade(line) && line[0].x < EARTH_POS.x - EARTH_R * 0.1,
-    );
-    addHatch(set, a, 1.4, 0.05, 0.28, 82);
-    addHatch(set, b, 1.3, 0.12, 0.24, 82);
+    // one clean crescent of parallel hatch on the lit lower-right at the film's
+    // hatch angle, six short strokes clipped well inside the disk, sharing one
+    // boil phase; the rest of the disk stays bare board as shadow
+    const dir = new THREE.Vector3(Math.cos(hatch), Math.sin(hatch), 0);
+    const nrm = new THREE.Vector3(-Math.sin(hatch), Math.cos(hatch), 0);
+    const lowerRight = new THREE.Vector3(1, -1, 0).normalize();
+    const bandCentre = EARTH_POS.clone().addScaledVector(lowerRight, EARTH_R * 0.28);
+    const crescent: THREE.Vector3[][] = [];
+    const rows = 6;
+    for (let i = 0; i < rows; i++) {
+      const s = i / (rows - 1);
+      const c = bandCentre.clone().addScaledVector(nrm, mix(-0.24, 0.24, s) * EARTH_R);
+      const half = (0.36 - 0.5 * Math.abs(s - 0.5)) * EARTH_R; // taper to a crescent
+      crescent.push([c.clone().addScaledVector(dir, -half), c.clone().addScaledVector(dir, half)]);
+    }
+    addHatch(set, crescent, 1.5, 0.08, 0.28, 82);
   }
 
   // the pole plants late in the set draw space, just before the cloth rises
