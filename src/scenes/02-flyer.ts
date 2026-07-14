@@ -228,13 +228,16 @@ function buildRibs(set: StrokeSetApi): void {
   // a dense row of chordwise ribs on the upper wing, drawn tip to tip; at the
   // 0.465 presentation the span runs vertically, so this reads as a row of
   // parallel ridges filling the frame, matched to the boot tread at 0.475
+  // the rib row lives on the aim plane (z 0), so at the presentation its
+  // screen pitch equals the world pitch exactly, and the boot's inherited
+  // tread (built from the same world pitch) matches it by construction
   for (let i = 0; i < RIBS; i++) {
     const x = mix(-HS * 0.95, HS * 0.95, i / (RIBS - 1));
     set.addStroke(
       poly([
-        [x, TRAIL_Y, UPPER_Z],
-        [x, 0, UPPER_Z + 0.1], // faint camber out of the wing plane
-        [x, LEAD_Y, UPPER_Z],
+        [x, TRAIL_Y, 0],
+        [x, 0, 0.05], // faint camber out of the wing plane
+        [x, LEAD_Y, 0],
       ]),
       { widthPx: 1.9, boilSeed: RIB_BOIL_SEED },
     );
@@ -256,7 +259,12 @@ export const flyerScene: FilmScene = {
     ribs = ctx.makeStrokeSet({ style: { widthPx: 1.9, depthTest: true }, maxPoints: 240 });
     buildAirframe(airframe);
     buildRibs(ribs);
-    root.add(airframe.object3d, ribs.object3d);
+    // user direction: the prop circles lead toward the flight direction and
+    // the canard extension trails, so the whole model flips about its span
+    const model = new THREE.Group();
+    model.rotation.x = Math.PI;
+    model.add(airframe.object3d, ribs.object3d);
+    root.add(model);
     ctx.three.scene.add(root);
   },
 
