@@ -41,8 +41,8 @@ import { FILM } from '../film.config';
 /* Timing, all in global t. */
 const DRAW_IN = 0.295; // fully drawn while still tiny in the background
 const DRAW_OUT = 0.31;
-const BANK_IN = 0.42; // the plane holds the crossing attitude until here, then presents
-const BANK_OUT = 0.465;
+const BANK_IN = 0.4; // the plane holds the crossing attitude until here, then presents
+const BANK_OUT = 0.458; // fully presented BEFORE the camera arrives: no content snap
 const PRESENT_T = 0.465; // the rib presentation camera key this pose is built from
 const RIB_DRAW_IN = 0.42; // ribs held back through the crossing, drawn as the camera closes
 const RIB_DRAW_OUT = 0.45;
@@ -65,7 +65,8 @@ const STATIONS = [-4, -2, 0, 2, 4] as const;
  * vanishes in the same frame the boot's inherited, cropped ribs remain, so the
  * viewer sees the existing lines simply lose everything outside the sole. The
  * constant must equal SWAP_T in 03-boot.ts. */
-const SETTLE_OUT = 0.468; // plane eased onto the camera aim by here
+const SETTLE_IN = 0.448; // the glide onto the camera aim starts here
+const SETTLE_OUT = 0.462; // and is finished before the camera stops moving
 const SWAP_T = 0.4795;
 
 const FT = FILM.flythrough;

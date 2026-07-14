@@ -33,14 +33,13 @@ const DUST_IN = 0.528;
 const DUST_PEAK = 0.538;
 const DUST_FADE_IN = 0.545;
 const DUST_FADE_OUT = 0.578;
-const PRINT_IN = 0.535;
-const PRINT_OUT = 0.585;
-/* The boot leaves by stepping off, not by deletion: it lifts and drifts
- * forward while fading, gone before the flag pole draws at about 0.648. */
-const SOLE_FADE_IN = 0.545;
-const SOLE_FADE_OUT = 0.605;
-const EXIT_LIFT = 1.5;
-const EXIT_DRIFT = 0.9;
+const PRINT_IN = 0.538;
+const PRINT_OUT = 0.588;
+/* The sole dissolves IN PLACE directly over the print's location, so the
+ * boot reads as becoming its mark: no second boot, no fly-up, and it is
+ * long gone before the flag pole draws at about 0.648. */
+const SOLE_FADE_IN = 0.535;
+const SOLE_FADE_OUT = 0.558;
 
 /* Geometry, local units. Sole in local x-z, heel to toe along x, tread
  * ridges spaced along x and running across the width along z. */
@@ -283,15 +282,10 @@ export const bootScene: FilmScene = {
     soleGroup.quaternion.copy(_q);
     soleGroup.scale.setScalar(mix(WING_SCALE, 1, cs));
 
-    // then the press: same group, same boot, descending onto the regolith
+    // then the press: same group, same boot, descending onto the regolith,
+    // where it dissolves in place into its own print
     const press = smoothstep(PRESS_IN, PRESS_OUT, g);
     _pos.y = mix(_pos.y, MOON_GROUND_Y, press);
-
-    // and the exit: the boot steps off, lifting and drifting as it fades,
-    // never just deleted in place
-    const exit = smoothstep(SOLE_FADE_IN, SOLE_FADE_OUT, g);
-    _pos.y += exit * EXIT_LIFT;
-    _pos.x += exit * EXIT_DRIFT;
     soleGroup.position.copy(_pos);
 
     sole.setOpacity(soleAlpha);
