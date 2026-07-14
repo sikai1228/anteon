@@ -85,8 +85,28 @@ function frame(): void {
 
 if (!document.documentElement.classList.contains('static')) {
   skipEl?.addEventListener('click', () => {
-    // Straight to the finished white page: the site's top at the viewport top.
-    window.scrollTo(0, span() + window.innerHeight);
+    // Two beats: an instant cut to the closing card, then an automatic glide
+    // up through the white box's rise onto the finished page. Any manual
+    // scroll cancels the glide.
+    const s = span();
+    const from = 0.968 * s;
+    const to = s + window.innerHeight;
+    window.scrollTo(0, from);
+    const T = 1100;
+    let cancelled = false;
+    const cancel = () => {
+      cancelled = true;
+    };
+    window.addEventListener('wheel', cancel, { once: true, passive: true });
+    window.addEventListener('touchstart', cancel, { once: true, passive: true });
+    const t0 = performance.now();
+    const glide = (now: number) => {
+      if (cancelled) return;
+      const k = ease(clamp01((now - t0 - 350) / T));
+      window.scrollTo(0, from + (to - from) * k);
+      if (k < 1) requestAnimationFrame(glide);
+    };
+    requestAnimationFrame(glide);
   });
   requestAnimationFrame(frame);
 } else {
