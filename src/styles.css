@@ -197,6 +197,16 @@ canvas#gl,
   border-radius: 8px;
 }
 
+/* One full spin per hover; ends where it began, so no exit snap, and a
+ * fresh hover spins it again. */
+@keyframes skip-spin {
+  to { transform: rotate(360deg); }
+}
+
+#skip:hover .skip-key svg {
+  animation: skip-spin 0.55s ease;
+}
+
 #skip:hover { opacity: 1; }
 
 #skip.gone {
