@@ -1,19 +1,28 @@
 /* One board, one value. Chalk white on near-black slate, nothing else. */
 
 /* Self-hosted faces: Hanken Grotesk carries everything outside the film;
- * Literata is the guaranteed serif for the film when the device lacks
- * Iowan Old Style (an Apple-bundled commercial face we cannot ship). */
+ * IM Fell English, the Oxford Fell Types of the 1670s, Newton's own
+ * decade, is the film's serif on every device. */
 @font-face {
-  font-family: 'Hanken Grotesk';
-  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
-  font-weight: 400 700;
+  font-family: 'IM Fell English';
+  src: url('/fonts/im-fell-english-regular-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Literata';
-  src: url('/fonts/literata-latin.woff2') format('woff2');
-  font-weight: 400 600;
+  font-family: 'IM Fell English';
+  src: url('/fonts/im-fell-english-italic-latin.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
+  font-weight: 400 700;
   font-display: swap;
 }
 
@@ -22,7 +31,7 @@
   --board: #0b0b0d;
   --paper: #ffffff;
   --ink: #17171a;
-  --serif: "Iowan Old Style", "Literata", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --serif: "IM Fell English", Georgia, "Times New Roman", serif;
   --sans: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
 }
 

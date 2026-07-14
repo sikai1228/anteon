@@ -33,3 +33,5 @@ public/assets/ASSETS.md.
   copyright, staged as an alternative figure
 - Apollo lunar module, NASA 3D Resources, free of copyright, staged as an
   optional Moon scene prop
+- IM Fell English and Hanken Grotesk, self-hosted woff2, SIL Open Font
+  License, from the Google Fonts distribution
