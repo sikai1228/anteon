@@ -3,7 +3,7 @@
 :root {
   --chalk: #eceae4;
   --board: #0b0b0d;
-  --paper: #f4f3ef;
+  --paper: #ffffff;
   --ink: #17171a;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
 }
@@ -211,6 +211,9 @@ canvas#gl {
   font-style: italic;
   opacity: 0.62;
   letter-spacing: 0.02em;
+  /* Right-aligned to the quote block's own edge: the figcaption stretches to
+   * the grid column the blockquote defines, so its right edge is the quote's. */
+  text-align: right;
 }
 
 /* The site below the film: layered above the fixed stage so it surfaces

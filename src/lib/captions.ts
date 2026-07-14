@@ -150,13 +150,6 @@ export function createCaptions(): CaptionsApi {
   let boxH = 0;
   let boxLeft = 0;
 
-  // Landing chrome: the box opens from its inset rest state to full bleed as the
-  // quote rides off, across the quote's own exit window, steered by custom
-  // properties on the root element and written only when the eased value changes.
-  const rootStyle = document.documentElement.style;
-  const quoteOut = beats.find((b) => b.isQuote)?.tOut ?? 0.06;
-  let lastBoxK = -1;
-
   function applyAnchor(b: Beat): void {
     const el = b.el;
     if (!el || !b.anchor) return;
