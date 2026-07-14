@@ -35,15 +35,17 @@ const DUST_FADE_IN = 0.545;
 const DUST_FADE_OUT = 0.578;
 const PRINT_IN = 0.535;
 const PRINT_OUT = 0.585;
-const SOLE_FADE_IN = 0.542;
-const SOLE_FADE_OUT = 0.578;
+/* The boot leaves by stepping off, not by deletion: it lifts and drifts
+ * forward while fading, gone before the flag pole draws at about 0.648. */
+const SOLE_FADE_IN = 0.545;
+const SOLE_FADE_OUT = 0.605;
+const EXIT_LIFT = 1.5;
+const EXIT_DRIFT = 0.9;
 
 /* Geometry, local units. Sole in local x-z, heel to toe along x, tread
  * ridges spaced along x and running across the width along z. */
 const SOLE_HALF_LEN = 1.774;
 const SOLE_HALF_WID = 1.132;
-const TREADS = 12;
-const TREAD_HALF_RUN = 1.04;
 
 /* The tread IS the ribs, cropped. At the swap instant the flyer vanishes and
  * these ridges remain: they sit at the exact projected positions of the ribs
@@ -169,9 +171,9 @@ function widthAtNorm(xn: number): number {
 
 /** The inherited ribs: ridges at the ribs' own projected stations, clipped to
  * the outline, matching the flyer's rib width and boil phase. */
-function buildInheritedTread(set: StrokeSetApi): void {
+function buildInheritedTread(set: StrokeSetApi, y: number, widthPx: number, boil?: number): void {
   const pitchLocal = RIB_PITCH_WORLD / WING_SCALE;
-  const kMax = Math.floor((SOLE_HALF_LEN / pitchLocal) - 0.5);
+  const kMax = Math.floor(SOLE_HALF_LEN / pitchLocal - 0.5);
   for (let k = -kMax - 1; k <= kMax; k++) {
     const x = (k + 0.5) * pitchLocal;
     const xn = x / SOLE_HALF_LEN;
@@ -179,26 +181,11 @@ function buildInheritedTread(set: StrokeSetApi): void {
     if (half < 0.12) continue;
     set.addStroke(
       poly([
-        [x, 0, -half],
-        [x, 0.05, 0],
-        [x, 0, half],
+        [x, y, -half],
+        [x, y + 0.05, 0],
+        [x, y, half],
       ]),
-      { widthPx: RIB_WIDTH_PX, boilSeed: RIB_BOIL_SEED },
-    );
-  }
-}
-
-function treadRuns(set: StrokeSetApi, y: number, width: number, boil?: number): void {
-  for (let i = 0; i < TREADS; i++) {
-    const x = mix(-SOLE_HALF_LEN * 0.93, SOLE_HALF_LEN * 0.93, i / (TREADS - 1));
-    const r = TREAD_HALF_RUN * (1 - 0.3 * (Math.abs(x) / SOLE_HALF_LEN));
-    set.addStroke(
-      poly([
-        [x, y, -r],
-        [x, y + 0.02, 0],
-        [x, y, r],
-      ]),
-      boil !== undefined ? { widthPx: width, boilSeed: boil } : { widthPx: width },
+      boil !== undefined ? { widthPx, boilSeed: boil } : { widthPx },
     );
   }
 }
@@ -215,7 +202,9 @@ function buildSole(set: StrokeSetApi): void {
 
 function buildPrint(set: StrokeSetApi): void {
   set.addStroke(soleOutline(0.02), { widthPx: 1.8 });
-  treadRuns(set, 0.02, 1.7);
+  // the print inherits the same rib-derived stations as the sole's tread, so
+  // the plane's lines become the tread become the mark, one lineage
+  buildInheritedTread(set, 0.02, 1.7);
   const rng = makeRng(37);
   for (let i = 0; i < 14; i++) {
     const a = (i / 14) * Math.PI * 2 + rng() * 0.4;
@@ -258,7 +247,7 @@ export const bootScene: FilmScene = {
     dust = ctx.makeStrokeSet({ style: { widthPx: 1.4, dust: false }, maxPoints: 128 });
     print = ctx.makeStrokeSet({ style: { widthPx: 1.9, dust: false }, maxPoints: 300 });
     buildSole(sole);
-    buildInheritedTread(tread);
+    buildInheritedTread(tread, 0, RIB_WIDTH_PX, RIB_BOIL_SEED);
     buildDust(dust);
     buildPrint(print);
     tread.setDraw(1); // fully built; it appears by the opacity step at the swap
@@ -297,6 +286,12 @@ export const bootScene: FilmScene = {
     // then the press: same group, same boot, descending onto the regolith
     const press = smoothstep(PRESS_IN, PRESS_OUT, g);
     _pos.y = mix(_pos.y, MOON_GROUND_Y, press);
+
+    // and the exit: the boot steps off, lifting and drifting as it fades,
+    // never just deleted in place
+    const exit = smoothstep(SOLE_FADE_IN, SOLE_FADE_OUT, g);
+    _pos.y += exit * EXIT_LIFT;
+    _pos.x += exit * EXIT_DRIFT;
     soleGroup.position.copy(_pos);
 
     sole.setOpacity(soleAlpha);
