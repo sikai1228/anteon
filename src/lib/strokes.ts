@@ -27,6 +27,7 @@ interface StrokeRecord {
   widthMul: number;
   drawWindow: [number, number] | null;
   seed: number;
+  boilSeed: number | null;
 }
 
 /* Deterministic value noise for the baked wobble, matched to the shader idea. */
@@ -74,8 +75,9 @@ function defaultWindow(i: number, n: number): [number, number] {
 }
 
 export function createStrokeSet(opts: StrokeSetOptions): StrokeSetApi {
+  const look = opts.look;
   const style: StrokeStyle = { ...DEFAULT_STROKE_STYLE, ...opts.style };
-  const mats = createStrokeMaterials(opts.look, style);
+  const mats = createStrokeMaterials(look, style);
 
   const records: StrokeRecord[] = [];
   let dirty = false;
@@ -106,6 +108,7 @@ export function createStrokeSet(opts: StrokeSetOptions): StrokeSetApi {
     const aSide = new Float32Array(vertCount);
     const aU = new Float32Array(vertCount);
     const aStrokeSeed = new Float32Array(vertCount);
+    const aBoilSeed = new Float32Array(vertCount);
     const aWidthMul = new Float32Array(vertCount);
     const aDrawWindow = new Float32Array(vertCount * 2);
     const index = new Uint32Array(idxCount);
@@ -120,6 +123,7 @@ export function createStrokeSet(opts: StrokeSetOptions): StrokeSetApi {
       const cr = r.color.r;
       const cg = r.color.g;
       const cb = r.color.b;
+      const boilSeed = r.boilSeed ?? r.seed;
 
       for (let i = 0; i < count; i++) {
         const cur = p[i];
@@ -143,6 +147,7 @@ export function createStrokeSet(opts: StrokeSetOptions): StrokeSetApi {
           aSide[vi] = side === 0 ? -1 : 1;
           aU[vi] = u;
           aStrokeSeed[vi] = r.seed;
+          aBoilSeed[vi] = boilSeed;
           aWidthMul[vi] = r.widthMul;
           aDrawWindow[vi * 2] = win[0];
           aDrawWindow[vi * 2 + 1] = win[1];
@@ -170,6 +175,7 @@ export function createStrokeSet(opts: StrokeSetOptions): StrokeSetApi {
     next.setAttribute('aSide', new THREE.BufferAttribute(aSide, 1));
     next.setAttribute('aU', new THREE.BufferAttribute(aU, 1));
     next.setAttribute('aStrokeSeed', new THREE.BufferAttribute(aStrokeSeed, 1));
+    next.setAttribute('aBoilSeed', new THREE.BufferAttribute(aBoilSeed, 1));
     next.setAttribute('aWidthMul', new THREE.BufferAttribute(aWidthMul, 1));
     next.setAttribute('aDrawWindow', new THREE.BufferAttribute(aDrawWindow, 2));
     // Alias position to the current point so culling and bounds have real data.
@@ -202,6 +208,7 @@ export function createStrokeSet(opts: StrokeSetOptions): StrokeSetApi {
         widthMul: (addOpts?.widthPx ?? style.widthPx) / style.widthPx,
         drawWindow: addOpts?.drawWindow ?? null,
         seed,
+        boilSeed: addOpts?.boilSeed ?? null,
       });
       dirty = true;
       return { index: records.length - 1 };
@@ -225,9 +232,11 @@ export function createStrokeSet(opts: StrokeSetOptions): StrokeSetApi {
       mats.chalk.uniforms.uViewport.value.set(w, h);
       mats.chalk.uniforms.uDpr.value = dpr;
       mats.chalk.uniforms.uTime.value = timeSec;
+      mats.chalk.uniforms.uLookWidthMul.value = look.widthMul;
       mats.dust.uniforms.uViewport.value.set(w, h);
       mats.dust.uniforms.uDpr.value = dpr;
       mats.dust.uniforms.uTime.value = timeSec;
+      mats.dust.uniforms.uLookWidthMul.value = look.widthMul;
 
       // Keep the dust pass just under the chalk pass, tracking any renderOrder
       // the scene set on the group.

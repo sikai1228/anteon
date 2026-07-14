@@ -7,10 +7,10 @@
  * 0.05 sapling draws itself         0.52 sole presses, pull back to print
  * 0.10 tree grows, camera orbits    0.58 lunar wide, distant figure
  * 0.18 apple resolves, caption      0.68 flag rises, the only color
- * 0.22 apple drops                  0.80 push into the color, bleed out
- * 0.26 figure stands                0.90 card: every giant stood on someone
- * 0.30 match cut: fall becomes      0.95 card: your AI shouldn't stand alone
- *      takeoff arc                  1.00 logo, site begins
+ * 0.22 apple drops, bonks his head  0.80 push into the color, bleed out
+ * 0.26 he rises and picks it up     0.90 card: every giant stood on someone
+ * 0.32 the Flyer crosses the sky,   0.95 card: your AI shouldn't stand alone
+ *      the camera chases it in      1.00 logo, site begins
  */
 
 import type { CameraKey, CaptionBeat, FadeBeat, SceneDef } from './lib/types';
@@ -27,15 +27,22 @@ export const FILM = {
   /** Total scroll length. The film's runtime is the user's scroll. */
   scrollLengthVh: 1400,
 
+  /**
+   * Camera keys are staged to fill the frame vertically at this aspect.
+   * Narrower viewports widen the fov to hold the horizontal composition;
+   * wider viewports keep the vertical framing and gain lateral air.
+   */
+  refAspect: 1.6,
+
   scenes: [
-    { id: 'newton', range: [0.02, 0.315] },
-    { id: 'flyer', range: [0.29, 0.48] },
+    { id: 'newton', range: [0.02, 0.34] },
+    { id: 'flyer', range: [0.295, 0.48] },
     { id: 'boot', range: [0.455, 0.62] },
     { id: 'moon', range: [0.5, 0.87] },
   ] as SceneDef[],
 
   captions: [
-    { key: 'quoteHold', el: 'quote', tIn: 0.0, tOut: 0.055 },
+    { key: 'quoteHold', el: 'quote', tIn: 0.0, tOut: 0.06 },
     { key: 'newton1', tIn: 0.175, tOut: 0.225 },
     { key: 'newton2', tIn: 0.215, tOut: 0.265 },
     { key: 'wrights', tIn: 0.345, tOut: 0.42 },
@@ -57,40 +64,57 @@ export const FILM = {
    * Cuts hide inside matched framings at 0.30 and 0.465.
    */
   camera: [
-    { t: 0.0, pos: [0, 2.2, 16], target: [0, 3.4, 0], fov: 38 },
-    { t: 0.06, pos: [0.6, 2.0, 14.5], target: [0, 3.2, 0] },
-    { t: 0.12, pos: [3.2, 4.2, 11.5], target: [0.2, 4.4, 0] },
+    { t: 0.0, pos: [0.8, 1.6, 7.6], target: [0, 1.5, 0], fov: 38 },
+    { t: 0.06, pos: [1.0, 1.7, 7.0], target: [0, 1.7, 0] },
+    { t: 0.12, pos: [2.8, 3.2, 9.8], target: [0.1, 3.1, 0] },
     { t: 0.18, pos: [2.2, 5.6, 8.0], target: [1.5, 6.3, 0] },
-    { t: 0.225, pos: [2.0, 4.2, 8.5], target: [2.4, 3.4, 0] },
-    { t: 0.26, pos: [0.8, 1.1, 9.5], target: [3.0, 1.6, 0] },
-    { t: 0.3, pos: [1.2, 2.4, 11], target: [2.6, 2.6, 0] },
-    { t: 0.315, pos: [56.5, 1.6, 12.5], target: [60, 2.6, 0] },
-    { t: 0.4, pos: [57.5, 3.0, 10.5], target: [61, 3.6, 0] },
-    { t: 0.44, pos: [59.5, 4.0, 7.5], target: [62, 4.4, 0], roll: 12 },
-    { t: 0.465, pos: [61.2, 4.6, 4.6], target: [62.4, 4.7, 0], roll: 78 },
+    { t: 0.225, pos: [1.8, 3.8, 8.0], target: [1.1, 2.4, 0] },
+    { t: 0.25, pos: [1.7, 1.5, 6.5], target: [0.85, 1.15, 0] },
+    { t: 0.285, pos: [0.6, 1.0, 9.0], target: [1.0, 1.2, 0] },
+    { t: 0.31, pos: [1.1, 1.9, 10.3], target: [0.85, 1.7, 0] },
+    { t: 0.325, pos: [1.0, 2.8, 10.5], target: [-2.5, 8.0, -16], fov: 36 },
+    { t: 0.35, pos: [2.6, 4.6, 9.0], target: [3, 8.9, -12], fov: 34 },
+    { t: 0.39, pos: [8.5, 7.6, 2.5], target: [13, 8.3, -6], fov: 32 },
+    { t: 0.43, pos: [20.5, 7.5, 3.6], target: [25, 7.2, -2], fov: 31 },
+    { t: 0.465, pos: [29.6, 6.7, 3.0], target: [31.8, 6.5, -0.2], roll: 78, fov: 30 },
     { t: 0.475, pos: [180, 5.2, 4.4], target: [180, 0.6, 0], roll: 96 },
     { t: 0.5, pos: [180, 4.4, 6.0], target: [180, 0.4, 0], roll: 30 },
     { t: 0.54, pos: [179, 2.6, 9.0], target: [180.6, 0.3, 0], roll: 0 },
-    { t: 0.6, pos: [175, 2.4, 16], target: [181, 1.0, 0] },
-    { t: 0.68, pos: [176.5, 1.8, 13], target: [183, 1.6, 0] },
+    { t: 0.6, pos: [177.2, 1.25, 7.2], target: [182.2, 1.05, 0] },
+    { t: 0.68, pos: [178.6, 1.5, 8.6], target: [183, 1.5, 0] },
     { t: 0.8, pos: [182.2, 1.7, 2.2], target: [183, 1.7, 0], fov: 26 },
     { t: 0.86, pos: [182.6, 1.7, 1.2], target: [183, 1.7, 0], fov: 22 },
     { t: 1.0, pos: [182.6, 1.7, 1.2], target: [183, 1.7, 0], fov: 22 },
   ] as CameraKey[],
 
   /**
-   * The shared parabola. The apple falls along it; the Flyer's takeoff
-   * reverses it. Both scenes read these numbers, never their own copies.
+   * The apple's fall. It ends on the seated figure's head, against the
+   * trunk; the bounce off his head is authored in the scene.
    */
   arc: {
     /** Apple release point, in the newton region. */
     start: [1.5, 6.3, 0] as [number, number, number],
     /** Mid control point. */
-    apex: [2.4, 6.9, 0] as [number, number, number],
-    /** Impact point, next to the seated figure. */
-    end: [3.2, 0.35, 0] as [number, number, number],
-    /** Scale and placement of the mirrored arc in the flyer region. */
+    apex: [1.9, 6.8, 0] as [number, number, number],
+    /** Impact point: the crown of the seated figure's head. */
+    end: [0.85, 1.12, 0] as [number, number, number],
+    /** Legacy of the reversed takeoff arc; unused since the flythrough. */
     flyerScale: 3.2,
     flyerLift: 0.4,
   },
+
+  /**
+   * The frame 2 transition: the Flyer crosses the sky behind the Newton
+   * frame and the camera chases it until the wing fills the frame at the
+   * 0.465 rib presentation. Rows are [t, x, y, z] in world space; the
+   * flyer scene interpolates its position from them, and the camera keys
+   * above are staged against the same rows.
+   */
+  flythrough: [
+    [0.315, -6, 8.5, -16],
+    [0.35, 3, 8.9, -12],
+    [0.39, 13, 8.3, -6],
+    [0.43, 25, 7.2, -2],
+    [0.475, 34, 6.3, 0.2],
+  ] as [number, number, number, number][],
 };

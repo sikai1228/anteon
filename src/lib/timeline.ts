@@ -28,6 +28,10 @@ function clamp01(x: number): number {
 }
 
 export function createTimeline(filmEl: HTMLElement): TimelineApi {
+  // The browser's scroll restoration can fire after the deep-link jump and
+  // silently win; the film owns its scroll position.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let spanPx = Math.max(1, filmEl.offsetHeight - window.innerHeight);
@@ -108,6 +112,11 @@ const _tmp = new THREE.Vector3();
 
 const DEG = Math.PI / 180;
 
+/** The keys are staged to fill the frame vertically at this aspect. */
+const REF_ASPECT = FILM.refAspect;
+/** Cap on the vertical fov widening so portrait phones do not go fisheye. */
+const MAX_WIDEN = 1.55;
+
 function smoothstep(t: number): number {
   if (t <= 0) return 0;
   if (t >= 1) return 1;
@@ -150,7 +159,20 @@ export function sampleCamera(p: number, camera: THREE.PerspectiveCamera): void {
 
   const fovA = a.fov ?? LOOK.fov;
   const fovB = b.fov ?? LOOK.fov;
-  const fov = fovA + (fovB - fovA) * s;
+  const keyedFov = fovA + (fovB - fovA) * s;
+
+  // Aspect compensation. Below the reference aspect the viewport is narrower
+  // than the keys assumed, so widen the vertical fov to keep the same
+  // horizontal span in frame; cap the widening so portrait phones do not go
+  // fisheye. At or above the reference, keep the keyed fov and let wide screens
+  // take the extra span as lateral air.
+  const aspect = camera.aspect;
+  let fov = keyedFov;
+  if (aspect < REF_ASPECT) {
+    const widened = (2 * Math.atan((Math.tan((keyedFov * DEG) / 2) * REF_ASPECT) / aspect)) / DEG;
+    const cap = keyedFov * MAX_WIDEN;
+    fov = widened < cap ? widened : cap;
+  }
 
   const rollA = a.roll ?? 0;
   const rollB = b.roll ?? 0;

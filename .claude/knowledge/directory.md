@@ -1,6 +1,7 @@
 # Canonical
 
 - Layer2: brand wordmark, capital L, no space. Placeholder until the brand is confirmed (source: user's folder name and brief).
+- Wright brothers: always "the Wright brothers", never "the Wrights" (user decision, Jul 14, 2026). "Wright Flyer" as the aircraft name and "Estate of Orville Wright" as a credit line are unaffected.
 - Wright Flyer, Kitty Hawk, Sea of Tranquility, the Moon: capitalized proper nouns (source: user brief).
 - Chalk white #eceae4, board #0b0b0d: the film's two values (source: user brief, "one value").
 - Caption lines keep their trailing periods; they are cinematic body copy, not headers (source: user brief).

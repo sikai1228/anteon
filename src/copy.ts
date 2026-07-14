@@ -12,9 +12,9 @@ export const COPY = {
   captions: {
     newton1: 'Newton stood on Galileo.',
     newton2: 'And Kepler. And Barrow.',
-    wrights: 'The Wrights stood on Newton.',
+    wrights: 'The Wright brothers stood on Newton.',
     lilienthal: 'Lilienthal’s numbers were wrong. They built a wind tunnel and fixed them.',
-    nasa: 'NASA stood on the Wrights.',
+    nasa: 'NASA stood on the Wright brothers.',
     armstrong: 'Armstrong carried a piece of their wing to the Moon.',
     card1: 'Every giant stood on someone.',
     card2: 'Your AI shouldn’t stand alone.',

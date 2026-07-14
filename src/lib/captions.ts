@@ -1,8 +1,8 @@
 /**
  * Captions and the color fade. Beats are built from FILM.captions plus the
  * strings in COPY; opacity eases in and out of each beat window, the opening
- * quote drifts up as it leaves, and #fade washes the frame per FILM.fades.
- * In static mode the same beats stack visibly, styled by styles.css.
+ * quote rides up off the top as it exits, and #fade washes the frame per
+ * FILM.fades. In static mode the same beats stack visibly, styled by styles.css.
  */
 
 import { FILM } from '../film.config';
@@ -16,8 +16,10 @@ export interface CaptionsApi {
 
 /** Fade in and out over this fraction of each beat window. */
 const EDGE_FRAC = 0.18;
-/** Upward drift of the quote as it exits, px. */
-const QUOTE_DRIFT = 14;
+/** Hold the quote still until this p, then it rides up and off the top. */
+const QUOTE_HOLD_END = 0.015;
+/** Clearance above the top once the quote has fully exited, viewport fraction. */
+const QUOTE_EXIT_MARGIN = 0.04;
 
 interface Beat {
   key: string;
@@ -25,8 +27,6 @@ interface Beat {
   tIn: number;
   tOut: number;
   edge: number;
-  /** True for the opening quote: already on at the film start, no fade in. */
-  holdFromStart: boolean;
   isQuote: boolean;
   text: string;
   card: boolean;
@@ -75,7 +75,6 @@ export function createCaptions(): CaptionsApi {
       tIn: c.tIn,
       tOut: c.tOut,
       edge: EDGE_FRAC * (w > 0 ? w : 0),
-      holdFromStart: c.tIn <= 0,
       isQuote,
       text: isQuote ? '' : COPY.captions[c.key as keyof typeof COPY.captions] ?? '',
       card: c.card === true,
@@ -89,6 +88,28 @@ export function createCaptions(): CaptionsApi {
     const [r, g, b] = parseHex(LOOK[f.color]);
     return { tIn: f.tIn, tPeak: f.tPeak, tOut: f.tOut, r, g, b };
   });
+
+  // The quote centers a small content block (blockquote plus figcaption) in a
+  // full-stage element. Its exit travels only far enough for that content's
+  // bottom edge to clear the top of the viewport, so it stays visible while it
+  // rides up. viewportH and the content height are cached and refreshed on
+  // resize so the render loop stays free of layout reads.
+  const quoteBlock = quoteEl?.querySelector<HTMLElement>('blockquote') ?? null;
+  const quoteCap = quoteEl?.querySelector<HTMLElement>('figcaption') ?? null;
+  let viewportH = window.innerHeight;
+  let contentH = 0;
+  function measureQuote(): void {
+    viewportH = window.innerHeight;
+    if (quoteBlock && quoteCap) {
+      // offsetTop and offsetHeight are relative to the positioned #quote, so
+      // they are unaffected by any transform already applied to it.
+      contentH = quoteCap.offsetTop + quoteCap.offsetHeight - quoteBlock.offsetTop;
+    } else if (quoteEl) {
+      contentH = quoteEl.offsetHeight;
+    } else {
+      contentH = viewportH;
+    }
+  }
 
   function makeCaption(b: Beat): HTMLElement {
     const div = document.createElement('div');
@@ -113,21 +134,16 @@ export function createCaptions(): CaptionsApi {
       captionsEl?.appendChild(div);
       b.el = div;
     }
+    measureQuote();
+    window.addEventListener('resize', measureQuote);
     built = true;
   }
 
   function beatOpacity(b: Beat, p: number): number {
-    if (p >= b.tOut) return 0;
-    const outStart = b.tOut - b.edge;
-    if (b.holdFromStart) {
-      // Already on at the film start (the pre-painted quote); only fades out.
-      if (p < 0) return 0;
-      if (p >= outStart && b.edge > 0) return easeCubic((b.tOut - p) / b.edge);
-      return 1;
-    }
-    if (p <= b.tIn) return 0;
+    if (p <= b.tIn || p >= b.tOut) return 0;
     if (b.edge <= 0) return 1;
     const inEnd = b.tIn + b.edge;
+    const outStart = b.tOut - b.edge;
     if (p < inEnd) return easeCubic((p - b.tIn) / b.edge);
     if (p > outStart) return easeCubic((b.tOut - p) / b.edge);
     return 1;
@@ -183,25 +199,43 @@ export function createCaptions(): CaptionsApi {
     }
   }
 
+  function updateQuote(el: HTMLElement, b: Beat, p: number): void {
+    // The quote leads the film, then rides up and off the top as the drawing
+    // appears beneath it, tied to the scroll rather than eased. It holds still
+    // until the hold end, then translates linearly with p until it clears the
+    // top of the viewport by the beat's tOut. Opacity stays at 1 the whole
+    // time; it leaves the frame instead of fading in place.
+    let dy = 0;
+    if (p > QUOTE_HOLD_END) {
+      const span = b.tOut - QUOTE_HOLD_END;
+      let k = span > 0 ? (p - QUOTE_HOLD_END) / span : 1;
+      if (k > 1) k = 1;
+      // Travel only far enough for the centered content's bottom edge to clear
+      // the top by a small margin, so it rides up through the whole window
+      // rather than clearing at twice the needed distance.
+      const travel = (viewportH + contentH) / 2 + QUOTE_EXIT_MARGIN * viewportH;
+      dy = -k * travel;
+    }
+    const rdy = Math.round(dy);
+    if (rdy !== b.lastDy) {
+      el.style.transform = rdy !== 0 ? `translateY(${rdy}px)` : '';
+      b.lastDy = rdy;
+    }
+  }
+
   function update(p: number): void {
     if (!built) buildDynamic();
 
     for (const b of beats) {
       const el = b.el;
       if (!el) continue;
-      const a = beatOpacity(b, p);
 
       if (b.isQuote) {
-        const outStart = b.tOut - b.edge;
-        let dy = 0;
-        if (p >= outStart && p < b.tOut) dy = -(1 - a) * QUOTE_DRIFT;
-        const rdy = Math.round(dy * 100) / 100;
-        if (rdy !== b.lastDy) {
-          el.style.transform = rdy !== 0 ? `translateY(${rdy}px)` : '';
-          b.lastDy = rdy;
-        }
+        updateQuote(el, b, p);
+        continue;
       }
 
+      const a = beatOpacity(b, p);
       const ra = a >= 0.999 ? 1 : a <= 0.001 ? 0 : Math.round(a * 1000) / 1000;
       if (ra !== b.lastA) {
         el.style.opacity = ra === 1 ? '1' : ra === 0 ? '0' : String(ra);

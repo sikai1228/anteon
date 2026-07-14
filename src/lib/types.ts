@@ -73,6 +73,12 @@ export interface LookParams {
   toothPx: number;
   toothContrast: number;
 
+  /**
+   * Global stroke width multiplier, the one natural thickening lever.
+   * Applied on top of every per-stroke width in the stroke shader.
+   */
+  widthMul: number;
+
   /** Dust halo pass: width multiplier and alpha. */
   dustWidthMul: number;
   dustAlpha: number;
@@ -101,8 +107,10 @@ export const LOOK: LookParams = {
   toothPx: 3.5,
   toothContrast: 0.55,
 
+  widthMul: 1.4,
+
   dustWidthMul: 3.0,
-  dustAlpha: 0.06,
+  dustAlpha: 0.07,
 
   grain: 0.045,
   grainHz: 24,
@@ -163,6 +171,12 @@ export interface AddStrokeOptions {
    * in set-draw space [0..1]. Default: staggered by insertion order.
    */
   drawWindow?: [number, number];
+  /**
+   * Strokes sharing a boilSeed share their boil jitter phase, so a dense patch
+   * re-registers as one unit instead of each line shimmering on its own.
+   * Default: the stroke's own seed, which is the original per-stroke behavior.
+   */
+  boilSeed?: number;
 }
 
 export interface Viewport {

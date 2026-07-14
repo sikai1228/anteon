@@ -1,8 +1,8 @@
 # Layer2 intro: shoulders of giants
 
 A scroll-driven intro film. Chalk on black, one camera, one continuous take,
-scroll is the clock. Newton to the Wrights to the Moon, ending on: your AI
-shouldn't stand alone.
+scroll is the clock. Newton to the Wright brothers to the Moon, ending on:
+your AI shouldn't stand alone.
 
 ## Run
 

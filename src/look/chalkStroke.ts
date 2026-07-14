@@ -44,6 +44,7 @@ in vec3 aNext;
 in float aSide;
 in float aU;
 in float aStrokeSeed;
+in float aBoilSeed;
 in float aWidthMul;
 in vec3 aColor;
 in vec2 aDrawWindow;
@@ -57,12 +58,14 @@ uniform float uTaper;
 uniform float uBoilHz;
 uniform float uBoilAmpPct;
 uniform float uWidthMulGlobal;
+uniform float uLookWidthMul;
 
 out float vU;
 out float vSide;
 out vec3 vColor;
 out float vSeed;
 out float vDrawT;
+out float vWidth;
 
 ${GLSL_NOISE}
 
@@ -92,12 +95,15 @@ void main(){
   float tw = clamp(uTaper, 0.001, 0.5);
   float endShape = smoothstep(0.0, tw, aU) * smoothstep(0.0, tw, 1.0 - aU);
   float widthTaper = 0.18 + 0.82 * endShape;
-  float halfW = 0.5 * uWidthPx * uDpr * aWidthMul * uWidthMulGlobal * widthTaper * miter;
+  float halfW = 0.5 * uWidthPx * uDpr * aWidthMul * uWidthMulGlobal * uLookWidthMul * widthTaper * miter;
 
   // Boil: coherent along the stroke, re-rolled at uBoilHz, never swims.
+  // The boil phase keys off aBoilSeed, not aStrokeSeed, so strokes that share a
+  // boilSeed re-register their jitter together as one plate instead of each line
+  // shimmering on its own. By default aBoilSeed equals the stroke's own seed.
   float ts = floor(uTime * uBoilHz);
-  float bx = vnoise1(aU * 7.0 + h21(vec2(aStrokeSeed, ts)) * 137.0) * 2.0 - 1.0;
-  float by = vnoise1(aU * 7.0 + 41.0 + h21(vec2(aStrokeSeed + 19.0, ts)) * 137.0) * 2.0 - 1.0;
+  float bx = vnoise1(aU * 7.0 + h21(vec2(aBoilSeed, ts)) * 137.0) * 2.0 - 1.0;
+  float by = vnoise1(aU * 7.0 + 41.0 + h21(vec2(aBoilSeed + 19.0, ts)) * 137.0) * 2.0 - 1.0;
   vec2 boil = vec2(bx, by) * uBoilAmpPct * uViewport.y;
 
   vec2 offset = nrm * halfW * aSide + boil;
@@ -110,6 +116,9 @@ void main(){
   vColor = aColor;
   vSeed = aStrokeSeed;
   vDrawT = smoothstep(aDrawWindow.x, aDrawWindow.y, uDraw);
+  // Nominal stroke width in css px, before dpr and taper, so the fragment can
+  // tell a hairline from a wide chalk mark.
+  vWidth = uWidthPx * aWidthMul * uLookWidthMul;
 }
 `;
 
@@ -121,6 +130,7 @@ in float vSide;
 in vec3 vColor;
 in float vSeed;
 in float vDrawT;
+in float vWidth;
 
 uniform float uToothPx;
 uniform float uToothContrast;
@@ -143,12 +153,27 @@ void main(){
   float vary = mix(0.7, 1.0, vnoise2(vec2(vU * 4.0 + vSeed * 11.0, vSeed * 3.0)));
   float pressure = mix(0.55, 1.0, endTaper) * vary;
 
-  vec2 tc = gl_FragCoord.xy / max(uToothPx, 0.5);
+  // Wide strokes keep the strongly broken chalk tooth; thin strokes read as
+  // continuous lines that only break softly at the edge. Everything below keys
+  // off the stroke's nominal width in css px.
+  float wide = smoothstep(3.0, 5.5, vWidth);
+
+  // Shrink the tooth feature size for thin strokes, so a line narrower than the
+  // board grain is not chopped into dots by noise features wider than itself.
+  float effToothPx = uToothPx * mix(0.5, 1.0, wide);
+  vec2 tc = gl_FragCoord.xy / max(effToothPx, 0.5);
   float grain = vnoise2(tc) * 0.6 + vnoise2(tc * 2.03 + 7.0) * 0.4;
   float tooth = mix(1.0, grain, uToothContrast);
 
+  // Coverage floor: thin strokes hold a high floor so the body stays solid;
+  // wide strokes keep the full tooth range and its holes.
+  tooth = max(tooth, mix(0.82, 0.04, wide));
+
   float a = edge * pressure * tooth * uOpacity;
-  if (a < ign(gl_FragCoord.xy) * 0.55) discard;
+
+  // Edge break-up scales the same way: gentle for hairlines, strong for wide chalk.
+  float ditherAmt = mix(0.16, 0.55, wide);
+  if (a < ign(gl_FragCoord.xy) * ditherAmt) discard;
 
   vec3 col = vColor * uColor * (1.0 + (h21(gl_FragCoord.xy) - 0.5) * 0.06);
   outColor = vec4(col, clamp(a, 0.0, 1.0));
@@ -192,6 +217,7 @@ function baseUniforms(look: LookParams, style: StrokeStyle) {
     uBoilHz: { value: look.boilHz },
     uBoilAmpPct: { value: look.boilAmpPct },
     uWidthMulGlobal: { value: 1 },
+    uLookWidthMul: { value: look.widthMul },
   };
 }
 

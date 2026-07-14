@@ -93,6 +93,7 @@ canvas#gl {
 
 #quote figcaption {
   font-size: clamp(13px, 1.4vw, 16px);
+  font-style: italic;
   opacity: 0.62;
   letter-spacing: 0.02em;
 }

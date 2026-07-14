@@ -1,36 +1,33 @@
 /**
- * Link 2: the 1903 Flyer, drawn as chalk and flown off the shared takeoff arc.
+ * Link 2: the 1903 Flyer, drawn as chalk, crossing the sky behind the Newton
+ * frame while the camera chases and closes onto it.
  *
- * Geometry is built once at mount in a money-shot-native local frame: the wing
+ * There is no slide cut any more. The plane's world position is interpolated
+ * from FILM.flythrough by global t, and the camera keys are staged against the
+ * same rows, so the chase stays framed. Interpolation is piecewise linear on
+ * purpose: the 0.465 camera target equals a linear sample of the rows there, so
+ * linear keeps the wing centred at the presentation, where a smoothstepped
+ * sample would lead the aim and push the wing off frame.
+ *
+ * Geometry is built once at mount in a presentation-native local frame: the wing
  * lives in the local x-y plane, span along x, ribs running along y (the chord),
- * with the biplane gap along z. At the presentation pose (group rotation zero)
- * the upper wing is edge-on to the 0.465 camera and its ribs read as a row of
- * parallel ridges filling the frame, matched to the boot tread at 0.475.
- *
- * arcFlyerPoint climbs to negative x and up past y 19, which disagrees with the
- * flyer camera keys (they look toward positive x and stay near y 4.7). So only
- * the first sliver of that arc is used for the liftoff read, then the group
- * eases into the framing anchor for the match cut. See the report for the exact
- * camera or arc change this wants.
+ * biplane gap along z. Flying, the plane holds a level attitude with its nose on
+ * the path tangent. Into the presentation it banks so the upper wing turns to
+ * the 0.465 camera and its ribs read as a row of parallel ridges filling the
+ * frame, matched to the boot tread at 0.475. The plane sits close and large
+ * there, so the ribs are pitched fine enough that a dozen still fill the frame.
  */
 
 import * as THREE from 'three';
 import type { FilmContext, FilmScene, StrokeSetApi } from '../lib/types';
-import { arcFlyerPoint } from './arc';
+import { FILM } from '../film.config';
 
-/* Timing, all in local 0..1. */
-const DRAW_AIR_IN = 0.0;
-const DRAW_AIR_OUT = 0.12;
-const DRAW_RIB_IN = 0.03;
-const DRAW_RIB_OUT = 0.15;
-const FLY_IN = 0.1;
-const CLIMB_OUT = 0.7; // arc portion is spent by here, then the settle dominates
-const ARC_S_MAX = 0.14; // only this sliver of arcFlyerPoint keeps the plane in frame
-const SETTLE_IN = 0.45;
-const SETTLE_OUT = 0.92;
-const BANK_IN = 0.6;
-const BANK_OUT = 0.92;
-const BANK_MAX = 1.4; // radians, the flying attitude; 0 is the edge-on presentation
+/* Timing, all in global t. */
+const DRAW_IN = 0.295; // fully drawn while still tiny in the background
+const DRAW_OUT = 0.31;
+const BANK_IN = 0.42; // the plane flies level until here, then turns to present
+const BANK_OUT = 0.465;
+const PRESENT_T = 0.465; // the rib presentation camera key this pose is built from
 
 /* Geometry, world units. Wing in local x-y, span x, chord y, biplane gap z. */
 const HS = 4.5; // half span
@@ -38,12 +35,22 @@ const LEAD_Y = 1.7; // leading edge, top of the chord in local y
 const TRAIL_Y = -1.7; // trailing edge
 const UPPER_Z = 0.75; // wing nearest the camera at the presentation pose
 const LOWER_Z = -0.75;
-const RIBS = 14;
+const RIBS = 48; // fine pitch so a dozen fill the close presentation frame
+const RIB_BOIL_SEED = 7; // the dense ribs share one boil phase, re-registering as a unit
 const STATIONS = [-4, -2, 0, 2, 4] as const;
-const ANCHOR = new THREE.Vector3(64, 4.8, -6); // on the 0.465 view ray, wing fills frame
+
+const FT = FILM.flythrough;
+const WORLD_UP = new THREE.Vector3(0, 1, 0);
 
 const root = new THREE.Group();
-const tmpPos = new THREE.Vector3();
+// preallocated scratch, so update never allocates
+const _pos = new THREE.Vector3();
+const _tan = new THREE.Vector3();
+const _spanAxis = new THREE.Vector3();
+const _upAxis = new THREE.Vector3();
+const _mat = new THREE.Matrix4();
+const _qFly = new THREE.Quaternion();
+const _qOut = new THREE.Quaternion();
 let airframe!: StrokeSetApi;
 let ribs!: StrokeSetApi;
 
@@ -61,6 +68,79 @@ function poly(coords: readonly (readonly [number, number, number])[]): THREE.Vec
   const out: THREE.Vector3[] = [];
   for (const c of coords) out.push(new THREE.Vector3(c[0], c[1], c[2]));
   return out;
+}
+
+/** The banked pose that turns the upper wing to the presentation camera. */
+const Q_PRESENT = (() => {
+  const key = FILM.camera.find((k) => Math.abs(k.t - PRESENT_T) < 1e-6);
+  const pos = key ? key.pos : [29.6, 6.7, 3.0];
+  const tgt = key ? key.target : [31.8, 6.5, -0.2];
+  const rollDeg = key && key.roll !== undefined ? key.roll : 78;
+  const d = new THREE.Vector3(tgt[0] - pos[0], tgt[1] - pos[1], tgt[2] - pos[2]).normalize();
+  const right0 = new THREE.Vector3().crossVectors(d, WORLD_UP).normalize();
+  const up0 = new THREE.Vector3().crossVectors(right0, d).normalize();
+  const roll = (rollDeg * Math.PI) / 180;
+  const cr = Math.cos(roll);
+  const sr = Math.sin(roll);
+  // camera up and right after the roll; the wing span aligns to screen up so the
+  // ribs stack vertically and run horizontally, the same read as the boot tread
+  const screenUp = up0.clone().multiplyScalar(cr).addScaledVector(right0, sr).normalize();
+  const screenRight = right0.clone().multiplyScalar(cr).addScaledVector(up0, -sr).normalize();
+  const zAxis = new THREE.Vector3().crossVectors(screenUp, screenRight).normalize();
+  const m = new THREE.Matrix4().makeBasis(screenUp, screenRight, zAxis);
+  return new THREE.Quaternion().setFromRotationMatrix(m);
+})();
+
+/** Plane world position, piecewise linear across the flythrough rows by t. */
+function flythroughPos(g: number, out: THREE.Vector3): void {
+  const n = FT.length;
+  const first = FT[0];
+  const last = FT[n - 1];
+  if (g <= first[0]) {
+    out.set(first[1], first[2], first[3]);
+    return;
+  }
+  if (g >= last[0]) {
+    out.set(last[1], last[2], last[3]);
+    return;
+  }
+  for (let i = 0; i < n - 1; i++) {
+    const a = FT[i];
+    const b = FT[i + 1];
+    if (g <= b[0]) {
+      const f = (g - a[0]) / (b[0] - a[0]);
+      out.set(mix(a[1], b[1], f), mix(a[2], b[2], f), mix(a[3], b[3], f));
+      return;
+    }
+  }
+  out.set(last[1], last[2], last[3]);
+}
+
+/** Travel direction of the active flythrough segment, normalized. */
+function flythroughTangent(g: number, out: THREE.Vector3): void {
+  const n = FT.length;
+  let i = 0;
+  if (g >= FT[n - 1][0]) {
+    i = n - 2;
+  } else {
+    for (let k = 0; k < n - 1; k++) {
+      if (g <= FT[k + 1][0]) {
+        i = k;
+        break;
+      }
+    }
+  }
+  const a = FT[i];
+  const b = FT[i + 1];
+  out.set(b[1] - a[1], b[2] - a[2], b[3] - a[3]).normalize();
+}
+
+/** Level flying attitude: nose on the tangent, span horizontal, gap up. */
+function buildFlyQuat(f: THREE.Vector3, out: THREE.Quaternion): void {
+  _spanAxis.crossVectors(f, WORLD_UP).normalize();
+  _upAxis.crossVectors(_spanAxis, f).normalize();
+  _mat.makeBasis(_spanAxis, f, _upAxis);
+  out.setFromRotationMatrix(_mat);
 }
 
 function wingOutline(z: number): THREE.Vector3[] {
@@ -125,19 +205,19 @@ function buildAirframe(set: StrokeSetApi): void {
 }
 
 function buildRibs(set: StrokeSetApi): void {
-  // about 14 chordwise ribs per wing, spaced along the span, drawn left to right
-  for (const z of [UPPER_Z, LOWER_Z]) {
-    for (let i = 0; i < RIBS; i++) {
-      const x = mix(-HS * 0.93, HS * 0.93, i / (RIBS - 1));
-      set.addStroke(
-        poly([
-          [x, TRAIL_Y, z],
-          [x, 0, z + 0.12], // faint camber out of the wing plane
-          [x, LEAD_Y, z],
-        ]),
-        { widthPx: 1.9 },
-      );
-    }
+  // a dense row of chordwise ribs on the upper wing, drawn tip to tip; at the
+  // 0.465 presentation the span runs vertically, so this reads as a row of
+  // parallel ridges filling the frame, matched to the boot tread at 0.475
+  for (let i = 0; i < RIBS; i++) {
+    const x = mix(-HS * 0.95, HS * 0.95, i / (RIBS - 1));
+    set.addStroke(
+      poly([
+        [x, TRAIL_Y, UPPER_Z],
+        [x, 0, UPPER_Z + 0.1], // faint camber out of the wing plane
+        [x, LEAD_Y, UPPER_Z],
+      ]),
+      { widthPx: 1.9, boilSeed: RIB_BOIL_SEED },
+    );
   }
 }
 
@@ -145,26 +225,28 @@ export const flyerScene: FilmScene = {
   id: 'flyer',
   mount(ctx: FilmContext) {
     airframe = ctx.makeStrokeSet({ style: { widthPx: 2.4 }, maxPoints: 420 });
-    ribs = ctx.makeStrokeSet({ style: { widthPx: 1.9 }, maxPoints: 280 });
+    ribs = ctx.makeStrokeSet({ style: { widthPx: 1.9 }, maxPoints: 240 });
     buildAirframe(airframe);
     buildRibs(ribs);
     root.add(airframe.object3d, ribs.object3d);
     ctx.three.scene.add(root);
   },
 
-  update(local: number, _global: number, ctx: FilmContext) {
-    airframe.setDraw(smoothstep(DRAW_AIR_IN, DRAW_AIR_OUT, local));
-    ribs.setDraw(smoothstep(DRAW_RIB_IN, DRAW_RIB_OUT, local));
+  update(_local: number, global: number, ctx: FilmContext) {
+    const draw = smoothstep(DRAW_IN, DRAW_OUT, global);
+    airframe.setDraw(draw);
+    ribs.setDraw(draw);
 
-    // liftoff along a sliver of the takeoff arc, then ease into the frame anchor
-    const climb = smoothstep(FLY_IN, CLIMB_OUT, local);
-    arcFlyerPoint(climb * ARC_S_MAX, tmpPos);
-    tmpPos.lerp(ANCHOR, smoothstep(SETTLE_IN, SETTLE_OUT, local));
-    root.position.copy(tmpPos);
+    // cross the sky along the flythrough rows
+    flythroughPos(global, _pos);
+    root.position.copy(_pos);
 
-    // bank from the flying attitude to the edge-on presentation of the ribs
-    const present = smoothstep(BANK_IN, BANK_OUT, local);
-    root.rotation.set(mix(BANK_MAX, 0, present), 0, 0);
+    // hold a level attitude on the tangent, then bank into the rib presentation
+    flythroughTangent(global, _tan);
+    buildFlyQuat(_tan, _qFly);
+    const present = smoothstep(BANK_IN, BANK_OUT, global);
+    _qOut.copy(_qFly).slerp(Q_PRESENT, present);
+    root.quaternion.copy(_qOut);
 
     const t = ctx.time();
     const cam = ctx.three.camera;
