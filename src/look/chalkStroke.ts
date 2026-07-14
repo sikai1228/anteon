@@ -20,6 +20,14 @@ export interface StrokeMaterials {
   dust: THREE.ShaderMaterial;
 }
 
+/**
+ * The dust halo may extend at most this many css px past the stroke width.
+ * Thin strokes keep their full soft halo (their width times dustWidthMul is well
+ * under this), so only very wide close-up strokes are capped and stop paying
+ * triple fill. Wired as a constant here on purpose, no LOOK knob.
+ */
+const DUST_CAP_PX = 14;
+
 /* Shared procedural noise, injected into both stages. */
 const GLSL_NOISE = /* glsl */ `
 float h11(float p){ p = fract(p * 0.1031); p *= p + 33.33; p *= p + p; return fract(p); }
@@ -59,6 +67,7 @@ uniform float uBoilHz;
 uniform float uBoilAmpPct;
 uniform float uWidthMulGlobal;
 uniform float uLookWidthMul;
+uniform float uDustCapPx;
 
 out float vU;
 out float vSide;
@@ -95,7 +104,14 @@ void main(){
   float tw = clamp(uTaper, 0.001, 0.5);
   float endShape = smoothstep(0.0, tw, aU) * smoothstep(0.0, tw, 1.0 - aU);
   float widthTaper = 0.18 + 0.82 * endShape;
-  float halfW = 0.5 * uWidthPx * uDpr * aWidthMul * uWidthMulGlobal * uLookWidthMul * widthTaper * miter;
+  // Nominal stroke width in css px, before dpr and taper.
+  float wCss = uWidthPx * aWidthMul * uLookWidthMul;
+  // Cap the dust halo: its width is min(wCss * dustWidthMul, wCss + uDustCapPx),
+  // expressed as an effective multiplier. For the chalk pass uWidthMulGlobal is
+  // 1, so the min is always 1 and chalk is untouched; only the wide dust pass
+  // gets clamped.
+  float effMul = min(uWidthMulGlobal, 1.0 + uDustCapPx / max(wCss, 0.001));
+  float halfW = 0.5 * wCss * uDpr * effMul * widthTaper * miter;
 
   // Boil: coherent along the stroke, re-rolled at uBoilHz, never swims.
   // The boil phase keys off aBoilSeed, not aStrokeSeed, so strokes that share a
@@ -116,9 +132,8 @@ void main(){
   vColor = aColor;
   vSeed = aStrokeSeed;
   vDrawT = smoothstep(aDrawWindow.x, aDrawWindow.y, uDraw);
-  // Nominal stroke width in css px, before dpr and taper, so the fragment can
-  // tell a hairline from a wide chalk mark.
-  vWidth = uWidthPx * aWidthMul * uLookWidthMul;
+  // The fragment uses the nominal width to tell a hairline from a wide mark.
+  vWidth = wCss;
 }
 `;
 
@@ -218,6 +233,7 @@ function baseUniforms(look: LookParams, style: StrokeStyle) {
     uBoilAmpPct: { value: look.boilAmpPct },
     uWidthMulGlobal: { value: 1 },
     uLookWidthMul: { value: look.widthMul },
+    uDustCapPx: { value: DUST_CAP_PX },
   };
 }
 
