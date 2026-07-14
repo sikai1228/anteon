@@ -10,8 +10,8 @@
 
 const EXPAND_IN = 0.015;
 const EXPAND_OUT = 0.06;
-const BOX_TOP = 56;
-const BOX_INSET = 14;
+const BOX_TOP = 84;
+const BOX_INSET = 17;
 const BOX_RADIUS = 10;
 const SKIP_DISMISS_MS = 300;
 

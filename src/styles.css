@@ -33,7 +33,7 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   top: 0;
   left: 0;
   right: 0;
-  height: 56px;
+  height: 84px;
   display: flex;
   align-items: center;
   padding: 0 22px;
@@ -57,10 +57,10 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
  * so the film expands to full bleed in the same breath. */
 #stage {
   position: fixed;
-  top: var(--box-top, 56px);
-  left: var(--box-inset, 14px);
-  right: var(--box-inset, 14px);
-  bottom: var(--box-inset, 14px);
+  top: var(--box-top, 84px);
+  left: var(--box-inset, 17px);
+  right: var(--box-inset, 17px);
+  bottom: var(--box-inset, 17px);
   background: var(--board);
   border: 1px solid var(--box-border, #dedcd5);
   border-radius: var(--box-radius, 10px);
@@ -221,9 +221,10 @@ canvas#gl {
 }
 
 /* The site below the film: layered above the fixed stage so it surfaces
- * when the film ends. */
+ * when the film ends. White, the film hands back to the paper shell. */
 #site {
-  background: var(--board);
+  background: var(--paper);
+  color: var(--ink);
   position: relative;
   z-index: 7;
   position: relative;
