@@ -90,14 +90,12 @@ for (const w of document.querySelectorAll('#wordmark, .site-wordmark')) {
 
 if (!document.documentElement.classList.contains('static')) {
   skipEl?.addEventListener('click', () => {
-    // Two beats: an instant cut to the closing card, then an automatic glide
-    // up through the white box's rise onto the finished page. Any manual
-    // scroll cancels the glide.
-    const s = span();
-    const from = 0.968 * s;
-    const to = s + window.innerHeight;
-    window.scrollTo(0, from);
-    const T = 1100;
+    // No teleport: race through the whole film in about 1.5 seconds, fast
+    // enough to skip, slow enough that every frame flashes past, landing on
+    // the finished white page. Any manual scroll cancels the ride.
+    const from = window.scrollY;
+    const to = span() + window.innerHeight;
+    const T = 1500;
     let cancelled = false;
     const cancel = () => {
       cancelled = true;
@@ -105,13 +103,13 @@ if (!document.documentElement.classList.contains('static')) {
     window.addEventListener('wheel', cancel, { once: true, passive: true });
     window.addEventListener('touchstart', cancel, { once: true, passive: true });
     const t0 = performance.now();
-    const glide = (now: number) => {
+    const ride = (now: number) => {
       if (cancelled) return;
-      const k = ease(clamp01((now - t0 - 350) / T));
+      const k = ease(clamp01((now - t0) / T));
       window.scrollTo(0, from + (to - from) * k);
-      if (k < 1) requestAnimationFrame(glide);
+      if (k < 1) requestAnimationFrame(ride);
     };
-    requestAnimationFrame(glide);
+    requestAnimationFrame(ride);
   });
   requestAnimationFrame(frame);
 } else {
