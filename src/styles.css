@@ -204,6 +204,10 @@ canvas#gl {
   line-height: 1.5;
   max-width: 26ch;
   text-wrap: balance;
+  /* Hug the rendered lines so the shared column ends at the text's own ink
+   * edge; the attribution right-aligns to that, not to a wider box. */
+  width: fit-content;
+  margin-inline: auto;
 }
 
 #quote figcaption {
