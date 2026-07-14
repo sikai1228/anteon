@@ -53,6 +53,8 @@ interface Beat {
   isAnchored: boolean;
   isCard: boolean;
   small: boolean;
+  /** Anchor fractions are of the viewport, hugging the physical frame. */
+  screen: boolean;
   anchor: [number, number] | null;
   align: 'left' | 'center' | 'right';
   /** translateX for the align edge, applied with the anchor. */
@@ -118,6 +120,7 @@ export function createCaptions(): CaptionsApi {
       isAnchored: anchor !== null,
       isCard: c.card === true,
       small: c.small === true,
+      screen: c.screen === true,
       anchor,
       align,
       txPct: align === 'left' ? '0' : align === 'right' ? '-100%' : '-50%',
@@ -141,22 +144,38 @@ export function createCaptions(): CaptionsApi {
   const quoteBlock = quoteEl?.querySelector<HTMLElement>('blockquote') ?? null;
   const quoteCap = quoteEl?.querySelector<HTMLElement>('figcaption') ?? null;
   let viewportH = window.innerHeight;
+  let viewportW = window.innerWidth;
   let contentH = 0;
   let boxW = 0;
   let boxH = 0;
   let boxLeft = 0;
 
+  // Landing chrome: the box opens from its inset rest state to full bleed as the
+  // quote rides off, across the quote's own exit window, steered by custom
+  // properties on the root element and written only when the eased value changes.
+  const rootStyle = document.documentElement.style;
+  const quoteOut = beats.find((b) => b.isQuote)?.tOut ?? 0.06;
+  let lastBoxK = -1;
+
   function applyAnchor(b: Beat): void {
     const el = b.el;
     if (!el || !b.anchor) return;
-    el.style.left = round2(boxLeft + b.anchor[0] * boxW) + 'px';
-    el.style.top = round2(b.anchor[1] * boxH) + 'px';
+    // Screen-relative beats hug the physical frame (fractions of the
+    // viewport); stage beats pin inside the centered composition box.
+    if (b.screen) {
+      el.style.left = round2(b.anchor[0] * viewportW) + 'px';
+      el.style.top = round2(b.anchor[1] * viewportH) + 'px';
+    } else {
+      el.style.left = round2(boxLeft + b.anchor[0] * boxW) + 'px';
+      el.style.top = round2(b.anchor[1] * boxH) + 'px';
+    }
     el.style.textAlign = b.align;
   }
 
   function measureStage(): void {
     viewportH = window.innerHeight;
-    const vw = window.innerWidth;
+    viewportW = window.innerWidth;
+    const vw = viewportW;
     boxW = Math.min(vw, viewportH * REF_ASPECT);
     boxH = viewportH;
     boxLeft = (vw - boxW) / 2;
@@ -354,6 +373,8 @@ export function createCaptions(): CaptionsApi {
       else updateLiquid(b, p);
     }
     updateFade(p);
+    // The landing chrome (box expansion, skip) is owned solely by
+    // src/lib/chrome.ts; a second driver here would double-write the vars.
   }
 
   function makeCaptionStatic(b: Beat): HTMLElement {

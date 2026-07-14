@@ -37,6 +37,12 @@ export interface CaptionBeat {
    * Omitted: the beat keeps the full-screen centered layout (quote, cards).
    */
   anchor?: [number, number];
+  /**
+   * Anchor fractions are of the VIEWPORT instead of the stage box: the
+   * caption hugs the physical frame on any monitor. For beats staged
+   * against screen edges rather than the composition.
+   */
+  screen?: boolean;
   /** Which edge of the text block pins to the anchor. Default center. */
   align?: 'left' | 'center' | 'right';
   /** Max line width in ch for anchored captions. Default 24. */

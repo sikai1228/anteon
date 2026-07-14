@@ -6,7 +6,7 @@
 export const COPY = {
   quote: {
     text: '“If I have seen further, it is by standing on the shoulders of Giants.”',
-    attribution: '— Isaac Newton, letter to Robert Hooke, 5 February 1675',
+    attribution: '— Sir Isaac Newton',
   },
 
   captions: {
@@ -15,8 +15,8 @@ export const COPY = {
     wrights: 'The Wright brothers stood on Newton.',
     lilienthal: 'Lilienthal’s numbers were wrong. They built a wind tunnel and fixed them.',
     nasa: 'NASA stood on the Wright brothers.',
-    armstrong: 'Armstrong carried a piece of their wing to the Moon.',
-    card1: 'Every giant stood on someone.',
+    armstrong: 'Armstrong carried a piece of their design to the Moon.',
+    card1: 'Every giant stood on another.',
     card2: 'Your AI shouldn’t stand alone.',
   },
 

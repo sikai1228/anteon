@@ -37,7 +37,7 @@ export const FILM = {
 
   scenes: [
     { id: 'newton', range: [0.02, 0.38] },
-    { id: 'flyer', range: [0.295, 0.492] },
+    { id: 'flyer', range: [0.28, 0.492] },
     { id: 'boot', range: [0.455, 0.87] },
     { id: 'moon', range: [0.5, 0.87] },
   ] as SceneDef[],
@@ -53,7 +53,7 @@ export const FILM = {
     { key: 'newton2', tIn: 0.16, tOut: 0.195, anchor: [0.15, 0.78], align: 'left' },
     { key: 'wrights', tIn: 0.345, tOut: 0.42, anchor: [0.5, 0.84], align: 'center' },
     { key: 'lilienthal', tIn: 0.4, tOut: 0.45, small: true, enabled: false, anchor: [0.15, 0.88], align: 'left' },
-    { key: 'nasa', tIn: 0.515, tOut: 0.575, anchor: [0.022, 0.44], align: 'left', maxCh: 18 },
+    { key: 'nasa', tIn: 0.515, tOut: 0.575, anchor: [0.15, 0.45], screen: true, align: 'left', maxCh: 18 },
     { key: 'armstrong', tIn: 0.585, tOut: 0.66, anchor: [0.6, 0.14], align: 'left', maxCh: 25 },
     { key: 'card1', tIn: 0.885, tOut: 0.935, card: true },
     { key: 'card2', tIn: 0.945, tOut: 0.998, card: true },
@@ -134,6 +134,7 @@ export const FILM = {
    * above are staged against the same rows.
    */
   flythrough: [
+    [0.28, -14, 12.9, -17.5],
     [0.315, -6, 12.8, -16],
     [0.35, 3, 12.6, -12],
     [0.39, 13, 12.3, -6],

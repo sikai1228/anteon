@@ -78,29 +78,38 @@ canvas#gl,
   height: 100vh;
 }
 
-/* The skip control, where the eye expects scroll-to-explore. */
+/* The skip control, where the eye expects scroll-to-explore: a plain label
+ * beside an outlined key square carrying the arrow. */
 #skip {
   position: absolute;
   right: 26px;
   bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: 16px;
   letter-spacing: 0.02em;
   color: var(--chalk);
-  opacity: 0.66;
+  opacity: 0.88;
   background: none;
-  border: 1px solid #33333a;
-  border-radius: 999px;
-  padding: 9px 18px;
+  border: none;
+  padding: 0;
   cursor: pointer;
-}
-
-#skip:hover { opacity: 1; }
-
-#skip {
   transition: opacity 0.3s ease;
   pointer-events: auto;
 }
+
+#skip .skip-key {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--chalk);
+  border-radius: 8px;
+}
+
+#skip:hover { opacity: 1; }
 
 #skip.gone {
   opacity: 0;
@@ -204,9 +213,12 @@ canvas#gl {
   letter-spacing: 0.02em;
 }
 
-/* The site below the film */
+/* The site below the film: layered above the fixed stage so it surfaces
+ * when the film ends. */
 #site {
   background: var(--board);
+  position: relative;
+  z-index: 7;
   position: relative;
   min-height: 70vh;
   display: grid;

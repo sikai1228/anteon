@@ -41,6 +41,8 @@ function boot(): void {
     // dead scroll under the stacked captions.
     const filmEl = document.getElementById('film');
     if (filmEl) filmEl.style.height = '';
+    // No film to skip in the stacked transcript.
+    document.getElementById('skip')?.style.setProperty('display', 'none');
     captions.buildStatic();
     return;
   }
@@ -103,6 +105,12 @@ function runFilm(captions: ReturnType<typeof createCaptions>): void {
     );
   }
 
+  // The skip control jumps to the film's end frame; it belongs to the landing
+  // state and dismisses for good on the first hint of scroll (see frame()).
+  const skipEl = document.getElementById('skip');
+  skipEl?.addEventListener('click', () => timeline.scrollToP(1));
+  let skipGone = false;
+
   /** Mount a scene this far ahead of its range so first entry is warm. */
   const MARGIN = 0.03;
 
@@ -125,15 +133,32 @@ function runFilm(captions: ReturnType<typeof createCaptions>): void {
 
   function frame(now: number): void {
     if (document.hidden) {
+      // Nothing scrolls while hidden; pause the one loop until the tab returns.
       running = false;
       return;
     }
+    // One loop: advance Lenis first so scroll and render share this frame's
+    // clock, then keep the loop alive regardless of the render gate below.
+    timeline.tick(now);
+    requestAnimationFrame(frame);
+
     const dt = (now - lastMs) / 1000;
     lastMs = now;
     nowSec = (now - startMs) / 1000;
 
     const raw = timeline.progress();
     const sm = timeline.smoothed(dt);
+
+    // The skip control is landing chrome only: the first hint of scroll starts
+    // its one-shot fade (a css transition) and it never returns.
+    if (skipEl && !skipGone && raw > 0.002) {
+      skipEl.classList.add('gone');
+      skipGone = true;
+    }
+
+    // Once the film is scrolled fully past and behind the viewer, keep ticking
+    // Lenis so scroll stays alive but skip the scene and render work.
+    if (!filmInView && raw >= 0.999) return;
 
     for (let i = 0; i < entries.length; i++) {
       const e = entries[i];
@@ -158,14 +183,6 @@ function runFilm(captions: ReturnType<typeof createCaptions>): void {
     sampleCamera(sm, camera);
     captions.update(raw);
     post.render(nowSec);
-
-    // Stop once the film is fully scrolled past and behind the viewer; the
-    // intersection observer re-arms the loop when it scrolls back into view.
-    if (raw >= 0.999 && !filmInView) {
-      running = false;
-      return;
-    }
-    requestAnimationFrame(frame);
   }
 
   function start(): void {
@@ -187,6 +204,27 @@ function runFilm(captions: ReturnType<typeof createCaptions>): void {
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) start();
   });
+
+  // Warm every scene and the shader pipeline during idle time so the first
+  // approach to each scene does not hitch. Already-mounted scenes are left
+  // alone; newly mounted ones stay invisible, so the warm pass draws only the
+  // board when nothing is on screen. The lazy-mount path in frame() then no-ops.
+  function preMount(): void {
+    for (const e of entries) {
+      if (e.mounted) continue;
+      e.scene.mount(ctx);
+      e.mounted = true;
+      e.scene.setVisible(false);
+      e.visible = false;
+    }
+    renderer.compile(scene, camera);
+    post.render(0);
+  }
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(() => preMount());
+  } else {
+    window.setTimeout(preMount, 200);
+  }
 
   start();
 }

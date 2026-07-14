@@ -39,8 +39,8 @@ import type { FilmContext, FilmScene, StrokeSetApi } from '../lib/types';
 import { FILM } from '../film.config';
 
 /* Timing, all in global t. */
-const DRAW_IN = 0.295; // fully drawn while still tiny in the background
-const DRAW_OUT = 0.31;
+const DRAW_IN = 0.28; // fully drawn off-frame, so it flies in already whole
+const DRAW_OUT = 0.29;
 const BANK_IN = 0.4; // the plane holds the crossing attitude until here, then presents
 const BANK_OUT = 0.458; // fully presented BEFORE the camera arrives: no content snap
 const PRESENT_T = 0.465; // the rib presentation camera key this pose is built from

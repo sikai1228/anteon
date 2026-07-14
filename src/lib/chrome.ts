@@ -29,7 +29,8 @@ const filmEl = document.getElementById('film');
 const skipEl = document.getElementById('skip');
 
 let lastK = -1;
-let skipArmed = true;
+let atStart = true;
+let skipTimer = 0;
 
 function span(): number {
   return Math.max(1, (filmEl ? filmEl.offsetHeight : 1) - window.innerHeight);
@@ -50,9 +51,17 @@ function frame(): void {
     rootStyle.setProperty('--box-border', open > 0.02 ? '#dedcd5' : 'transparent');
   }
 
-  if (skipArmed && p > 0.002) {
-    skipArmed = false;
-    window.setTimeout(() => skipEl?.classList.add('gone'), SKIP_DISMISS_MS);
+  // The skip control belongs to the landing: it leaves 0.3 seconds after
+  // scrolling begins and returns whenever the viewer is back at the start.
+  const nowAtStart = p < 0.002;
+  if (nowAtStart !== atStart) {
+    atStart = nowAtStart;
+    window.clearTimeout(skipTimer);
+    if (atStart) {
+      skipEl?.classList.remove('gone');
+    } else {
+      skipTimer = window.setTimeout(() => skipEl?.classList.add('gone'), SKIP_DISMISS_MS);
+    }
   }
 
   requestAnimationFrame(frame);
