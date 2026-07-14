@@ -56,7 +56,9 @@ function frame(): void {
   // The exit mirrors the entrance: the white site block enters as a box with
   // the film box's side breathing and grows to full width as it rises across
   // the final viewport of scroll.
-  const e = ease(clamp01((window.scrollY - span()) / window.innerHeight + 1));
+  // 0 when the site's top touches the viewport bottom, 1 when it reaches the
+  // top: the box's breathing eases out across exactly that climb.
+  const e = ease(clamp01((window.scrollY - span()) / window.innerHeight));
   const re = Math.round(e * 1000) / 1000;
   if (re !== lastE) {
     lastE = re;
@@ -83,7 +85,8 @@ function frame(): void {
 
 if (!document.documentElement.classList.contains('static')) {
   skipEl?.addEventListener('click', () => {
-    window.scrollTo(0, span());
+    // Straight to the finished white page: the site's top at the viewport top.
+    window.scrollTo(0, span() + window.innerHeight);
   });
   requestAnimationFrame(frame);
 } else {
