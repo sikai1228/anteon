@@ -28,6 +28,8 @@ const rootStyle = document.documentElement.style;
 const filmEl = document.getElementById('film');
 const skipEl = document.getElementById('skip');
 
+let lastE = -1;
+
 let lastK = -1;
 let atStart = true;
 let skipTimer = 0;
@@ -49,6 +51,18 @@ function frame(): void {
     rootStyle.setProperty('--box-radius', (BOX_RADIUS * open).toFixed(1) + 'px');
     // the border belongs to the landing box only; at full bleed it vanishes
     rootStyle.setProperty('--box-border', open > 0.02 ? '#dedcd5' : 'transparent');
+  }
+
+  // The exit mirrors the entrance: the white site block enters as a box with
+  // the film box's side breathing and grows to full width as it rises across
+  // the final viewport of scroll.
+  const e = ease(clamp01((window.scrollY - span()) / window.innerHeight + 1));
+  const re = Math.round(e * 1000) / 1000;
+  if (re !== lastE) {
+    lastE = re;
+    const closed = 1 - re;
+    rootStyle.setProperty('--site-inset', (BOX_INSET * closed).toFixed(1) + 'px');
+    rootStyle.setProperty('--site-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
   }
 
   // The skip control belongs to the landing: it leaves 0.3 seconds after

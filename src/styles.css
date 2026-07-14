@@ -227,12 +227,15 @@ canvas#gl {
   color: var(--ink);
   position: relative;
   z-index: 7;
-  position: relative;
-  min-height: 70vh;
+  min-height: 100vh;
   display: grid;
   place-content: center;
   text-align: center;
   gap: 0.6em;
+  /* Enters as a box with the film box's side breathing, then grows to full
+   * width as it rises; chrome.ts drives the vars from the entry progress. */
+  margin: 0 var(--site-inset, 17px);
+  border-radius: var(--site-radius, 10px) var(--site-radius, 10px) 0 0;
 }
 
 #logo { font-size: clamp(34px, 5vw, 64px); letter-spacing: 0.04em; margin: 0; font-weight: 500; }

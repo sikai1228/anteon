@@ -176,6 +176,24 @@ export function createCaptions(): CaptionsApi {
       // offsetTop and offsetHeight are relative to the positioned #quote, so
       // they are unaffected by any transform already applied to it.
       contentH = quoteCap.offsetTop + quoteCap.offsetHeight - quoteBlock.offsetTop;
+
+      // Right-align the attribution to the quote's INK, not its box: with
+      // balanced wrapping the box is wider than the longest rendered line, so
+      // measure the line boxes and pad the attribution's right edge to meet
+      // the widest line exactly.
+      const range = document.createRange();
+      range.selectNodeContents(quoteBlock);
+      let maxRight = -Infinity;
+      const rects = range.getClientRects();
+      for (let i = 0; i < rects.length; i++) {
+        if (rects[i].height > 0 && rects[i].right > maxRight) maxRight = rects[i].right;
+      }
+      const blockRight = quoteBlock.getBoundingClientRect().right;
+      if (maxRight > -Infinity && blockRight > maxRight) {
+        quoteCap.style.paddingRight = round2(blockRight - maxRight) + 'px';
+      } else {
+        quoteCap.style.paddingRight = '0px';
+      }
     } else if (quoteEl) {
       contentH = quoteEl.offsetHeight;
     } else {
