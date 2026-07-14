@@ -59,26 +59,77 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
 }
 
 .header-nav a {
+  position: relative;
   font-family: var(--serif);
   font-size: 15px;
   letter-spacing: 0.01em;
   color: var(--ink);
   text-decoration: none;
   opacity: 0.72;
+  transition: opacity 0.2s ease;
 }
 
-.header-nav a:hover { opacity: 1; }
+/* The underline draws itself left to right, exactly the text's width. */
+.header-nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s ease;
+}
 
+.header-nav a:hover {
+  opacity: 1;
+}
+
+.header-nav a:hover::after {
+  transform: scaleX(1);
+}
+
+/* Outlined on white: black text, black border, white inside. On hover the
+ * label steps left and an up-right arrow arrives on the right. */
 .book-call {
+  display: inline-flex;
+  align-items: center;
   font-family: var(--serif);
   font-size: 15px;
   letter-spacing: 0.01em;
-  color: var(--paper);
-  background: var(--ink);
-  border: none;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
   border-radius: 8px;
-  padding: 10px 18px;
+  padding: 9px 17px;
   cursor: pointer;
+}
+
+.book-call .bc-arrow {
+  display: grid;
+  place-items: center;
+  width: 0;
+  margin-left: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-5px);
+  transition: width 0.25s ease, margin-left 0.25s ease, opacity 0.2s ease, transform 0.25s ease;
+}
+
+.book-call:hover .bc-arrow {
+  width: 15px;
+  margin-left: 9px;
+  opacity: 1;
+  transform: none;
+}
+
+/* The wordmark is the way home. */
+#wordmark,
+.site-wordmark {
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 /* Film container: its height is the clock. JS syncs it to FILM.scrollLengthVh. */

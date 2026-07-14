@@ -83,6 +83,11 @@ function frame(): void {
   requestAnimationFrame(frame);
 }
 
+// Clicking the wordmark, in either header, returns to the very start.
+for (const w of document.querySelectorAll('#wordmark, .site-wordmark')) {
+  w.addEventListener('click', () => window.scrollTo(0, 0));
+}
+
 if (!document.documentElement.classList.contains('static')) {
   skipEl?.addEventListener('click', () => {
     // Two beats: an instant cut to the closing card, then an automatic glide
