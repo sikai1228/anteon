@@ -12,6 +12,11 @@ html {
   background: var(--paper);
 }
 
+/* No scrollbar at all: the page scrolls, nothing rides the edge. Inner
+ * scrollables (the contact form's message box) keep their own. */
+html { scrollbar-width: none; }
+html::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
 body {
   margin: 0;
   background: var(--paper);
