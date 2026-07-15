@@ -247,6 +247,11 @@ const ROCKS: Rock[] = [
   { x: 4.6, z: -3.4, w: 0.8, h: 0.32, seed: 212 },
   { x: 5.8, z: -4.2, w: 1.6, h: 0.55, seed: 213 },
   { x: 7.0, z: -3.8, w: 0.9, h: 0.34, seed: 214 },
+  // the far-right field, annotated empty: a loose trio on the same depth
+  // band between the crater rim and the hills, middle one largest again
+  { x: 12.0, z: -3.7, w: 0.9, h: 0.34, seed: 215 },
+  { x: 14.2, z: -4.5, w: 1.6, h: 0.52, seed: 216 },
+  { x: 16.4, z: -4.0, w: 0.85, h: 0.32, seed: 217 },
 ];
 
 function buildRocks(set: StrokeSetApi, hatch: number): void {
