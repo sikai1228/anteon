@@ -436,7 +436,8 @@ canvas#gl {
   max-width: var(--width-page);
   margin-inline: auto;
   padding-inline: var(--space-gutter);
-  padding-top: var(--space-section);
+  /* 120 from the header to the headline, a one-off just here. */
+  padding-top: 120px;
   text-align: left;
 }
 
