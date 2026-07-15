@@ -9,7 +9,7 @@
  */
 
 /** How long each cell holds its puff before the next is chosen. */
-const ROUND_MS = 1200;
+const ROUND_MS = 2000;
 /** Idle time after the pointer leaves before the game resumes. */
 const RESUME_MS = 5000;
 /** Rounds a just-picked cell must sit out, so it never repeats immediately. */
