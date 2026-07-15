@@ -22,7 +22,7 @@
 @font-face {
   font-family: 'Hanken Grotesk';
   src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
-  font-weight: 400 700;
+  font-weight: 100 900;
   font-display: swap;
 }
 
@@ -204,7 +204,9 @@ canvas#gl,
   gap: 14px;
   font-family: var(--sans);
   font-size: 16px;
-  font-weight: 400;
+  /* Optically matched: light-on-dark gains apparent weight, so the label
+   * sits below the nav links' numeric 400. */
+  font-weight: 350;
   letter-spacing: 0.02em;
   color: var(--chalk);
   opacity: 0.88;
