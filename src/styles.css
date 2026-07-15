@@ -128,12 +128,17 @@ html { scrollbar-width: thin; scrollbar-color: var(--slate) var(--board); }
   transform: none;
 }
 
-/* The wordmark is the way home. */
+/* The wordmark is the way home, in every chrome it appears in. */
 #wordmark,
-.site-wordmark {
+.site-wordmark,
+.footer-brand {
   cursor: pointer;
   pointer-events: auto;
 }
+
+/* The full-bleed band breaks out of its padded parent; clip the overshoot
+ * so it can never widen the page (clip, not hidden: sticky stays alive). */
+#site { overflow-x: clip; }
 
 /* Film container: its height is the clock. JS syncs it to FILM.scrollLengthVh. */
 #film { position: relative; }
@@ -330,9 +335,8 @@ canvas#gl {
   font-family: var(--sans);
   position: relative;
   z-index: var(--z-site);
-  /* Tall enough to keep scrolling past the hero while the site is bare;
-   * a flex column so the footer holds the bottom edge of that space. */
-  min-height: 300vh;
+  /* Height comes from the sections below; a flex column so the footer still
+   * holds the bottom edge on any short viewport. */
   display: flex;
   flex-direction: column;
   /* Enters as a box with the film box's side breathing, then grows to full
@@ -374,13 +378,18 @@ canvas#gl {
   transform-origin: left;
 }
 
-/* The opening viewport of the site, centered under the pinned header. */
+/* The opening of the site: the EstateInventor composition, left-aligned in the
+ * page container under generous top padding. The headline sits top-left, the
+ * subhead and its one quiet call below, the team band full-bleed beneath. */
 .site-hero {
-  min-height: calc(100vh - var(--chrome-header));
-  display: grid;
-  place-content: center;
-  text-align: center;
-  gap: 0.6em;
+  /* width:100% so the flex column (#site) doesn't shrink-wrap it to the
+   * headline; max-width then holds it to the page measure, margins centre it. */
+  width: 100%;
+  max-width: var(--width-page);
+  margin-inline: auto;
+  padding-inline: var(--space-gutter);
+  padding-top: var(--space-section);
+  text-align: left;
 }
 
 /* One wordmark rule: the site header's and the footer's brand render
@@ -399,28 +408,464 @@ canvas#gl {
   margin: 0;
   font-weight: var(--weight-medium);
 }
-#site-note { opacity: var(--o-faint); margin: 0; }
+
+/* The heading's two lines, stacked and centered with the rest of the hero.
+ * Line one carries the rotating word wheel; chrome.ts drives it, these rules
+ * only shape the clip and the lockstep roll. The 1.18em / 0.18em ratios and
+ * the translate steps are the EstateInventor RotatingWord reference, kept
+ * exact so the shipped driver's measurements line up. */
+.hero-line { display: block; }
+
+.hero-wheel {
+  position: relative;
+  display: inline-block;
+  height: 1.18em;
+  overflow: hidden;
+  vertical-align: top;
+  transition: width var(--speed-settle) var(--ease);
+}
+
+/* The word sources are read by the driver, never shown. */
+.hero-wheel .hw-src { display: none; }
+
+/* Each word rolls in lockstep: the incoming word waits above, the outgoing
+ * drops below, both sliding to the clip. padding-bottom keeps descenders off
+ * the overflow edge. */
+.hw-word {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: nowrap;
+  padding-bottom: 0.18em;
+  transition: transform var(--speed-settle) var(--ease);
+  transform: translateY(0);
+}
+
+.hw-word.hw-incoming { transform: translateY(-100%); }
+.hw-word.hw-out { transform: translateY(100%); }
+.hw-word.hw-in { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-wheel,
+  .hw-word { transition: none; }
+}
+
+/* Visually hidden but kept for the accessible heading: the wheel is
+ * aria-hidden, so this static word completes the read heading. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The subhead, muted a step below the h1 and held to a readable measure; it
+ * shares a row with the quiet call. */
+.hero-sub {
+  margin: 0;
+  max-width: var(--width-prose);
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* Subhead left at prose measure, the one quiet call at the row's right edge,
+ * bottom-aligned so its baseline sits on the subhead's last line. */
+.hero-intro {
+  margin-top: var(--space-6);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+/* The quiet call: a borderless text link at the subhead's type and muted
+ * color, lifting to full ink on hover. The label slides left as an up-right
+ * arrow grows in on the right (the .book-call arrow mechanics, on a link
+ * pinned to the row's right edge). */
+.hero-bookcall {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  white-space: nowrap;
+  font-family: var(--sans);
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.hero-bookcall:hover { color: var(--ink); }
+
+.hero-bookcall .bc-arrow {
+  display: grid;
+  place-items: center;
+  width: 0;
+  margin-left: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-5px);
+  transition:
+    width var(--speed-move) var(--ease),
+    margin-left var(--speed-move) var(--ease),
+    opacity var(--speed-quick) var(--ease),
+    transform var(--speed-move) var(--ease);
+}
+
+.hero-bookcall:hover .bc-arrow {
+  width: 15px;
+  margin-left: var(--space-2);
+  opacity: 1;
+  transform: none;
+}
+
+.hero-bookcall:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: var(--radius-control);
+}
+
+/* On a phone the subhead and its call stack, the call left-aligned below. */
+@media (max-width: 640px) {
+  .hero-intro { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+}
+
+/* The terminal placeholder: a depicted window reserving the demo's home below
+ * the intro. Full container width, a paper title bar with three neutral dots,
+ * and a dark, empty body. The page's color law holds: the dots stay neutral,
+ * never window-chrome red/yellow/green; the board fill is the depicted screen. */
+.hero-terminal {
+  width: 100%;
+  margin-top: var(--space-16);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-frame);
+  overflow: hidden;
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--space-10);
+  padding-inline: var(--space-4);
+  background: var(--paper);
+  border-bottom: var(--border-hair) solid var(--line);
+}
+
+/* 10px: the window dots' own size; no token sits at 10px. */
+.terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--ash);
+}
+
+.terminal-body {
+  /* width:100% fills the frame; the ratio then sets height, and max-height
+   * caps it (the body goes wider than 16/9 rather than leaving side gaps). */
+  width: 100%;
+  background: var(--board);
+  /* Taller than a video frame: the conversation needs vertical room. */
+  aspect-ratio: 16 / 10.5;
+  max-height: 72vh;
+}
 
 /* The media strip under the hero: every mark silhouetted to the same
  * faint ink so the row reads as one quiet texture, never color. */
+/* The team band, EstateInventor's teamfrom composition on our tokens: a
+ * FULL-BLEED hairline band (broken out of any padded parent), the label
+ * pinned to the container's left edge, the marks centered in the row.
+ * The marks are pre-toned to the site's muted grey (baked into the PNGs,
+ * internal detail preserved), so the row needs no filter and no opacity. */
 .media-strip {
-  margin-top: var(--space-16);
+  width: 100vw;
+  margin: var(--space-16) 0 0 calc(50% - 50vw);
+  padding-block: var(--space-10);
+  border-top: var(--border-hair) solid var(--line);
+  border-bottom: var(--border-hair) solid var(--line);
+}
+
+.media-strip-row {
+  position: relative;
+  width: 100%;
+  max-width: var(--width-page);
+  margin-inline: auto;
+  padding-inline: var(--space-gutter);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-12);
+  gap: var(--space-16);
+}
+
+.media-strip-label {
+  position: absolute;
+  left: var(--space-gutter);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
 }
 
 .media-strip img {
   height: var(--space-8);
   width: auto;
-  filter: brightness(0);
-  opacity: var(--o-faint);
 }
 
-/* Square lockups underweigh wide ones at equal height; the tall class
+/* Wide lockups underweigh square ones at equal height; the tall class
  * evens the optical size across the row. */
 .media-strip .mark-tall { height: var(--space-10); }
+
+/* The reference's thin divider between marks: hairline wide, shorter than
+ * the marks, centered in the gap. */
+.media-strip-divider {
+  width: var(--border-hair);
+  height: var(--space-6);
+  background: var(--line);
+}
+
+/* Narrow: the label stacks above the centered marks, as the reference does;
+ * the divider makes no sense in a column and leaves. */
+@media (max-width: 640px) {
+  .media-strip-row { flex-direction: column; gap: var(--space-3); }
+  .media-strip-label { position: static; transform: none; }
+  .media-strip-divider { display: none; }
+}
+
+/* ---- The site's content sections: library, index, compiler, closing ----
+ * One paper ground throughout. Sections are told apart by whitespace on the
+ * --space-section rhythm and, at most, a hairline; never by a change of fill.
+ * Every value below is a token from tokens.css. */
+
+/* One measure for every section: the page width, gutter-padded, centered.
+ * Prose inside is held narrower by its own rule. */
+.site-container {
+  width: 100%;
+  max-width: var(--width-page);
+  margin-inline: auto;
+  padding-inline: var(--space-gutter);
+}
+
+/* One section rhythm above each block. scroll-margin clears the pinned header
+ * when the hero's "See the library" link anchors down to #library. */
+.site-section {
+  padding-top: var(--space-section);
+  scroll-margin-top: var(--chrome-header);
+}
+
+/* A section's heading and its lede, left-aligned, held to prose measure. */
+.section-head { max-width: var(--width-prose); }
+
+.section-title {
+  margin: 0;
+  font-size: var(--type-title);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.section-lede {
+  margin: var(--space-5) 0 0;
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The grid of deterministic work: four across on the page, two on a tablet,
+ * one on a phone, so a cell never has to overflow. */
+.cell-grid {
+  margin-top: var(--space-12);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+/* A hairline card, no shadow. The lift here is the example, not the tile:
+ * hover swaps the mono line for a second one. */
+.cell {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-frame);
+  background: var(--paper);
+}
+
+.cell-icon {
+  margin-bottom: var(--space-3);
+  color: var(--ink);
+}
+
+.cell-icon svg { width: var(--space-6); height: var(--space-6); }
+
+.cell-name {
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+
+.cell-desc {
+  margin: 0 0 var(--space-3);
+  font-size: var(--type-nav);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The example, mono, pinned to the card's foot so a row's examples align. Both
+ * variants stack in one grid cell: swapping them on hover costs no layout
+ * shift, the taller line reserving the height. */
+.cell-ex {
+  margin-top: auto;
+  display: grid;
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.cell-ex-a,
+.cell-ex-b {
+  grid-area: 1 / 1;
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.cell-ex-b { opacity: 0; }
+.cell:hover .cell-ex-a { opacity: 0; }
+.cell:hover .cell-ex-b { opacity: 1; }
+
+/* Cell 16, buy-not-build: the page's one earned mark of accent, on its icon. */
+.cell-buy .cell-icon { color: var(--accent); }
+
+/* The index: a quieter, typographically led band. One centered statement,
+ * no cards, a breath between the two loud sections around it. */
+.section-statement {
+  max-width: var(--width-narrow);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.statement-body {
+  margin: var(--space-5) auto 0;
+  max-width: var(--width-prose);
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The compiler's three steps in a row, joined by a single hairline that runs
+ * behind the marks. Each mark sits on a paper chip that masks the line, so the
+ * row reads as three nodes threaded on one connector. */
+.compiler-steps {
+  position: relative;
+  margin: var(--space-16) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+/* The connector sits at the marks' vertical centre, between the outer two. */
+.compiler-steps::before {
+  content: '';
+  position: absolute;
+  top: calc((var(--space-12) + var(--space-2)) / 2);
+  left: 16.66%;
+  right: 16.66%;
+  height: var(--border-hair);
+  background: var(--line);
+}
+
+.compiler-step { text-align: center; }
+
+.step-mark {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  /* 56px: a paper chip wide enough to mask the connector behind it. */
+  width: calc(var(--space-12) + var(--space-2));
+  height: calc(var(--space-12) + var(--space-2));
+  margin-bottom: var(--space-5);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.step-svg { width: var(--space-10); height: var(--space-10); }
+
+/* The hot path's dot. Ink, not accent: the page's single accent is earned by
+ * the library's buy-not-build cell, so nothing else here takes color. */
+.step-hot { fill: var(--ink); stroke: none; }
+
+.step-title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--type-body-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+
+.step-body {
+  margin: 0 auto;
+  max-width: 30ch;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The closing band: the film's thesis line, large in the site's sans, over a
+ * single call. Centered, with the full section rhythm above and below. */
+.site-closing {
+  padding-block: var(--space-section);
+  text-align: center;
+}
+
+.site-closing .site-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.closing-line {
+  max-width: var(--width-narrow);
+  margin: 0 0 var(--space-8);
+  font-size: var(--type-card);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+/* Below --bp-md the cells pair up and the steps stack, the connector hidden
+ * since there is no longer a row to thread. */
+@media (max-width: 768px) {
+  .cell-grid { grid-template-columns: 1fr 1fr; }
+  .compiler-steps { grid-template-columns: 1fr; gap: var(--space-12); }
+  .compiler-steps::before { display: none; }
+}
+
+/* On a phone the cells go single file, and the description collapses so the
+ * name and the load-bearing example carry each cell. */
+@media (max-width: 480px) {
+  .cell-grid { grid-template-columns: 1fr; }
+  .cell-desc { display: none; }
+}
+
+/* Reduced motion makes the example swap instant rather than a fade. */
+@media (prefers-reduced-motion: reduce) {
+  .cell-ex-a,
+  .cell-ex-b { transition: none; }
+}
 
 /* The site footer, ported from the kit's footer v0 (SiteFooter, PT2):
  * brand column, link columns with fixed-slot arrows, and a muted bottom

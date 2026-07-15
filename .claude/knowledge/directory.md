@@ -8,6 +8,9 @@
 
 # Auto-resolved
 
+- Antaeon: the brand and operating name in shipped copy (wordmark, footer, page titles, storage keys antaeon-lang and antaeon-scroll, legal pages). Evidence: every shell page already ships it; the Layer2 canonical entry reads as the folder-name placeholder it describes. Supersede formally via /standardize.
+- "services agreement": the legal pages' term for a customer's master agreement with Antaeon, used consistently across terms and privacy. Evidence: no prior term existed; the three legal documents define and share it.
+
 # Pending
 
 - The Newton quote attribution uses an em dash and the date style "5 February 1675". User-authored quotation typography; kept verbatim although fixed rules 2 and 3 would reformat it. Needs /standardize to resolve.

@@ -17,9 +17,9 @@
   <header id="chrome">
     <span id="wordmark">Antaeon</span>
     <nav class="header-nav">
-      <a href="#" data-i18n="product">Product</a>
-      <a href="#" data-i18n="pricing">Pricing</a>
-      <a href="#" data-i18n="support">Support</a>
+      <a href="./product.html" data-i18n="product">Product</a>
+      <a href="./pricing.html" data-i18n="pricing">Pricing</a>
+      <a href="./support.html" data-i18n="support">Support</a>
       <button type="button" class="book-call"><span class="bc-label" data-i18n="bookCall">Book a call</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
     </nav>
   </header>
@@ -42,18 +42,174 @@
     <div id="site-header">
       <span class="site-wordmark">Antaeon</span>
       <nav class="header-nav">
-        <a href="#" data-i18n="product">Product</a>
-        <a href="#" data-i18n="pricing">Pricing</a>
-        <a href="#" data-i18n="support">Support</a>
+        <a href="./product.html" data-i18n="product">Product</a>
+        <a href="./pricing.html" data-i18n="pricing">Pricing</a>
+        <a href="./support.html" data-i18n="support">Support</a>
         <button type="button" class="book-call"><span class="bc-label" data-i18n="bookCall">Book a call</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
       </nav>
     </div>
     <section class="site-hero">
-      <h1 id="logo" data-i18n="heroTitle">The JIT compiler for enterprise AI</h1>
-      <p id="site-note" data-i18n="siteNote">The site begins here.</p>
+      <h1 id="logo">
+        <span class="hero-line"><span data-i18n="heroLead">Stop wasting</span> <span class="hero-wheel" aria-hidden="true"><span class="hw-src" data-i18n="heroWheel1">tokens</span><span class="hw-src" data-i18n="heroWheel2">time</span><span class="hw-src" data-i18n="heroWheel3">devs</span><span class="hw-src" data-i18n="heroWheel4">cash</span><span class="hw-word hw-face" data-i18n="heroWheel1">tokens</span></span><span class="sr-only" data-i18n="heroWheel1">tokens</span></span>
+        <span class="hero-line" data-i18n="heroTail">on solved problems</span>
+      </h1>
+      <div class="hero-intro">
+        <p class="hero-sub" data-i18n="heroSub">Antaeon is the determinism layer for enterprise AI. Hundreds of pre-built engines for the work every company burns tokens on, and a compiler that builds the ones only you need.</p>
+        <button type="button" class="hero-bookcall"><span class="bc-label" data-i18n="bookCall">Book a call</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
+      </div>
+      <div class="hero-terminal" aria-hidden="true"><div class="terminal-bar"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span></div><div class="terminal-body"></div></div>
       <div class="media-strip">
-        <img src="/media/wharton.png" alt="The Wharton School" />
-        <img class="mark-tall" src="/media/duke.png" alt="Duke University" />
+        <div class="media-strip-row">
+          <span class="media-strip-label" data-i18n="mediaStripLabel">Team from</span>
+          <img class="mark-tall" src="/media/duke.png" alt="Duke University" />
+          <span class="media-strip-divider" aria-hidden="true"></span>
+          <img src="/media/wharton.png" alt="The Wharton School" />
+        </div>
+      </div>
+    </section>
+    <section id="library" class="site-section">
+      <div class="site-container">
+        <div class="section-head">
+          <h2 class="section-title" data-i18n="libraryTitle">The work your AI keeps re-solving</h2>
+          <p class="section-lede" data-i18n="libraryBody">Every category below has an exact answer. Antaeon ships deterministic engines for all of them, and compiles new ones from your traffic.</p>
+        </div>
+        <div class="cell-grid">
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell1Name">Conversion</h3>
+            <p class="cell-desc" data-i18n="cell1Desc">Any format into any other, whether files, images, code, or encodings.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell1ExA">docx → pdf</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell1ExB">png → webp</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 8h8"/><path d="M7 12h10"/><path d="M7 16h6"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell2Name">Extraction</h3>
+            <p class="cell-desc" data-i18n="cell2Desc">Structured fields pulled from raw documents, scans, logs, and pages.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell2ExA">invoice.pdf → {total, due_date}</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell2ExB">receipt.jpg → {vendor, amount}</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell3Name">Math &amp; dates</h3>
+            <p class="cell-desc" data-i18n="cell3Desc">Financial formulas, percentages, and calendar arithmetic, exactly.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell3ExA">90 business days from Mar 3</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell3ExB">18% of 4,200</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell4Name">Lookups</h3>
+            <p class="cell-desc" data-i18n="cell4Desc">Reference codes and standardized IDs from the actual tables.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell4ExA">HS code for lithium batteries</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell4ExB">ISO country for +44</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell5Name">Validation</h3>
+            <p class="cell-desc" data-i18n="cell5Desc">Data checked against schemas, formats, and check digits.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell5ExA">IBAN checksum → valid</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell5ExB">ISBN-13 → valid</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell6Name">Reconciliation</h3>
+            <p class="cell-desc" data-i18n="cell6Desc">Diff, dedupe, and match across lists, no rows silently dropped.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell6ExA">payments &lt;-&gt; invoices: 3 unmatched</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell6ExB">ledger &lt;-&gt; bank: 2 unmatched</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell7Name">Tabular ops</h3>
+            <p class="cell-desc" data-i18n="cell7Desc">Group, join, filter, and pivot at SQL speed and SQL accuracy.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell7ExA">sum(revenue) by region</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell7ExB">avg(price) by category</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/><line x1="10" x2="21" y1="6" y2="6"/><line x1="10" x2="21" y1="12" y2="12"/><line x1="10" x2="21" y1="18" y2="18"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell8Name">Text mechanics</h3>
+            <p class="cell-desc" data-i18n="cell8Desc">Count, sort, dedupe, and pattern-extract, precisely.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell8ExA">every email in this thread</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell8ExB">sort 10,000 rows by date</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="3" y1="6" y2="6"/><line x1="15" x2="3" y1="12" y2="12"/><line x1="17" x2="3" y1="18" y2="18"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell9Name">Standards formatting</h3>
+            <p class="cell-desc" data-i18n="cell9Desc">Citations, code style, and localization, all to the published spec.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell9ExA">→ APA 7th, every time</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell9ExB">snake_case → camelCase</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell10Name">Code mechanics</h3>
+            <p class="cell-desc" data-i18n="cell10Desc">Types from JSON, SDKs from specs, dialect-to-dialect translation.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell10ExA">OpenAPI → TypeScript client</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell10ExB">JSON → Go structs</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell11Name">Document assembly</h3>
+            <p class="cell-desc" data-i18n="cell11Desc">Templates filled from fields, the fixed parts stay fixed.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell11ExA">offer letter from {name, salary}</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell11ExB">invoice from {client, amount}</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h5"/><path d="M17.5 17.5 16 16.3V14"/><circle cx="16" cy="16" r="6"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell12Name">Scheduling logic</h3>
+            <p class="cell-desc" data-i18n="cell12Desc">Recurrence, overlaps, and business-day math across timezones.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell12ExA">next slot free in both calendars</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell12ExB">every 2nd Tuesday, 9am ET</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5" fill="currentColor"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell13Name">Encode &amp; decode</h3>
+            <p class="cell-desc" data-i18n="cell13Desc">Hashes, tokens, and encodings, without pasting secrets into chat.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell13ExA">decode JWT → claims</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell13ExB">base64 → bytes</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell14Name">Geo mechanics</h3>
+            <p class="cell-desc" data-i18n="cell14Desc">Distances, geocoding, and territory containment, computed, not guessed.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell14ExA">address → sales territory</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell14ExB">lat,lng → timezone</span></span>
+          </article>
+          <article class="cell">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell15Name">Rule-based decisions</h3>
+            <p class="cell-desc" data-i18n="cell15Desc">Where the policy is written, the decision is an engine.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell15ExA">expense &gt; $5k → VP approval</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell15ExB">risk score &gt; 80 → manual review</span></span>
+          </article>
+          <article class="cell cell-buy">
+            <span class="cell-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg></span>
+            <h3 class="cell-name" data-i18n="cell16Name">Already solved elsewhere</h3>
+            <p class="cell-desc" data-i18n="cell16Desc">When the deterministic answer exists behind an API, we route to it instead of building it.</p>
+            <span class="cell-ex"><span class="cell-ex-a" data-i18n="cell16ExA">→ existing API</span><span class="cell-ex-b" aria-hidden="true" data-i18n="cell16ExB">→ a payments API</span></span>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section id="index" class="site-section">
+      <div class="site-container">
+        <div class="section-statement">
+          <h2 class="section-title" data-i18n="indexTitle">Never build what someone already sells</h2>
+          <p class="statement-body" data-i18n="indexBody">A curated index of existing APIs sits alongside the library. When a service already does the job, Antaeon points you to it instead of asking you to build it again.</p>
+        </div>
+      </div>
+    </section>
+    <section id="compiler" class="site-section">
+      <div class="site-container">
+        <div class="section-head">
+          <h2 class="section-title" data-i18n="compilerTitle">The compiler makes the library yours</h2>
+          <p class="section-lede" data-i18n="compilerBody">A just-in-time compiler speeds up the paths a program runs most. Antaeon does the same for your AI, turning your hottest paths into engines that are yours alone.</p>
+        </div>
+        <ol class="compiler-steps">
+          <li class="compiler-step">
+            <span class="step-mark" aria-hidden="true"><svg class="step-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16h26"/><path d="M8 24h30"/><path d="M8 32h22"/></svg></span>
+            <h3 class="step-title" data-i18n="compilerStep1Title">Watch</h3>
+            <p class="step-body" data-i18n="compilerStep1Body">It watches your live traffic, call by call.</p>
+          </li>
+          <li class="compiler-step">
+            <span class="step-mark" aria-hidden="true"><svg class="step-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16 32 24"/><path d="M8 24h24"/><path d="M8 32 32 24"/><circle class="step-hot" cx="35" cy="24" r="2"/></svg></span>
+            <h3 class="step-title" data-i18n="compilerStep2Title">Find</h3>
+            <p class="step-body" data-i18n="compilerStep2Body">It finds the hot paths you hit again and again.</p>
+          </li>
+          <li class="compiler-step">
+            <span class="step-mark" aria-hidden="true"><svg class="step-svg" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 24h18"/><rect x="28" y="17" width="14" height="14" rx="2.5"/><path d="M35 21.5v5"/><path d="M32.5 24h5"/></svg></span>
+            <h3 class="step-title" data-i18n="compilerStep3Title">Extend</h3>
+            <p class="step-body" data-i18n="compilerStep3Body">It extends the library with engines that are yours alone.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+    <section class="site-closing">
+      <div class="site-container">
+        <p class="closing-line" data-i18n="footerTag">Your AI shouldn&rsquo;t stand alone.</p>
+        <button type="button" class="book-call"><span class="bc-label" data-i18n="bookCall">Book a call</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
       </div>
     </section>
     <footer class="site-footer">
@@ -64,22 +220,21 @@
         </div>
         <nav class="footer-col" aria-label="Product" data-i18n-attr="aria-label:product">
           <h2 class="footer-h" data-i18n="product">Product</h2>
-          <a href="#"><span data-i18n="pricing">Pricing</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#"><span data-i18n="support">Support</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#"><span data-i18n="bookCall">Book a call</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./pricing.html"><span data-i18n="pricing">Pricing</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./support.html"><span data-i18n="support">Support</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
         </nav>
         <nav class="footer-col" aria-label="Company" data-i18n-attr="aria-label:company">
           <h2 class="footer-h" data-i18n="company">Company</h2>
-          <a href="#"><span data-i18n="about">About</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#"><span data-i18n="blog">Blog</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#"><span data-i18n="contact">Contact</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./about.html"><span data-i18n="about">About</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./blog.html"><span data-i18n="blog">Blog</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./contact.html"><span data-i18n="contact">Contact</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
           <a href="./credits.html"><span data-i18n="credits">Credits</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
         </nav>
         <nav class="footer-col" aria-label="Legal" data-i18n-attr="aria-label:legal">
           <h2 class="footer-h" data-i18n="legal">Legal</h2>
-          <a href="#"><span data-i18n="privacy">Privacy</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#"><span data-i18n="terms">Terms</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#"><span data-i18n="cookiePolicy">Cookie policy</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./privacy.html"><span data-i18n="privacy">Privacy</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./terms.html"><span data-i18n="terms">Terms</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./cookie-policy.html"><span data-i18n="cookiePolicy">Cookie policy</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
         </nav>
         <p class="footer-copy" data-i18n="rights">&copy; 2026 Antaeon. All rights reserved.</p>
         <div class="footer-prefs">

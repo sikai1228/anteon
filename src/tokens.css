@@ -123,8 +123,8 @@
   --space-40: 160px;
 
   /* Section rhythm for the site's pages */
-  --space-section: clamp(96px, 12vw, 160px);
-  --space-section-sm: clamp(56px, 7vw, 96px);
+  --space-section: clamp(64px, 8vw, 104px);
+  --space-section-sm: clamp(40px, 5vw, 64px);
   --space-gutter: clamp(20px, 3vw, 40px);
 
   /* Chrome geometry: the shell the film box and the site box share. */
