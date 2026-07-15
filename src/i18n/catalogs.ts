@@ -327,9 +327,9 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8Desc: 'The index runs far past this page, ranked by metrics that stay current.',
     apiCell8ExA: 'ask for any api',
     apiCell8ExB: 'ranked, then routed',
-    compilerTitle: 'The compiler makes the library yours',
+    compilerTitle: 'Your firm\u2019s own proprietary library',
     compilerBody:
-      'A just-in-time compiler speeds up the paths a program runs most. Antaeon does the same for your AI, turning your hottest paths into engines that are yours alone.',
+      'Antaeon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs, so you can watch it pay for itself.',
     compilerStep1Title: 'Watch',
     compilerStep1Body: 'It watches your live traffic, call by call.',
     compilerStep2Title: 'Find',
@@ -476,9 +476,9 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8Desc: 'El índice va mucho más allá de esta página, clasificado con métricas siempre al día.',
     apiCell8ExA: 'pide cualquier api',
     apiCell8ExB: 'clasificada y enrutada',
-    compilerTitle: 'El compilador hace tuya la biblioteca',
+    compilerTitle: 'La biblioteca propietaria de tu empresa',
     compilerBody:
-      'Un compilador just-in-time acelera las rutas que un programa ejecuta más. Antaeon hace lo mismo con tu IA, y convierte tus rutas más transitadas en motores que son solo tuyos.',
+      'Antaeon compila algoritmos únicos a partir del trabajo real de tu empresa y los comparte con todos tus empleados. La biblioteca crece sin parar, y un backend registra el uso y los KPI, para que veas cómo se amortiza sola.',
     compilerStep1Title: 'Observa',
     compilerStep1Body: 'Vigila tu tráfico en vivo, llamada por llamada.',
     compilerStep2Title: 'Encuentra',
