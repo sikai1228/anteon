@@ -383,7 +383,10 @@ canvas#gl {
   gap: 0.6em;
 }
 
-#site-header .site-wordmark {
+/* One wordmark rule: the site header's and the footer's brand render
+ * identically to the landing header's. */
+#site-header .site-wordmark,
+.footer-brand {
   font-family: var(--sans);
   font-size: var(--type-wordmark);
   letter-spacing: var(--tracking-widest);
@@ -412,15 +415,6 @@ canvas#gl {
   display: grid;
   grid-template-columns: 1fr repeat(3, max-content);
   gap: var(--space-24);
-}
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  line-height: 1;
-  font-size: var(--type-wordmark);
-  letter-spacing: var(--tracking-widest);
-  color: var(--ink);
 }
 
 .footer-tag {
