@@ -189,8 +189,8 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroSub:
       "Your AI rebuilds solved algorithms, uses them once, and trashes them. Antaeon preloads 1,000+ and grows your firm's own proprietary library.",
     mediaStripLabel: 'Team from',
-    libraryTitle: '1,000+ preloaded engines',
-    libraryTitle2: 'and the intelligence framework to call them',
+    libraryTitle: '1,000+ preloaded engines and the',
+    libraryTitle2: 'framework to call them',
     libraryBody:
       'There are thousands of tasks that are deterministic and should invoke a pre-written algorithm. Yet modern AI systems continue to reinvent them from scratch, often inaccurately, and discard the result immediately after one use. Antaeon preloads 1,000+ engines and trains your AI to call them intelligently, so every request runs faster, breaks less, and costs less.',
     cell1Name: 'Conversion',
@@ -305,8 +305,8 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroSub:
       'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Antaeon precarga 1.000+ y cultiva la biblioteca propietaria de tu empresa.',
     mediaStripLabel: 'Equipo formado en',
-    libraryTitle: 'Más de 1.000 motores precargados',
-    libraryTitle2: 'y el marco de inteligencia para llamarlos',
+    libraryTitle: 'Más de 1.000 motores precargados y el',
+    libraryTitle2: 'marco para llamarlos',
     libraryBody:
       'Hay miles de tareas que son deterministas y deberían invocar un algoritmo ya escrito. Aun así, los sistemas de IA modernos siguen reinventándolas desde cero, a menudo con errores, y descartan el resultado tras un solo uso. Antaeon precarga más de 1.000 motores y entrena a tu IA para llamarlos con inteligencia, de modo que cada petición es más rápida, falla menos y cuesta menos.',
     cell1Name: 'Conversión',
