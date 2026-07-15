@@ -426,9 +426,12 @@ canvas#gl {
   font-size: var(--type-nav);
 }
 
+/* Every column right-aligns its ink to its own track edge, the last one
+ * to the page boundary; all arrows sit on the labels' left. */
 .footer-col {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: var(--space-3);
 }
 
@@ -442,6 +445,10 @@ canvas#gl {
 /* Column links: never underlined; on hover they darken to full ink and
  * reveal the up-right arrow in its fixed slot. */
 .footer-col a {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: var(--space-2);
   color: var(--ink-muted);
   font-size: var(--type-nav);
   text-decoration: none;
@@ -456,29 +463,12 @@ canvas#gl {
   display: inline-block;
   width: 1em;
   height: 1em;
-  margin-left: var(--space-2);
-  vertical-align: middle;
   opacity: 0;
   transition: opacity var(--speed-quick) var(--ease);
 }
 
 .footer-col a:hover .footer-arrow,
 .footer-col a:focus-visible .footer-arrow { opacity: 1; }
-
-/* The edge column presses its text against the page boundary, so its
- * arrow slot flips to the label's left; the other columns keep the arrow
- * on the right. (last-of-type: the rights line and pills follow the navs
- * inside the same grid, so last-child would miss.) */
-.footer-col:last-of-type { align-items: flex-end; }
-
-.footer-col:last-of-type a {
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.footer-col:last-of-type .footer-arrow { margin-left: 0; }
 
 .footer-copy {
   grid-column: 1;
