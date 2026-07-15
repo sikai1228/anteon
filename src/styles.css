@@ -645,7 +645,7 @@ canvas#gl {
   width: 100%;
   background: var(--paper);
   aspect-ratio: 16 / 11.5;
-  max-height: 84vh;
+  max-height: 77vh;
 }
 
 /* --- The terminal demo (demo.ts): the split-screen race. ---------------
