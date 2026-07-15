@@ -33,6 +33,11 @@ const LANE_PITCH = 18;
 const LANE_COUNT = 10;
 const BOX_TOP = 232;
 const BOX_HEIGHT = 60;
+/* The lines run the full field, but the library box stays inset at its old
+ * width so widening the field does not stretch it (BOX_LEFT and BOX_RIGHT
+ * land it where it sat before the break-out). */
+const BOX_LEFT = 52;
+const BOX_RIGHT = 1148;
 
 /* Pacing, in viewBox units per second and in seconds. Calm on purpose. */
 const DRAW_SPEED: readonly [number, number] = [80, 120];
@@ -227,9 +232,9 @@ function buildScene(host: HTMLElement): Scene {
   const linksG = make('g', 'cd-links');
   const linesG = make('g', 'cd-lines');
   const box = make('rect', 'cd-box', {
-    x: String(LEFT),
+    x: String(BOX_LEFT),
     y: String(BOX_TOP),
-    width: String(RIGHT - LEFT),
+    width: String(BOX_RIGHT - BOX_LEFT),
     height: String(BOX_HEIGHT),
     rx: '3',
   });

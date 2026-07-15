@@ -1804,9 +1804,11 @@ html.static .caption {
   --cd-green: #4a8f5f;
   --cd-red: var(--flag-red);
   display: block;
-  width: 100%;
-  /* The figure breathes between the lede above and the explore link below. */
-  margin: var(--space-12) 0;
+  /* Break out of the section gutter so the traffic runs the site's full max
+   * width; the box below stays inset (see cd-box geometry). Sits close under
+   * the explore link. */
+  width: calc(100% + var(--space-gutter) * 2);
+  margin: var(--space-12) calc(-1 * var(--space-gutter)) var(--space-2);
 }
 
 .compiler-diagram .cd-svg {
@@ -1837,9 +1839,9 @@ html.static .caption {
 }
 
 /* The knowledge layer. A solid ink slab with its label set in paper. */
-.cd-box { fill: var(--ink); }
+.cd-box { fill: var(--paper); stroke: var(--line); stroke-width: 1; }
 .cd-label {
-  fill: var(--paper);
+  fill: var(--ink);
   font-family: var(--sans);
   font-size: var(--type-label);
   font-weight: var(--weight-medium);
