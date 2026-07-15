@@ -125,6 +125,89 @@ if (lang) {
   }
 }
 
+// The hero word wheel, ported from EstateInventor's RotatingWord (a
+// Krea-style slot roll): the current and incoming words translate in
+// lockstep inside a clipped wrapper whose width is measured per word, so
+// each swap reads as one rolling wheel and the centered line glides to its
+// new width. Decorative (the wrapper is aria-hidden; a static sr word
+// completes the heading). Under reduced motion the wheel never starts and
+// the markup's own first word stands. Hidden .hw-src spans carry the word
+// list through the i18n catalogs, so the wheel follows locale swaps.
+const wheelEl = document.querySelector<HTMLElement>('.hero-wheel');
+if (wheelEl && !document.documentElement.classList.contains('static')) {
+  const WHEEL_MS = 2200;
+  // Must match the CSS roll transition (--speed-settle).
+  const ROLL_MS = 300;
+  const reducedMq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const sources = [...wheelEl.querySelectorAll<HTMLElement>('.hw-src')];
+  let faceEl = wheelEl.querySelector<HTMLElement>('.hw-face');
+  if (faceEl && sources.length >= 2 && !reducedMq.matches) {
+    let cur = 0;
+    let rolling = false;
+    let wheelInView = true;
+
+    const measureWord = (text: string): number => {
+      const m = document.createElement('span');
+      m.className = 'hw-word';
+      m.style.position = 'absolute';
+      m.style.visibility = 'hidden';
+      m.style.whiteSpace = 'nowrap';
+      m.textContent = text;
+      wheelEl.appendChild(m);
+      const w = m.getBoundingClientRect().width;
+      m.remove();
+      return w;
+    };
+    const syncWidth = (): void => {
+      if (!rolling) wheelEl.style.width = measureWord(sources[cur].textContent ?? '') + 'px';
+    };
+    syncWidth();
+    window.addEventListener('resize', syncWidth);
+    document.fonts?.ready.then(syncWidth);
+    // After a locale swap, applyDom resets the face to word one; put the
+    // wheel back on its current word in the new language and re-measure.
+    window.addEventListener('locale-change', () => {
+      if (faceEl) faceEl.textContent = sources[cur].textContent;
+      syncWidth();
+    });
+
+    // Pause the roll while the hero is far off screen.
+    new IntersectionObserver(
+      (es) => {
+        wheelInView = es[0]?.isIntersecting ?? true;
+      },
+      { rootMargin: '200px' },
+    ).observe(wheelEl);
+
+    window.setInterval(() => {
+      if (!wheelInView || rolling || reducedMq.matches || !faceEl) return;
+      rolling = true;
+      const next = (cur + 1) % sources.length;
+      const incoming = document.createElement('span');
+      incoming.className = 'hw-word hw-incoming';
+      incoming.textContent = sources[next].textContent;
+      wheelEl.appendChild(incoming);
+      wheelEl.style.width = measureWord(incoming.textContent ?? '') + 'px';
+      // Double rAF: paint both words at their start transforms first, so the
+      // roll has a real from state.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          faceEl?.classList.add('hw-out');
+          incoming.classList.add('hw-in');
+        });
+      });
+      window.setTimeout(() => {
+        faceEl?.remove();
+        incoming.classList.remove('hw-incoming', 'hw-in');
+        incoming.classList.add('hw-face');
+        faceEl = incoming;
+        cur = next;
+        rolling = false;
+      }, ROLL_MS + 20);
+    }, WHEEL_MS);
+  }
+}
+
 // The theme pill: selection state only for now — clicking moves the checked
 // segment; no theme engine sits behind it yet.
 const themeSwitch = document.querySelector<HTMLElement>('.theme-switch');
