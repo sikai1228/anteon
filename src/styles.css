@@ -401,6 +401,27 @@ canvas#gl {
 }
 #site-note { opacity: var(--o-faint); margin: 0; }
 
+/* The media strip under the hero: every mark silhouetted to the same
+ * faint ink so the row reads as one quiet texture, never color. */
+.media-strip {
+  margin-top: var(--space-16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-12);
+}
+
+.media-strip img {
+  height: var(--space-8);
+  width: auto;
+  filter: brightness(0);
+  opacity: var(--o-faint);
+}
+
+/* Square lockups underweigh wide ones at equal height; the tall class
+ * evens the optical size across the row. */
+.media-strip .mark-tall { height: var(--space-10); }
+
 /* The site footer, ported from the kit's footer v0 (SiteFooter, PT2):
  * brand column, link columns with fixed-slot arrows, and a muted bottom
  * row with the language pill. Values translated onto this site's tokens;
