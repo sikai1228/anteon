@@ -97,17 +97,31 @@ function frame(): void {
   requestAnimationFrame(frame);
 }
 
-// The footer wordmark replays its accent wipe each time it fully enters
-// view, matching the kit footer this is ported from: .is-wiped toggles on
-// full visibility and off on exit, so re-entry replays it.
-const wipeEl = document.querySelector<HTMLElement>('[data-footer-logo]');
-if (wipeEl && 'IntersectionObserver' in window) {
-  new IntersectionObserver(
-    (entries) => {
-      for (const en of entries) wipeEl.classList.toggle('is-wiped', en.isIntersecting);
-    },
-    { threshold: 1 },
-  ).observe(wipeEl);
+// The footer's language pill, ported from the kit: a native details menu
+// with the expected dismissals (Escape, click or focus outside, and
+// selection). No locale catalogs exist yet, so choosing only moves the
+// pill's own state.
+const lang = document.querySelector<HTMLDetailsElement>('.lang');
+if (lang) {
+  const label = lang.querySelector<HTMLElement>('.lang-label');
+  const close = () => lang.removeAttribute('open');
+  document.addEventListener('pointerdown', (e) => {
+    if (lang.open && !lang.contains(e.target as Node)) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lang.open) close();
+  });
+  document.addEventListener('focusin', (e) => {
+    if (lang.open && !lang.contains(e.target as Node)) close();
+  });
+  for (const opt of lang.querySelectorAll<HTMLButtonElement>('.lang-opt')) {
+    opt.addEventListener('click', () => {
+      for (const o of lang.querySelectorAll('.lang-opt')) o.removeAttribute('aria-current');
+      opt.setAttribute('aria-current', 'true');
+      if (label) label.textContent = opt.textContent;
+      close();
+    });
+  }
 }
 
 // Clicking the wordmark, in either header, returns to the very start as a
