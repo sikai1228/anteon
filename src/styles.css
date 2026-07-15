@@ -913,10 +913,12 @@ html[data-boot="site"] #skip {
  * internal detail preserved), so the row needs no filter and no opacity. */
 .media-strip {
   width: 100vw;
-  /* 80 of white on each side of the band, hardcoded here off the section
-   * token: 80 above the top hairline, and 20 below stacking with the library
-   * section's 60 of padding for 80 below the bottom hairline. */
-  margin: 80px 0 20px calc(50% - 50vw);
+  /* LOCKED: 120 of white on each side, fully independent of the section
+   * rhythm. Above the top hairline is this band's own 120 top margin; below
+   * the bottom hairline is the library section's 120 top-padding override
+   * (see #library below). Neither references --space-section, because that
+   * coupling is exactly what kept breaking this gap. Do not recouple. */
+  margin: 120px 0 0 calc(50% - 50vw);
   /* The section rhythm lives outside the hairlines; inside, the logos
    * keep their tighter own air. */
   padding-block: var(--space-10);
@@ -994,6 +996,13 @@ html[data-boot="site"] #skip {
 .site-section {
   padding-block: var(--space-section);
   scroll-margin-top: var(--chrome-header);
+}
+
+/* The library section sits right below the media band, so its top padding IS
+ * the 120 of white below the band's bottom hairline. LOCKED at 120, not the
+ * section rhythm, to hold that gap steady no matter what --space-section is. */
+#library {
+  padding-top: 120px;
 }
 
 /* A section's heading and its lede, left-aligned, held to prose measure. */
@@ -1776,4 +1785,79 @@ html.static .caption {
 
   #chrome .header-nav .book-call:hover::after,
   #site-header .header-nav .book-call:hover::after { transform: scaleX(1); }
+}
+
+/* --- The compiler diagram (compilerdiagram.ts): AI traffic over the layer. ---
+ * A live simulation spanning the full container width between the section's
+ * lede and its explore link. compilerdiagram.ts renders the SVG and runs the
+ * whole field. Traffic lines enter on the left in green and red, fork into
+ * DAG splitoffs with 45 degree elbows, and carry packet dots in the stroke's
+ * current color. Red lines drop ink connectors into the solid library slab
+ * below, the slab answers with ink connectors back up, and an answered line
+ * runs green from the fix point on, so the right edge settles mostly green.
+ * This sheet only names the figure's inks and type. */
+.compiler-diagram {
+  /* Green reuses the terminal's --t-ok because both figures depict a system
+   * view, while the page itself keeps its one-accent law. Red is the brand
+   * accent, and the connectors and slab hold to the page ink. The one hex
+   * below is that scoped green; everything else reads from tokens. */
+  --cd-green: #4a8f5f;
+  --cd-red: var(--flag-red);
+  display: block;
+  width: 100%;
+  /* The figure breathes between the lede above and the explore link below. */
+  margin: var(--space-12) 0;
+}
+
+.compiler-diagram .cd-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The traffic. Straight strokes in the two status inks only, with square
+ * caps and mitered elbows so the branching reads technical, like a graph. */
+.cd-line {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+}
+.cd-line-green { stroke: var(--cd-green); }
+.cd-line-red { stroke: var(--cd-red); }
+
+/* The interaction connectors, the only ink strokes in the scene. A signal
+ * drops from a line to the slab and an answer rises back up; the module
+ * draws them in through the dash offset and fades them out. */
+.cd-link {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  stroke-linecap: butt;
+}
+
+/* The knowledge layer. A solid ink slab with its label set in paper. */
+.cd-box { fill: var(--ink); }
+.cd-label {
+  fill: var(--paper);
+  font-family: var(--sans);
+  font-size: var(--type-label);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+}
+
+/* The packet dots riding the lines, always in their line's current color. */
+.cd-packet { stroke: none; }
+.cd-packet-green { fill: var(--cd-green); }
+.cd-packet-red { fill: var(--cd-red); }
+
+/* The module steps the field only while compilerdiagram.ts holds the
+ * is-animating class on through its IntersectionObserver, and under reduced
+ * motion it renders one settled frame and never starts. Belt and braces
+ * here too, in case any declarative motion ever lands inside the figure. */
+@media (prefers-reduced-motion: reduce) {
+  .compiler-diagram * {
+    animation: none !important;
+    transition: none !important;
+  }
 }

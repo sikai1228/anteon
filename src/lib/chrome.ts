@@ -9,6 +9,7 @@
  */
 
 import { initCellGame } from './cellgame';
+import { initCompilerDiagram } from './compilerdiagram';
 import { initTerminalDemo } from './demo';
 import { wirePrefs } from './prefs';
 
@@ -111,6 +112,11 @@ initTerminalDemo();
 // The idle puff game on the two cell grids (no-ops off the landing, off
 // screen, and under reduced motion).
 initCellGame();
+
+// The compiler diagram in the #compiler section: AI traffic drawing on the
+// knowledge layer (no-ops off the landing, off screen, and under reduced
+// motion).
+initCompilerDiagram();
 
 // The hero word wheel, ported from EstateInventor's RotatingWord (a
 // Krea-style slot roll): the current and incoming words translate in
