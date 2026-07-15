@@ -423,13 +423,9 @@ canvas#gl {
   font-size: var(--type-nav);
 }
 
-/* Left-aligned columns whose tracks size to the text alone: the arrows
- * live outside layout, so the last track's widest label (Privacy) ends
- * exactly on the page boundary while every column reads left-ragged. */
 .footer-col {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: var(--space-3);
 }
 
@@ -443,7 +439,6 @@ canvas#gl {
 /* Column links: never underlined; on hover they darken to full ink and
  * reveal the up-right arrow. */
 .footer-col a {
-  position: relative;
   color: var(--ink-muted);
   font-size: var(--type-nav);
   text-decoration: none;
@@ -452,26 +447,20 @@ canvas#gl {
 
 .footer-col a:hover { color: var(--ink); }
 
-/* The arrow floats just past its label's own end, out of layout, so it
- * never widens a column; only its opacity animates, so nothing shifts. */
+/* The arrow occupies a fixed inline slot at all times (its space is always
+ * reserved); only its opacity animates, so the label never shifts on hover. */
 .footer-arrow {
-  position: absolute;
-  left: calc(100% + var(--space-2));
-  top: 50%;
-  transform: translateY(-50%);
+  display: inline-block;
   width: 1em;
   height: 1em;
+  margin-left: var(--space-2);
+  vertical-align: middle;
   opacity: 0;
   transition: opacity var(--speed-quick) var(--ease);
 }
 
-/* The edge column's arrow tucks closer so it stays inside the page
- * padding instead of crossing the boundary. */
-.footer-col:last-child .footer-arrow { left: calc(100% + var(--space-1)); }
-
 .footer-col a:hover .footer-arrow,
 .footer-col a:focus-visible .footer-arrow { opacity: 1; }
-
 
 .footer-bottom {
   padding: 0 var(--chrome-pad-x) var(--space-20);
