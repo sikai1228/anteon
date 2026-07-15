@@ -1804,11 +1804,14 @@ html.static .caption {
   --cd-green: #4a8f5f;
   --cd-red: var(--flag-red);
   display: block;
-  /* Break out of the section gutter so the traffic runs the site's full max
-   * width; the box below stays inset (see cd-box geometry). Sits close under
-   * the explore link. */
-  width: calc(100% + var(--space-gutter) * 2);
-  margin: var(--space-12) calc(-1 * var(--space-gutter)) var(--space-2);
+  /* Break out to the header and footer content span: the full viewport inset
+   * only by the chrome padding, so the traffic runs exactly as wide as the
+   * header and footer at any viewport, not capped to the 1200 content column.
+   * The box below stays inset (see cd-box geometry). Sits close under the
+   * explore link. margin is top / right / bottom / left; the left value is the
+   * standard centred full-bleed offset plus the chrome inset. */
+  width: calc(100vw - var(--chrome-pad-x) * 2);
+  margin: var(--space-12) 0 var(--space-2) calc(50% - 50vw + var(--chrome-pad-x));
 }
 
 .compiler-diagram .cd-svg {
