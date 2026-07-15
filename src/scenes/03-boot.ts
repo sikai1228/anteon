@@ -419,16 +419,20 @@ export const bootScene: FilmScene = {
     sole.setDraw(smoothstep(OUTLINE_IN, OUTLINE_OUT, g));
     tread.setOpacity(g >= SWAP_T ? 1 : 0);
 
-    // the carry: one continuous pose blend from wing to Moon, matched to the
-    // camera sweep window so the boot stays large in frame through the dark
-    // the boot shrinks through the dark carry: it leaves the wing at half
-    // scale and lands at footprint scale, so the press reads as a step,
-    // not a monument
+    // the carry blends the travel from wing to Moon over the camera sweep
+    // window, so the boot stays large in frame through the dark
     const cs = smoothstep(CARRY_IN, CARRY_OUT, g);
     _pos.lerpVectors(WING_POS, MOON_POS, cs);
-    _q.copy(Q_WING).slerp(Q_IDENT, cs);
+    // rotation and scale settle on their own clock, spanning presentation to
+    // ground over [CARRY_IN, PRESS_OUT], so the boot keeps turning and
+    // shrinking through the descent and reaches flat, at footprint scale,
+    // exactly at touchdown. The spin never halts mid-beat while the drop
+    // goes on. Half scale off the wing, footprint scale on the regolith, so
+    // the press reads as a step, not a monument.
+    const settle = smoothstep(CARRY_IN, PRESS_OUT, g);
+    _q.copy(Q_WING).slerp(Q_IDENT, settle);
     soleGroup.quaternion.copy(_q);
-    soleGroup.scale.setScalar(mix(WING_SCALE, GROUND_SCALE, cs));
+    soleGroup.scale.setScalar(mix(WING_SCALE, GROUND_SCALE, settle));
 
     // then the press: same group, same boot, descending onto the regolith,
     // where it dissolves in place into its own print
