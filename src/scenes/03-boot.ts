@@ -40,16 +40,19 @@ const DUST_FADE_OUT = 0.578;
 const SCATTER_IN = 0.535;
 const SCATTER_OUT = 0.56;
 
-/* The second print: the walk continuing toward the flag. NEW information,
- * so it may draw in after the press; the boot's own lines remain the first
- * print, untouched. One stride ahead of the pressed sole (its toe already
- * points down world +x at rest), a hip's width aside, toed in a few
- * degrees. */
+/* After the swap the boot leaves the wing at half scale and keeps
+ * SHRINKING through the dark carry, so what presses into the regolith is
+ * a footprint, not a monument. The trail then walks the rest of the way
+ * to the flag: small mirrored steps, NEW marks that draw in after the
+ * scatter; the pressed print's own lines still never change. */
+const GROUND_SCALE = 0.22;
 const STEPS_IN = 0.558;
-const STEPS_OUT = 0.588;
-const STEP_FORWARD = 4.2;
-const STEP_ASIDE = -2.3;
-const STEP_YAW = -0.1;
+const STEPS_OUT = 0.62;
+const TRAIL_N = 3;
+const TRAIL_HIP = 0.26;
+const TRAIL_YAW = 0.09;
+/* The flag pole's world x, from the camera's flag approach target. */
+const POLE_X = 183.85;
 
 /* Geometry, local units. Sole in local x-z, heel to toe along x, tread
  * ridges spaced along x and running across the width along z. */
@@ -128,7 +131,6 @@ const TOES: readonly (readonly [number, number, number])[] = [
 const soleGroup = new THREE.Group();
 const dustGroup = new THREE.Group();
 const moonGroup = new THREE.Group();
-const stepGroup = new THREE.Group();
 const sceneGroup = new THREE.Group();
 let sole!: StrokeSetApi;
 let tread!: StrokeSetApi;
@@ -220,13 +222,8 @@ function edgeHalf(edge: readonly (readonly [number, number])[], xn: number): num
 
 /** The inherited ribs: ridges at the ribs' own projected stations, clipped to
  * the outline, matching the flyer's rib width and boil phase. */
-function buildInheritedTread(
-  set: StrokeSetApi,
-  y: number,
-  widthPx: number,
-  boil?: number,
-  zSign = 1,
-): void {
+function treadPaths(y: number, zSign = 1): THREE.Vector3[][] {
+  const paths: THREE.Vector3[][] = [];
   const pitchLocal = RIB_PITCH_WORLD / WING_SCALE;
   const kMax = Math.floor(SOLE_HALF_LEN / pitchLocal - 0.5);
   for (let k = -kMax - 1; k <= kMax; k++) {
@@ -235,15 +232,20 @@ function buildInheritedTread(
     const lat = edgeHalf(EDGE_LATERAL, xn) * SOLE_HALF_WID * 0.96;
     const med = edgeHalf(EDGE_MEDIAL, xn) * SOLE_HALF_WID * 0.96;
     if (lat + med < 0.24) continue;
-    set.addStroke(
+    paths.push(
       poly([
         [x, y, -med * zSign],
         [x, y, ((lat - med) / 2) * zSign],
         [x, y, lat * zSign],
       ]),
-      boil !== undefined ? { widthPx, boilSeed: boil } : { widthPx },
     );
   }
+  return paths;
+}
+
+function buildInheritedTread(set: StrokeSetApi, y: number, widthPx: number, boil?: number): void {
+  for (const path of treadPaths(y))
+    set.addStroke(path, boil !== undefined ? { widthPx, boilSeed: boil } : { widthPx });
 }
 
 /** One toe: a small hand-drawn round, closed back on its start. */
@@ -258,11 +260,16 @@ function toeRound(cx: number, cz: number, r: number, y: number): THREE.Vector3[]
   return pts;
 }
 
+function toePaths(y: number, zSign = 1): THREE.Vector3[][] {
+  const paths: THREE.Vector3[][] = [];
+  for (const [xn, zn, r] of TOES)
+    paths.push(toeRound(xn * SOLE_HALF_LEN, zn * SOLE_HALF_WID * zSign, r, y));
+  return paths;
+}
+
 function buildToes(set: StrokeSetApi, y: number, widthPx?: number, zSign = 1): void {
-  for (const [xn, zn, r] of TOES) {
-    const path = toeRound(xn * SOLE_HALF_LEN, zn * SOLE_HALF_WID * zSign, r, y);
+  for (const path of toePaths(y, zSign))
     set.addStroke(path, widthPx !== undefined ? { widthPx } : undefined);
-  }
 }
 
 function buildSole(set: StrokeSetApi): void {
@@ -272,12 +279,50 @@ function buildSole(set: StrokeSetApi): void {
   buildToes(set, 0);
 }
 
-/** The other foot's print, drawn flat where it will lie: mirrored across
- * the walking line so its arch and big toe face the first print's. */
-function buildStep(set: StrokeSetApi): void {
-  set.addStroke(soleOutline(0, -1), { widthPx: 2.6 });
-  buildToes(set, 0, 2.6, -1);
-  buildInheritedTread(set, 0, RIB_WIDTH_PX, undefined, -1);
+/** Yaw a step's full-scale paths and set them in place. Geometry stays at
+ * the foot's own scale (positions pre-divided by the set's ground scale),
+ * so the build-time hand wobble shrinks with the object exactly like the
+ * pressed print's does; baking the scale into points instead turns the
+ * small prints into scribble. */
+function placeStep(paths: THREE.Vector3[][], x: number, z: number, yaw: number): THREE.Vector3[][] {
+  const c = Math.cos(yaw);
+  const s = Math.sin(yaw);
+  for (const path of paths) {
+    for (const p of path) {
+      const px = p.x;
+      const pz = p.z;
+      p.x = x + px * c + pz * s;
+      p.z = z - px * s + pz * c;
+      p.y = 0;
+    }
+  }
+  return paths;
+}
+
+/** The walk through the anchor print: alternating left and right prints,
+ * the existing footprint in miniature (outline, toes, and bars). Each
+ * stride adds a pair, one print BEHIND the anchor toward the lander and
+ * one AHEAD toward the flag, so the trail reveals backward and forward in
+ * time together as it draws. */
+function buildTrail(set: StrokeSetApi): void {
+  const stride = (POLE_X - REGIONS.moon) / (TRAIL_N + 0.9) / GROUND_SCALE;
+  const hip = TRAIL_HIP / GROUND_SCALE;
+  for (let k = 1; k <= TRAIL_N; k++) {
+    // same parity both ways: the feet alternate correctly out from the
+    // anchor in each direction
+    const zSign = k % 2 === 1 ? -1 : 1;
+    for (const dir of [-1, 1] as const) {
+      const x = dir * k * stride;
+      const z = zSign * hip;
+      const yaw = -zSign * TRAIL_YAW;
+      const outline = placeStep([soleOutline(0, zSign)], x, z, yaw);
+      for (const path of outline) set.addStroke(path, { widthPx: 2.2 });
+      const toes = placeStep(toePaths(0, zSign), x, z, yaw);
+      for (const path of toes) set.addStroke(path, { widthPx: 2.0 });
+      const bars = placeStep(treadPaths(0, zSign), x, z, yaw);
+      for (const path of bars) set.addStroke(path, { widthPx: 1.6 });
+    }
+  }
 }
 
 function buildScatter(set: StrokeSetApi): void {
@@ -324,12 +369,12 @@ export const bootScene: FilmScene = {
     tread = ctx.makeStrokeSet({ style: { widthPx: RIB_WIDTH_PX, dust: false, wobbleAmp: 0 }, maxPoints: 120 });
     dust = ctx.makeStrokeSet({ style: { widthPx: 1.4, dust: false }, maxPoints: 128 });
     print = ctx.makeStrokeSet({ style: { widthPx: 1.9, dust: false }, maxPoints: 300 });
-    steps = ctx.makeStrokeSet({ style: { widthPx: 1.9, dust: false }, maxPoints: 160 });
+    steps = ctx.makeStrokeSet({ style: { widthPx: 1.9, dust: false }, maxPoints: 800 });
     buildSole(sole);
     buildInheritedTread(tread, 0, RIB_WIDTH_PX, RIB_BOIL_SEED);
     buildDust(dust);
     buildScatter(print);
-    buildStep(steps);
+    buildTrail(steps);
     tread.setDraw(1); // fully built; it appears by the opacity step at the swap
 
     // the one boot: free-floating group posed in absolute world space,
@@ -339,13 +384,15 @@ export const bootScene: FilmScene = {
     soleGroup.quaternion.copy(Q_WING);
     soleGroup.scale.setScalar(WING_SCALE);
 
-    // the ground story lives at the moon region as before
+    // the ground story lives at the moon region as before; the burst and
+    // the scatter shrink with the print they belong to, and the trail's
+    // ground scale is baked into its own geometry
     moonGroup.position.set(REGIONS.moon, 0, 0);
     dustGroup.add(dust.object3d);
-    stepGroup.add(steps.object3d);
-    stepGroup.position.set(STEP_FORWARD, MOON_GROUND_Y, STEP_ASIDE);
-    stepGroup.rotation.y = STEP_YAW;
-    moonGroup.add(dustGroup, print.object3d, stepGroup);
+    dustGroup.scale.setScalar(GROUND_SCALE);
+    print.object3d.scale.setScalar(GROUND_SCALE);
+    steps.object3d.scale.setScalar(GROUND_SCALE);
+    moonGroup.add(dustGroup, print.object3d, steps.object3d);
 
     sceneGroup.add(soleGroup, moonGroup);
     ctx.three.scene.add(sceneGroup);
@@ -361,11 +408,14 @@ export const bootScene: FilmScene = {
 
     // the carry: one continuous pose blend from wing to Moon, matched to the
     // camera sweep window so the boot stays large in frame through the dark
+    // the boot shrinks through the dark carry: it leaves the wing at half
+    // scale and lands at footprint scale, so the press reads as a step,
+    // not a monument
     const cs = smoothstep(CARRY_IN, CARRY_OUT, g);
     _pos.lerpVectors(WING_POS, MOON_POS, cs);
     _q.copy(Q_WING).slerp(Q_IDENT, cs);
     soleGroup.quaternion.copy(_q);
-    soleGroup.scale.setScalar(mix(WING_SCALE, 1, cs));
+    soleGroup.scale.setScalar(mix(WING_SCALE, GROUND_SCALE, cs));
 
     // then the press: same group, same boot, descending onto the regolith,
     // where it dissolves in place into its own print
@@ -375,7 +425,7 @@ export const bootScene: FilmScene = {
 
     dust.setDraw(smoothstep(DUST_IN, PRESS_OUT + 0.006, g));
     dust.setOpacity(smoothstep(DUST_IN, DUST_PEAK, g) * (1 - smoothstep(DUST_FADE_IN, DUST_FADE_OUT, g)));
-    dustGroup.position.y = mix(0, 0.5, smoothstep(PRESS_OUT, DUST_FADE_OUT, g));
+    dustGroup.position.y = mix(0, 0.5 * GROUND_SCALE, smoothstep(PRESS_OUT, DUST_FADE_OUT, g));
 
     print.setDraw(smoothstep(SCATTER_IN, SCATTER_OUT, g));
     steps.setDraw(smoothstep(STEPS_IN, STEPS_OUT, g));
