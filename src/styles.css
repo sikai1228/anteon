@@ -638,13 +638,14 @@ canvas#gl {
 }
 
 .terminal-body {
-  /* A fixed window, like a real terminal: the ratio sets the height and
-   * the card never resizes while the race runs; transcripts that outgrow
-   * it scroll up and out inside their panes. */
+  /* A fixed window, like a real terminal, sized so the whole race fits:
+   * tall enough that both finished transcripts rest inside with air to
+   * spare, and never resizing while the race runs. If a short viewport
+   * caps it, the panes fall back to scrolling inside. */
   width: 100%;
   background: var(--paper);
-  aspect-ratio: 16 / 10.5;
-  max-height: 72vh;
+  aspect-ratio: 16 / 11.5;
+  max-height: 84vh;
 }
 
 /* --- The terminal demo (demo.ts): the split-screen race. ---------------
@@ -1056,8 +1057,8 @@ html[data-boot="site"] #skip {
 .cell:hover .cell-ex-a { opacity: 0; }
 .cell:hover .cell-ex-b { opacity: 1; }
 
-/* Cell 16, buy-not-build: the page's one earned mark of accent, on its icon. */
-.cell-buy .cell-icon { color: var(--accent); }
+/* Cell 16, and more: the page's one earned mark of accent, on its icon. */
+.cell-more .cell-icon { color: var(--accent); }
 
 /* The index: a quieter, typographically led band. One centered statement,
  * no cards, a breath between the two loud sections around it. */

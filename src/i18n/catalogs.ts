@@ -120,6 +120,43 @@ export interface Catalog {
   cell16Desc: string;
   cell16ExA: string;
   cell16ExB: string;
+  /* The API index section: a two-line heading, a lede, and an eight-cell
+     grid of famous APIs, the eighth being the more box. */
+  apiIndexTitle: string;
+  apiIndexTitle2: string;
+  apiIndexLede: string;
+  apiCell1Name: string;
+  apiCell1Desc: string;
+  apiCell1ExA: string;
+  apiCell1ExB: string;
+  apiCell2Name: string;
+  apiCell2Desc: string;
+  apiCell2ExA: string;
+  apiCell2ExB: string;
+  apiCell3Name: string;
+  apiCell3Desc: string;
+  apiCell3ExA: string;
+  apiCell3ExB: string;
+  apiCell4Name: string;
+  apiCell4Desc: string;
+  apiCell4ExA: string;
+  apiCell4ExB: string;
+  apiCell5Name: string;
+  apiCell5Desc: string;
+  apiCell5ExA: string;
+  apiCell5ExB: string;
+  apiCell6Name: string;
+  apiCell6Desc: string;
+  apiCell6ExA: string;
+  apiCell6ExB: string;
+  apiCell7Name: string;
+  apiCell7Desc: string;
+  apiCell7ExA: string;
+  apiCell7ExB: string;
+  apiCell8Name: string;
+  apiCell8Desc: string;
+  apiCell8ExA: string;
+  apiCell8ExB: string;
   /* The index section: heading and its short body. */
   indexTitle: string;
   indexBody: string;
@@ -253,10 +290,46 @@ const CHROME: Record<Locale, ChromeStrings> = {
     cell15Desc: 'Where the policy is written, the decision is an engine.',
     cell15ExA: 'expense > $5k → VP approval',
     cell15ExB: 'risk score > 80 → manual review',
-    cell16Name: 'Already solved elsewhere',
-    cell16Desc: 'When the deterministic answer exists behind an API, we route to it instead of building it.',
-    cell16ExA: '→ existing API',
-    cell16ExB: '→ a payments API',
+    cell16Name: 'And more',
+    cell16Desc: 'The library runs far past this page, and the compiler keeps adding to it.',
+    cell16ExA: '→ and counting',
+    cell16ExB: '→ yours included',
+    apiIndexTitle: 'A continuously updated index',
+    apiIndexTitle2: 'of every API on the internet',
+    apiIndexLede:
+      'Not everything deserves a new engine. Antaeon collates the internet\u2019s best APIs, ranks them with its own quality metrics, and when your AI is about to build something an API already does, recommends the right one, free or paid.',
+    apiCell1Name: 'Stripe',
+    apiCell1Desc: 'Payments, billing, and invoicing, from checkout to payout.',
+    apiCell1ExA: 'invoice → paid',
+    apiCell1ExB: 'refund → processed',
+    apiCell2Name: 'Twilio',
+    apiCell2Desc: 'SMS, voice, and verification at carrier scale.',
+    apiCell2ExA: 'sms → delivered',
+    apiCell2ExB: 'otp → verified',
+    apiCell3Name: 'SendGrid',
+    apiCell3Desc: 'Transactional email that reaches the inbox.',
+    apiCell3ExA: 'receipt → inbox',
+    apiCell3ExB: 'password reset → sent',
+    apiCell4Name: 'Google Maps',
+    apiCell4Desc: 'Geocoding, routing, and places for any address.',
+    apiCell4ExA: 'address → lat, lng',
+    apiCell4ExB: 'route → 24 min',
+    apiCell5Name: 'AWS S3',
+    apiCell5Desc: 'Object storage for anything, at any size.',
+    apiCell5ExA: 'report.pdf → uploaded',
+    apiCell5ExB: 'presigned url → ready',
+    apiCell6Name: 'GitHub',
+    apiCell6Desc: 'Repositories, pull requests, and release automation.',
+    apiCell6ExA: 'pr #412 → merged',
+    apiCell6ExB: 'v2.1 → released',
+    apiCell7Name: 'Slack',
+    apiCell7Desc: 'Messages, channels, and workflow alerts.',
+    apiCell7ExA: 'alert → #ops',
+    apiCell7ExB: 'summary → #general',
+    apiCell8Name: 'More APIs',
+    apiCell8Desc: 'The index runs far past this page, ranked by metrics that stay current.',
+    apiCell8ExA: 'ask for any api',
+    apiCell8ExB: 'ranked, then routed',
     indexTitle: 'Never build what someone already sells',
     indexBody:
       'A curated index of existing APIs sits alongside the library. When a service already does the job, Antaeon points you to it instead of asking you to build it again.',
@@ -369,10 +442,46 @@ const CHROME: Record<Locale, ChromeStrings> = {
     cell15Desc: 'Donde la política está escrita, la decisión es un motor.',
     cell15ExA: 'gasto > $5k → aprobación de VP',
     cell15ExB: 'puntuación de riesgo > 80 → revisión manual',
-    cell16Name: 'Ya resuelto fuera',
-    cell16Desc: 'Cuando la respuesta determinista existe tras una API, la enrutamos en lugar de construirla.',
-    cell16ExA: '→ existing API',
-    cell16ExB: '→ a payments API',
+    cell16Name: 'Y más',
+    cell16Desc: 'La biblioteca va mucho más allá de esta página, y el compilador no deja de ampliarla.',
+    cell16ExA: '→ y sumando',
+    cell16ExB: '→ la tuya incluida',
+    apiIndexTitle: 'Un índice en continua actualización',
+    apiIndexTitle2: 'de todas las API de internet',
+    apiIndexLede:
+      'No todo merece un motor nuevo. Antaeon reúne las mejores API de internet, las clasifica con sus propias métricas de calidad y, cuando tu IA está a punto de construir algo que una API ya hace, te recomienda la adecuada, gratuita o de pago.',
+    apiCell1Name: 'Stripe',
+    apiCell1Desc: 'Pagos, facturación y cobros, del checkout al abono.',
+    apiCell1ExA: 'factura → pagada',
+    apiCell1ExB: 'reembolso → procesado',
+    apiCell2Name: 'Twilio',
+    apiCell2Desc: 'SMS, voz y verificación a escala de operador.',
+    apiCell2ExA: 'sms → entregado',
+    apiCell2ExB: 'otp → verificado',
+    apiCell3Name: 'SendGrid',
+    apiCell3Desc: 'Correo transaccional que llega a la bandeja de entrada.',
+    apiCell3ExA: 'recibo → entregado',
+    apiCell3ExB: 'restablecer clave → enviado',
+    apiCell4Name: 'Google Maps',
+    apiCell4Desc: 'Geocodificación, rutas y lugares para cualquier dirección.',
+    apiCell4ExA: 'dirección → lat, lng',
+    apiCell4ExB: 'ruta → 24 min',
+    apiCell5Name: 'AWS S3',
+    apiCell5Desc: 'Almacenamiento de objetos para cualquier cosa, de cualquier tamaño.',
+    apiCell5ExA: 'informe.pdf → subido',
+    apiCell5ExB: 'url prefirmada → lista',
+    apiCell6Name: 'GitHub',
+    apiCell6Desc: 'Repositorios, pull requests y automatización de versiones.',
+    apiCell6ExA: 'pr #412 → fusionado',
+    apiCell6ExB: 'v2.1 → publicada',
+    apiCell7Name: 'Slack',
+    apiCell7Desc: 'Mensajes, canales y alertas de flujo de trabajo.',
+    apiCell7ExA: 'alerta → #ops',
+    apiCell7ExB: 'resumen → #general',
+    apiCell8Name: 'More APIs',
+    apiCell8Desc: 'El índice va mucho más allá de esta página, clasificado con métricas siempre al día.',
+    apiCell8ExA: 'pide cualquier api',
+    apiCell8ExB: 'clasificada y enrutada',
     indexTitle: 'Nunca construyas lo que alguien ya vende',
     indexBody:
       'Junto a la biblioteca hay un índice curado de APIs que ya existen. Cuando un servicio ya hace el trabajo, Antaeon te lo indica en lugar de pedirte que lo construyas otra vez.',
