@@ -410,11 +410,14 @@ canvas#gl {
   border-top: var(--border-hair) solid var(--line);
 }
 
+/* One grid carries both footer rows, so the bottom row can align to the
+ * column tracks: the rights line under the brand, the pills starting on
+ * the first column's own left edge. */
 .footer-inner {
-  padding: var(--space-20) var(--chrome-pad-x) var(--space-32);
+  padding: var(--space-20) var(--chrome-pad-x) var(--space-20);
   display: grid;
   grid-template-columns: 1fr repeat(3, max-content);
-  gap: var(--space-24);
+  gap: var(--space-32) var(--space-24);
 }
 
 .footer-tag {
@@ -462,20 +465,38 @@ canvas#gl {
 .footer-col a:hover .footer-arrow,
 .footer-col a:focus-visible .footer-arrow { opacity: 1; }
 
-.footer-bottom {
-  padding: 0 var(--chrome-pad-x) var(--space-20);
+/* The edge column presses its text against the page boundary, so its
+ * arrow slot flips to the label's left; the other columns keep the arrow
+ * on the right. (last-of-type: the rights line and pills follow the navs
+ * inside the same grid, so last-child would miss.) */
+.footer-col:last-of-type { align-items: flex-end; }
+
+.footer-col:last-of-type a {
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
-  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.footer-col:last-of-type .footer-arrow { margin-left: 0; }
+
+.footer-copy {
+  grid-column: 1;
+  align-self: center;
+  margin: 0;
   color: var(--ink-soft);
   font-size: var(--type-nav);
 }
 
-.footer-copy { margin: 0; }
-
-.footer-prefs { display: flex; align-items: center; gap: var(--space-2); }
+/* The pills close the second row against the page boundary. */
+.footer-prefs {
+  grid-column: 2 / -1;
+  justify-self: end;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
 
 /* Compact theme switch (kit PT2, ported): system, light, dark as a segmented
  * pill sitting left of the language pill. Visual only, no behavior is wired.
@@ -522,8 +543,11 @@ canvas#gl {
 
 /* The active mode reads by ink weight alone: its icon is full ink while the
  * others stay muted. No fill or chip, so nothing renders as a solid block. */
+/* The chosen mode keeps its lifted circle: the hover puck, made persistent. */
 .theme-opt.is-active {
   color: var(--ink);
+  background: var(--paper);
+  box-shadow: var(--shadow-2);
 }
 
 .theme-opt:focus-visible {
@@ -611,7 +635,9 @@ canvas#gl {
 /* Below --bp-md the columns pair up and the bottom row stacks. */
 @media (max-width: 768px) {
   .footer-inner { grid-template-columns: 1fr 1fr; gap: var(--space-12); }
-  .footer-bottom { flex-direction: column; align-items: flex-start; }
+  /* Collapsed, the bottom row stacks full width, both start aligned. */
+  .footer-copy,
+  .footer-prefs { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
