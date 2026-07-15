@@ -70,16 +70,39 @@ const WING_SCALE = 0.5;
 const MOON_HOVER_Y = 0.6;
 const MOON_GROUND_Y = 0.02;
 
-const BOOT_OUTLINE: readonly (readonly [number, number])[] = [
-  [-0.941, -0.581],
-  [-0.118, -1.0],
-  [0.706, -0.953],
-  [0.953, 0],
-  [0.706, 0.953],
-  [-0.118, 1.0],
-  [-0.941, 0.581],
+/* The sole silhouette, one source: lateral (+z) and medial (-z) half-width
+ * profiles over the normalized length, heel tip to toe tip. The outline,
+ * the tread clipping, and the heel line all derive from these two tables,
+ * so the tread can never detach from the silhouette. The medial side
+ * carries the arch pinch and the toe's big-toe bias; both tips and the
+ * length envelope match the old outline exactly, so the swap, the carry,
+ * and the press keep the same footprint. */
+const EDGE_LATERAL: readonly (readonly [number, number])[] = [
   [-1.047, 0],
-  [-0.941, -0.581],
+  [-0.97, 0.42],
+  [-0.84, 0.64],
+  [-0.55, 0.68],
+  [-0.25, 0.66],
+  [0.05, 0.74],
+  [0.35, 0.92],
+  [0.55, 1.0],
+  [0.75, 0.94],
+  [0.9, 0.64],
+  [0.953, 0],
+];
+
+const EDGE_MEDIAL: readonly (readonly [number, number])[] = [
+  [-1.047, 0],
+  [-0.97, 0.4],
+  [-0.84, 0.6],
+  [-0.55, 0.58],
+  [-0.3, 0.46],
+  [-0.05, 0.45],
+  [0.25, 0.68],
+  [0.5, 0.88],
+  [0.72, 0.97],
+  [0.92, 0.72],
+  [0.953, 0],
 ];
 
 const soleGroup = new THREE.Group();
@@ -148,22 +171,18 @@ const Q_WING = (() => {
   return new THREE.Quaternion().setFromRotationMatrix(m);
 })();
 
+/** One closed line around the sole: up the lateral edge, back down the
+ * medial edge, closing on the heel tip it started from. */
 function soleOutline(y: number): THREE.Vector3[] {
   const pts: THREE.Vector3[] = [];
-  for (const p of BOOT_OUTLINE) pts.push(new THREE.Vector3(p[0] * SOLE_HALF_LEN, y, p[1] * SOLE_HALF_WID));
+  for (const p of EDGE_LATERAL) pts.push(new THREE.Vector3(p[0] * SOLE_HALF_LEN, y, p[1] * SOLE_HALF_WID));
+  const medial = [...EDGE_MEDIAL].reverse().slice(1);
+  for (const p of medial) pts.push(new THREE.Vector3(p[0] * SOLE_HALF_LEN, y, -p[1] * SOLE_HALF_WID));
   return pts;
 }
 
-/** The sole's half width at a normalized station x in [-1..1], interpolated
- * from the outline polygon's positive-z edge. */
-function widthAtNorm(xn: number): number {
-  const edge: [number, number][] = [
-    [-1.047, 0],
-    [-0.941, 0.581],
-    [-0.118, 1.0],
-    [0.706, 0.953],
-    [0.953, 0],
-  ];
+/** An edge's half width at a normalized station x in [-1..1]. */
+function edgeHalf(edge: readonly (readonly [number, number])[], xn: number): number {
   if (xn <= edge[0][0] || xn >= edge[edge.length - 1][0]) return 0;
   for (let i = 0; i < edge.length - 1; i++) {
     if (xn <= edge[i + 1][0]) {
@@ -182,13 +201,14 @@ function buildInheritedTread(set: StrokeSetApi, y: number, widthPx: number, boil
   for (let k = -kMax - 1; k <= kMax; k++) {
     const x = (k + 0.5) * pitchLocal;
     const xn = x / SOLE_HALF_LEN;
-    const half = widthAtNorm(xn) * SOLE_HALF_WID * 0.96;
-    if (half < 0.12) continue;
+    const lat = edgeHalf(EDGE_LATERAL, xn) * SOLE_HALF_WID * 0.96;
+    const med = edgeHalf(EDGE_MEDIAL, xn) * SOLE_HALF_WID * 0.96;
+    if (lat + med < 0.24) continue;
     set.addStroke(
       poly([
-        [x, y, -half],
-        [x, y, 0],
-        [x, y, half],
+        [x, y, -med],
+        [x, y, (lat - med) / 2],
+        [x, y, lat],
       ]),
       boil !== undefined ? { widthPx, boilSeed: boil } : { widthPx },
     );
@@ -197,10 +217,17 @@ function buildInheritedTread(set: StrokeSetApi, y: number, widthPx: number, boil
 
 function buildSole(set: StrokeSetApi): void {
   set.addStroke(soleOutline(0));
+  // The heel line sits at the heel block's end and spans the sole's own
+  // width there, so it stays inside the contour.
+  const HEEL_XN = -0.55;
+  const heelX = SOLE_HALF_LEN * HEEL_XN;
+  const lat = edgeHalf(EDGE_LATERAL, HEEL_XN) * SOLE_HALF_WID * 0.96;
+  const med = edgeHalf(EDGE_MEDIAL, HEEL_XN) * SOLE_HALF_WID * 0.96;
   set.addStroke(
     poly([
-      [-SOLE_HALF_LEN * 0.42, 0, -SOLE_HALF_WID * 0.7],
-      [-SOLE_HALF_LEN * 0.42, 0, SOLE_HALF_WID * 0.7],
+      [heelX, 0, -med],
+      [heelX, 0, (lat - med) / 2],
+      [heelX, 0, lat],
     ]),
   );
 }
