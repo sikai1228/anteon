@@ -43,4 +43,35 @@ export function wirePrefs(): void {
       });
     }
   }
+
+  // The small-screen menu: each header's toggle opens its own nav as a
+  // dropdown sheet; picking a link, tapping outside, or Escape closes it.
+  const toggles = [...document.querySelectorAll<HTMLButtonElement>('.nav-toggle')];
+  const closeAll = (): void => {
+    for (const t of toggles) {
+      t.parentElement?.classList.remove('nav-open');
+      t.setAttribute('aria-expanded', 'false');
+    }
+  };
+  for (const btn of toggles) {
+    const host = btn.parentElement;
+    if (!host) continue;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = !host.classList.contains('nav-open');
+      closeAll();
+      host.classList.toggle('nav-open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    host.querySelector('.header-nav')?.addEventListener('click', closeAll);
+  }
+  if (toggles.length) {
+    document.addEventListener('pointerdown', (e) => {
+      const open = document.querySelector('.nav-open');
+      if (open && !open.contains(e.target as Node)) closeAll();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAll();
+    });
+  }
 }

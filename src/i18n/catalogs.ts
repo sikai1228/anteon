@@ -186,6 +186,7 @@ export interface Catalog {
   themeDark: string;
   /* Assistive text and page metadata. */
   ariaChangeLanguage: string;
+  ariaMenu: string;
   metaDescription: string;
 }
 
@@ -352,6 +353,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     themeDark: 'Dark theme',
     rights: '© 2026 Antaeon. All rights reserved.',
     ariaChangeLanguage: 'Change language',
+    ariaMenu: 'Menu',
     metaDescription: 'If I have seen further, it is by standing on the shoulders of Giants.',
   },
   es: {
@@ -501,6 +503,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     themeDark: 'Tema oscuro',
     rights: '© 2026 Antaeon. Todos los derechos reservados.',
     ariaChangeLanguage: 'Cambiar idioma',
+    ariaMenu: 'Menú',
     metaDescription: 'Si he visto más lejos, es porque me he subido a hombros de gigantes.',
   },
 };

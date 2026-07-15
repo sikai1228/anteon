@@ -85,6 +85,8 @@ html { scrollbar-width: thin; scrollbar-color: var(--slate) var(--board); }
   transform: scaleX(1);
 }
 
+
+
 /* Outlined on white: black text, black border, white inside. On hover the
  * label steps left and an up-right arrow arrives on the right. */
 .book-call {
@@ -597,9 +599,11 @@ canvas#gl {
   border-radius: var(--radius-control);
 }
 
-/* On a phone the subhead and its call stack, the call left-aligned below. */
+/* On a phone the subhead and its call stack; the call keeps the right
+ * edge it owns on desktop. */
 @media (max-width: 640px) {
   .hero-intro { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
+  .hero-intro .hero-bookcall { align-self: flex-end; }
 }
 
 /* The terminal placeholder: a depicted window reserving the demo's home below
@@ -846,10 +850,47 @@ html[data-boot="site"] #skip {
   50%, 100% { opacity: 0; }
 }
 
-/* Stacked on a phone: Antaeon above, the rival below, the same script. The
- * rival returns to the flow (no overlay), so both panes hug their content. */
+/* Short viewports, side by side: the fixed window would clip the
+ * transcripts, so the card trades it for content height and grows until
+ * everything fits. Large viewports never enter this block. */
+@media (min-width: 769px) and (max-height: 840px) {
+  .terminal-body {
+    aspect-ratio: auto;
+    max-height: none;
+    /* The old fixed window stays as the floor: 11.5/16 of the card's own
+     * width, capped at 77vh. The card starts at that size and grows only
+     * when the transcripts genuinely outgrow it. */
+    min-height: min(calc((100vw - var(--chrome-pad-x) * 2) * 0.71875), 77vh);
+    display: flex;
+    align-items: stretch;
+  }
+  .term-pane[data-pane="a"] {
+    width: auto;
+    height: auto;
+    flex: 1 1 0;
+  }
+  .term-pane[data-pane="b"] {
+    position: static;
+    width: auto;
+    flex: 1 1 0;
+  }
+}
+
+/* Stacked on a phone: Antaeon above, the rival below, the same script.
+ * Both panes return to the flow and hug their content, and the card grows
+ * with them instead of clipping. */
 @media (max-width: 768px) {
-  .term-pane[data-pane="a"] { width: 100%; }
+  .terminal-body {
+    aspect-ratio: auto;
+    max-height: none;
+    /* Same floor as the short-viewport tier: never thinner than the old
+     * fixed window, growing only past it. */
+    min-height: min(calc((100vw - var(--chrome-pad-x) * 2) * 0.71875), 77vh);
+  }
+  .term-pane[data-pane="a"] {
+    width: 100%;
+    height: auto;
+  }
   .term-pane[data-pane="b"] {
     position: static;
     width: 100%;
@@ -1123,6 +1164,9 @@ html[data-boot="site"] #skip {
 /* The closing band: the film's thesis line, large in the site's sans, over a
  * single call. Centered, with the full section rhythm above and below. */
 .site-closing {
+  /* An extra section step below the call: its own 80 stacks with the
+   * padding above the footer line for a longer breath before the end. */
+  margin-bottom: var(--space-section);
   padding-block: var(--space-section);
   text-align: center;
 }
@@ -1388,12 +1432,34 @@ html[data-boot="site"] #skip {
   font-weight: var(--weight-semibold);
 }
 
-/* Below --bp-md the columns pair up and the bottom row stacks. */
+/* The middle widths: the desktop pitch would run past the page edge, so
+ * the tracks drop their floor and the column gap tightens until the row
+ * and the pills fit inside the container again. */
+@media (max-width: 1140px) {
+  .footer-inner {
+    grid-template-columns: 1fr repeat(3, max-content);
+    column-gap: var(--space-12);
+  }
+}
+
 @media (max-width: 768px) {
-  .footer-inner { grid-template-columns: 1fr 1fr; gap: var(--space-12); }
-  /* Collapsed, the bottom row stacks full width, both start aligned. */
-  .footer-copy,
-  .footer-prefs { grid-column: 1 / -1; }
+  /* The brand takes its own full row; the three columns share the next in
+   * equal tracks; the pills close right, with the rights line under them. */
+  .footer-inner {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: var(--space-12);
+    column-gap: var(--space-4);
+  }
+  .footer-brandcol { grid-column: 1 / -1; }
+  .footer-prefs { grid-column: 1 / -1; justify-self: end; }
+  .footer-copy {
+    grid-column: 1 / -1;
+    order: 1;
+    justify-self: end;
+    text-align: right;
+    /* Tight under the pills: pull back most of the shared row gap. */
+    margin-top: calc(-1 * var(--space-8));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1434,3 +1500,72 @@ html.static .caption {
 
 #debug input[type="range"] { flex: 1; }
 #debug .t { min-width: 64px; text-align: right; }
+/* On small screens: the nav folds into a three line menu. The links
+ * keep their language; they just arrive as a dropdown sheet under the
+ * header when the toggle opens. */
+.nav-toggle { display: none; }
+
+@media (max-width: 640px) {
+  .header-nav { display: none; }
+
+  .nav-toggle {
+    display: grid;
+    place-items: center;
+    margin-left: auto;
+    width: var(--control-key);
+    height: var(--control-key);
+    padding: 0;
+    background: none;
+    border: none;
+    color: var(--ink);
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  #chrome.nav-open .header-nav,
+  #site-header.nav-open .header-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-4);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: var(--space-4) var(--chrome-pad-x) var(--space-5);
+    background: var(--paper);
+    border-bottom: var(--border-hair) solid var(--line);
+  }
+}
+  /* Inside the sheet, book a call rides as a plain link: no box, no
+   * arrow, the same muted ink and drawn underline as its neighbors. */
+  #chrome.nav-open .header-nav .book-call,
+  #site-header.nav-open .header-nav .book-call {
+    border: none;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    position: relative;
+  }
+
+  #chrome.nav-open .header-nav .book-call .bc-arrow,
+  #site-header.nav-open .header-nav .book-call .bc-arrow { display: none; }
+
+  #chrome.nav-open .header-nav .book-call::after,
+  #site-header.nav-open .header-nav .book-call::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: var(--border-hair);
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--speed-move) var(--ease);
+  }
+
+  #chrome.nav-open .header-nav .book-call:hover::after,
+  #site-header.nav-open .header-nav .book-call:hover::after { transform: scaleX(1); }
+
