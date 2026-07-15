@@ -93,6 +93,114 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
       // Storage can be unavailable (private modes); losing resume is fine.
     }
   }
+
+  /* The site holds its ground. Once the viewer has risen out of the trailer
+   * onto the landing page, a latch sits at the boundary: scrolling up stalls
+   * there, and only sustained scrolling within a short window breaks it and
+   * rides back into the film. The boundary is the skip ride's own landing,
+   * the film element's full height. Scrolling down is never resisted. */
+  /* Sized so a casual trackpad flick and its momentum tail stay under the
+   * threshold, while a couple of seconds of real wheeling (or one decisive
+   * hard flick) gets through. */
+  const BREAK_PX = 1100;
+  const IDLE_RESET_MS = 500;
+  const SLACK = 4;
+  /** Touch drags travel far less than wheel deltas for the same intent. */
+  const TOUCH_GAIN = 2.5;
+
+  function boundary(): number {
+    return spanPx + window.innerHeight;
+  }
+  function currentY(): number {
+    return lenis ? lenis.scroll : window.scrollY;
+  }
+  function holdAt(px: number): void {
+    if (lenis) lenis.scrollTo(px, { immediate: true, force: true });
+    else window.scrollTo(0, px);
+  }
+
+  let armed = false;
+  let breakAcc = 0;
+  let lastUpMs = 0;
+  let lastY = currentY();
+
+  // Arm on the way in, clamp runaway momentum on the way out. Lenis scrolls
+  // the window natively, so one native scroll listener covers both modes.
+  function onScrollTick(): void {
+    const y = currentY();
+    const B = boundary();
+    if (armed && y < B - SLACK) {
+      // Momentum cannot coast past the latch; input at the boundary decides.
+      holdAt(B);
+    } else if (!armed && ((lastY < B && y >= B) || y > B + window.innerHeight * 0.5)) {
+      // Crossing down into the site, or being well inside it, arms the latch.
+      armed = true;
+      breakAcc = 0;
+    }
+    lastY = y;
+  }
+
+  function accumulate(px: number): void {
+    const now = performance.now();
+    if (now - lastUpMs > IDLE_RESET_MS) breakAcc = 0;
+    lastUpMs = now;
+    breakAcc += px;
+    if (breakAcc >= BREAK_PX) {
+      armed = false;
+      breakAcc = 0;
+    }
+  }
+
+  function onWheel(e: WheelEvent): void {
+    if (!armed || currentY() > boundary() + SLACK) return;
+    const dy =
+      e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+    if (dy >= 0) {
+      breakAcc = 0;
+      return;
+    }
+    // Captured on window before Lenis's own wheel handler; eating the event
+    // is what holds the page still under the viewer's upward intent.
+    e.preventDefault();
+    e.stopPropagation();
+    accumulate(-dy);
+  }
+
+  let touchY: number | null = null;
+  function onTouchStart(e: TouchEvent): void {
+    touchY = e.touches[0]?.clientY ?? null;
+  }
+  function onTouchMove(e: TouchEvent): void {
+    const t = e.touches[0];
+    if (!t || touchY === null) return;
+    const dy = t.clientY - touchY;
+    touchY = t.clientY;
+    if (!armed || currentY() > boundary() + SLACK) return;
+    // A finger moving down the screen scrolls up, toward the trailer.
+    if (dy <= 0) {
+      breakAcc = 0;
+      return;
+    }
+    e.preventDefault();
+    e.stopPropagation();
+    accumulate(dy * TOUCH_GAIN);
+  }
+
+  window.addEventListener('scroll', onScrollTick, { passive: true });
+  window.addEventListener('wheel', onWheel, { passive: false, capture: true });
+  window.addEventListener('touchstart', onTouchStart, { passive: true, capture: true });
+  window.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+
+  // The wordmarks jump here, not to the film's start: a hard cut onto the
+  // landing page's top, latch armed, camera damp already settled.
+  function onSiteJump(): void {
+    measure();
+    holdAt(boundary());
+    armed = true;
+    breakAcc = 0;
+    sm = 1;
+  }
+  window.addEventListener('site-jump', onSiteJump);
   function onVisibility(): void {
     if (document.visibilityState === 'hidden') saveScroll();
   }
@@ -106,6 +214,7 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   // seeding the damp keeps the camera from gliding in from the top.
   let seed: number | null = null;
   let seedPx: number | null = null;
+  let seedSite = false;
   const tParam = new URLSearchParams(window.location.search).get('t');
   if (tParam !== null) {
     const t = parseFloat(tParam);
@@ -114,7 +223,11 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   if (seed === null) {
     try {
       const stored = sessionStorage.getItem(SCROLL_KEY);
-      if (stored !== null) {
+      if (stored === 'site') {
+        // The wordmark's sentinel from another page: boot straight onto the
+        // landing page's top, wherever the boundary measures on this visit.
+        seedSite = true;
+      } else if (stored !== null) {
         const [pStr, pxStr] = stored.split('|');
         const p = parseFloat(pStr);
         const px = parseFloat(pxStr);
@@ -143,16 +256,18 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
       }
     };
     apply();
-  } else if (seedPx !== null) {
-    const targetPx = seedPx;
+  } else if (seedSite || seedPx !== null) {
     let tries = 0;
     const applyPx = (): void => {
-      if (lenis) lenis.scrollTo(targetPx, { immediate: true, force: true });
-      else window.scrollTo(0, targetPx);
+      measure();
+      // The sentinel's target re-measures per frame: the boundary can shift
+      // while early layout settles.
+      const targetPx = seedSite ? boundary() : (seedPx as number);
+      holdAt(targetPx);
       sm = 1;
+      armed = true;
       tries += 1;
-      const at = lenis ? lenis.scroll : window.scrollY;
-      if (tries < 12 && Math.abs(at - targetPx) > 2) {
+      if (tries < 12 && Math.abs(currentY() - targetPx) > 2) {
         requestAnimationFrame(applyPx);
       }
     };
@@ -163,6 +278,11 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     window.removeEventListener('resize', measure);
     window.removeEventListener('pagehide', saveScroll);
     document.removeEventListener('visibilitychange', onVisibility);
+    window.removeEventListener('scroll', onScrollTick);
+    window.removeEventListener('wheel', onWheel, { capture: true });
+    window.removeEventListener('touchstart', onTouchStart, { capture: true });
+    window.removeEventListener('touchmove', onTouchMove, { capture: true });
+    window.removeEventListener('site-jump', onSiteJump);
     lenis?.destroy();
   }
 

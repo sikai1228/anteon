@@ -11,14 +11,15 @@ import { wirePrefs } from './lib/prefs';
 initI18n();
 wirePrefs();
 
-// The wordmark goes HOME, to the top: navigating back must not resume the
-// stored film position, so the resume key clears before the link fires.
+// The wordmark goes home to the landing page, not the film: the resume key
+// carries a site sentinel before the link fires, and the film runtime boots
+// straight onto the risen page instead of the trailer.
 for (const w of document.querySelectorAll('a.wordmark, a.footer-brand')) {
   w.addEventListener('click', () => {
     try {
-      sessionStorage.removeItem('antaeon-scroll');
+      sessionStorage.setItem('antaeon-scroll', 'site');
     } catch {
-      // No storage, nothing to clear.
+      // No storage; index will start from the film's top instead.
     }
   });
 }

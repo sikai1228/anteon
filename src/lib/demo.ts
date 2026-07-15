@@ -7,6 +7,10 @@
  * check-marked; the other side stalls, fails the file search, receives
  * the user's upload, and is still visibly working when the loop freezes.
  * No clocks and no duration lines anywhere: the speed speaks for itself.
+ * Each pane's head carries an API cost ticker at Opus 4.8 prices, ticking
+ * once per finished AI message: Antaeon's engines are not model calls, so
+ * its side stays at zero until the one closing message; the other side
+ * ticks up on every message it writes.
  *
  * The script is data (one event list), so retiming is data editing. One
  * token-guarded rAF clock drives both panes: the race starts in view,
@@ -27,6 +31,10 @@ interface DemoEvent {
   at: number;
   kind: EventKind;
   text: string;
+  /** Cumulative API spend in USD once this message is done, at Opus 4.8
+   * prices ($5/M input, $25/M output). Only AI-written messages carry one;
+   * engine calls are not model calls and never move the ticker. */
+  cost?: number;
 }
 
 interface PaneEvent {
@@ -34,6 +42,7 @@ interface PaneEvent {
   at: number;
   kind: EventKind;
   text: string;
+  cost?: number;
 }
 
 /** Typing speed for the right pane's prose, ms per character. */
@@ -69,27 +78,28 @@ const SCRIPT: readonly DemoEvent[] = [
     pane: 'a',
     at: 4300,
     kind: 'say',
-    text: 'Done. supplier_q2 is converted. An audit is required under §7.2(b), Vendor Audit Policy.',
+    text: 'Done, supplier_q2 is converted. An audit is required under §7.2(b), Vendor Audit Policy.',
+    cost: 0.02,
   },
   { pane: 'a', at: 5300, kind: 'prompt', text: '' },
 
   // The plain assistant: announcements, a pulsing working glyph that each
   // next step replaces, a failed search, the user's upload, and a grind
   // that is still going when the loop freezes.
-  { pane: 'b', at: 1200, kind: 'say', text: 'Let me look for the Q2 datasheet first…' },
+  { pane: 'b', at: 1200, kind: 'say', text: 'Let me look for the Q2 datasheet first…', cost: 0.01 },
   { pane: 'b', at: 2600, kind: 'work', text: 'Searching files' },
-  { pane: 'b', at: 10500, kind: 'say', text: 'Found it. Converting the file format now…' },
+  { pane: 'b', at: 10500, kind: 'say', text: 'Found it. Converting the file format now…', cost: 0.11 },
   { pane: 'b', at: 12200, kind: 'work', text: 'Converting' },
-  { pane: 'b', at: 19500, kind: 'say', text: 'Now let me group the data and run the math…' },
+  { pane: 'b', at: 19500, kind: 'say', text: 'Now let me group the data and run the math…', cost: 0.29 },
   { pane: 'b', at: 21200, kind: 'work', text: 'Computing' },
-  { pane: 'b', at: 28500, kind: 'say', text: 'Searching your desktop for the company guidelines…' },
+  { pane: 'b', at: 28500, kind: 'say', text: 'Searching your desktop for the company guidelines…', cost: 0.47 },
   { pane: 'b', at: 30200, kind: 'work', text: 'Searching' },
-  { pane: 'b', at: 37500, kind: 'fail', text: 'I could not find the policy document.' },
-  { pane: 'b', at: 39000, kind: 'say', text: 'Could you upload the guideline file?' },
+  { pane: 'b', at: 37500, kind: 'fail', text: 'I could not find the policy document.', cost: 0.63 },
+  { pane: 'b', at: 39000, kind: 'say', text: 'Could you upload the guideline file?', cost: 0.68 },
   { pane: 'b', at: 43000, kind: 'user', text: 'vendor_audit_guideline.pdf attached' },
-  { pane: 'b', at: 45500, kind: 'say', text: 'Reading vendor_audit_guideline.pdf…' },
+  { pane: 'b', at: 45500, kind: 'say', text: 'Reading vendor_audit_guideline.pdf…', cost: 1.02 },
   { pane: 'b', at: 47200, kind: 'work', text: 'Reading' },
-  { pane: 'b', at: 52000, kind: 'say', text: 'Checking which sections apply to procurement…' },
+  { pane: 'b', at: 52000, kind: 'say', text: 'Checking which sections apply to procurement…', cost: 1.31 },
   { pane: 'b', at: 53700, kind: 'work', text: 'Checking' },
 ];
 
@@ -97,6 +107,7 @@ interface Pane {
   id: PaneId;
   lines: HTMLElement;
   cursor: HTMLElement;
+  costEl: HTMLElement | null;
 }
 
 interface Typer {
@@ -105,6 +116,13 @@ interface Typer {
   text: string;
   from: number;
   shown: number;
+  /** Cumulative spend shown the moment this message finishes typing. */
+  cost?: number;
+}
+
+/** The ticker moves in discrete steps, one per finished AI message. */
+function setCost(pane: Pane, usd: number): void {
+  if (pane.costEl) pane.costEl.textContent = 'API $' + usd.toFixed(2);
 }
 
 function isTyped(kind: EventKind): boolean {
@@ -182,7 +200,7 @@ export function initTerminalDemo(): void {
     if (!lines) return;
     const cursor = document.createElement('span');
     cursor.className = 'term-cursor';
-    panes.push({ id, lines, cursor });
+    panes.push({ id, lines, cursor, costEl: root?.querySelector<HTMLElement>('.term-cost') ?? null });
   }
   const byId = (id: PaneId): Pane => (id === 'a' ? panes[0] : panes[1]);
 
@@ -193,7 +211,7 @@ export function initTerminalDemo(): void {
       schedule.push({ pane: 'a', at: ev.at, kind: ev.kind, text: ev.text });
       schedule.push({ pane: 'b', at: ev.at, kind: ev.kind, text: ev.text });
     } else {
-      schedule.push({ pane: ev.pane, at: ev.at, kind: ev.kind, text: ev.text });
+      schedule.push({ pane: ev.pane, at: ev.at, kind: ev.kind, text: ev.text, cost: ev.cost });
     }
   }
   schedule.sort((x, y) => x.at - y.at);
@@ -211,6 +229,7 @@ export function initTerminalDemo(): void {
       const kept = pane.lines.querySelector('.term-work');
       if (ev.kind === 'work' && kept) kept.remove();
       pane.lines.append(makeLine(ev.pane, ev.kind, ev.text).line);
+      if (ev.cost !== undefined) setCost(pane, ev.cost);
     }
     return;
   }
@@ -232,7 +251,10 @@ export function initTerminalDemo(): void {
     // instant output being the point of it.
     if (isTyped(ev.kind) && ev.pane === 'b') {
       textEl.textContent = '';
-      typers.push({ pane, el: textEl, text: ev.text, from: ev.at, shown: 0 });
+      typers.push({ pane, el: textEl, text: ev.text, from: ev.at, shown: 0, cost: ev.cost });
+    } else if (ev.cost !== undefined) {
+      // An instant message is done the moment it lands; its tick fires now.
+      setCost(pane, ev.cost);
     }
     // The cursor rides the newest line of its pane, except working lines:
     // their glyph already pulses, and two flickers fight each other.
@@ -246,6 +268,7 @@ export function initTerminalDemo(): void {
     for (const p of panes) {
       p.cursor.remove();
       p.lines.replaceChildren();
+      setCost(p, 0);
     }
     typers = [];
     fired = 0;
@@ -278,7 +301,11 @@ export function initTerminalDemo(): void {
         t.el.textContent = t.text.slice(0, n);
         t.pane.lines.scrollTop = t.pane.lines.scrollHeight;
       }
-      if (t.shown >= t.text.length) typers.splice(i, 1);
+      if (t.shown >= t.text.length) {
+        // The message is done: its cost tick lands with the last character.
+        if (t.cost !== undefined) setCost(t.pane, t.cost);
+        typers.splice(i, 1);
+      }
     }
 
     // The end state holds, then the loop resets; the next frame refires

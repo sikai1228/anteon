@@ -611,6 +611,8 @@ canvas#gl {
 .term-head {
   display: flex;
   align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
   padding: var(--space-4) var(--space-5) 0;
   font-family: var(--sans);
   font-size: var(--type-micro);
@@ -620,6 +622,16 @@ canvas#gl {
 }
 
 .term-pane[data-pane="a"] .term-name { color: var(--ink); }
+
+/* The API cost ticker: mono digits in the head row, ticking in discrete
+ * steps as messages finish. Depicted UI, so it stays outside i18n. */
+.term-cost {
+  font-family: var(--mono);
+  letter-spacing: normal;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-muted);
+}
 
 .term-lines {
   flex: 1 1 auto;
@@ -724,7 +736,9 @@ canvas#gl {
  * internal detail preserved), so the row needs no filter and no opacity. */
 .media-strip {
   width: 100vw;
-  margin: var(--space-16) 0 0 calc(50% - 50vw);
+  /* The gap above the band's hairline matches the gap below it: both sit on
+   * the --space-section rhythm, the band's neighbor providing the lower one. */
+  margin: var(--space-section) 0 0 calc(50% - 50vw);
   padding-block: var(--space-10);
   border-top: var(--border-hair) solid var(--line);
   border-bottom: var(--border-hair) solid var(--line);

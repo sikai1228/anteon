@@ -86,12 +86,6 @@ function runFilm(captions: ReturnType<typeof createCaptions>): void {
   const post = createPost(renderer, scene, camera, LOOK);
   const timeline = createTimeline(filmEl);
 
-  // The chrome dispatches film-jump for hard cuts (the wordmark going home);
-  // answering with the immediate Lenis jump prevents any backward glide.
-  window.addEventListener('film-jump', (ev) => {
-    timeline.scrollToP((ev as CustomEvent<number>).detail ?? 0);
-  });
-
   // Place the camera at its opening pose before the first scene update, which
   // the frame runs ahead of sampleCamera.
   sampleCamera(timeline.progress(), camera);

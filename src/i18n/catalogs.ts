@@ -188,7 +188,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     mediaStripLabel: 'Team from',
     libraryTitle: '1,000+ preloaded engines',
     libraryBody:
-      'Every category below should be a deterministic call: the same input always produces the same output. Today, AI re-derives each answer from scratch and discards it. Antaeon ships 1,000+ AI compatible engines, ready to call, so every request saves time, tokens, and money from the first invocation.',
+      'Each of these tasks should be a deterministic call that returns the same output for the same input, every time. Today, AI re-derives each answer from scratch and discards it immediately after use. Antaeon preloads 1,000+ engines your AI can call, so every request runs faster and costs less.',
     cell1Name: 'Conversion',
     cell1Desc: 'Any format into any other, whether files, images, code, or encodings.',
     cell1ExA: 'docx → pdf',
@@ -302,7 +302,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     mediaStripLabel: 'Equipo formado en',
     libraryTitle: 'Más de 1.000 motores precargados',
     libraryBody:
-      'Cada categoría de abajo debería ser una llamada determinista: la misma entrada siempre produce la misma salida. Hoy la IA rederiva cada respuesta desde cero y la descarta. Antaeon incluye más de 1.000 motores compatibles con IA, listos para llamar, de modo que cada petición ahorra tiempo, tokens y dinero desde la primera invocación.',
+      'Cada una de estas tareas debería ser una llamada determinista que devuelve la misma salida para la misma entrada, siempre. Hoy la IA rederiva cada respuesta desde cero y la descarta justo después de usarla. Antaeon precarga más de 1.000 motores que tu IA puede llamar, de modo que cada petición es más rápida y cuesta menos.',
     cell1Name: 'Conversión',
     cell1Desc: 'Cualquier formato a cualquier otro, ya sean archivos, imágenes, código o codificaciones.',
     cell1ExA: 'docx → pdf',

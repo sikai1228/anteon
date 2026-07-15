@@ -190,13 +190,17 @@ if (wheelEl && !document.documentElement.classList.contains('static')) {
   }
 }
 
-// Clicking the wordmark, in either header, returns to the very start as a
-// hard cut: the film runtime answers the event with an immediate Lenis jump
-// so the film cannot glide backward through its frames.
+// Clicking the wordmark, in either header, is a hard cut to the landing
+// page's top, the same ground the skip ride lands on, not back to the
+// film's start. The film runtime answers site-jump with an immediate Lenis
+// jump and re-arms the boundary latch; the static shell scrolls directly.
 for (const w of document.querySelectorAll('#wordmark, .site-wordmark, .footer-brand')) {
   w.addEventListener('click', () => {
-    window.dispatchEvent(new CustomEvent('film-jump', { detail: 0 }));
-    window.scrollTo(0, 0);
+    if (document.documentElement.classList.contains('static')) {
+      window.scrollTo(0, span() + window.innerHeight);
+    } else {
+      window.dispatchEvent(new CustomEvent('site-jump'));
+    }
   });
 }
 
