@@ -841,7 +841,7 @@ a.footer-brand:hover .brand-mark .hand-r {
     border-bottom-color: transparent;
   }
 
-  .page-header.nav-open .header-nav .book-call {
+  .page-header .header-nav .book-call {
     border: none;
     background: none;
     padding: 0;
@@ -849,9 +849,9 @@ a.footer-brand:hover .brand-mark .hand-r {
     position: relative;
   }
 
-  .page-header.nav-open .header-nav .book-call .bc-arrow { display: none; }
+  .page-header .header-nav .book-call .bc-arrow { display: none; }
 
-  .page-header.nav-open .header-nav .book-call::after {
+  .page-header .header-nav .book-call::after {
     content: '';
     position: absolute;
     left: 0;
@@ -864,5 +864,5 @@ a.footer-brand:hover .brand-mark .hand-r {
     transition: transform var(--speed-move) var(--ease);
   }
 
-  .page-header.nav-open .header-nav .book-call:hover::after { transform: scaleX(1); }
+  .page-header .header-nav .book-call:hover::after { transform: scaleX(1); }
 }

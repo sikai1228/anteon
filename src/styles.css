@@ -1580,8 +1580,8 @@ html.static .caption {
     backdrop-filter: blur(var(--frost-blur));
   }
 
-  #chrome.nav-open .header-nav .book-call,
-  #site-header.nav-open .header-nav .book-call {
+  #chrome .header-nav .book-call,
+  #site-header .header-nav .book-call {
     border: none;
     background: none;
     padding: 0;
@@ -1589,11 +1589,11 @@ html.static .caption {
     position: relative;
   }
 
-  #chrome.nav-open .header-nav .book-call .bc-arrow,
-  #site-header.nav-open .header-nav .book-call .bc-arrow { display: none; }
+  #chrome .header-nav .book-call .bc-arrow,
+  #site-header .header-nav .book-call .bc-arrow { display: none; }
 
-  #chrome.nav-open .header-nav .book-call::after,
-  #site-header.nav-open .header-nav .book-call::after {
+  #chrome .header-nav .book-call::after,
+  #site-header .header-nav .book-call::after {
     content: '';
     position: absolute;
     left: 0;
@@ -1606,6 +1606,6 @@ html.static .caption {
     transition: transform var(--speed-move) var(--ease);
   }
 
-  #chrome.nav-open .header-nav .book-call:hover::after,
-  #site-header.nav-open .header-nav .book-call:hover::after { transform: scaleX(1); }
+  #chrome .header-nav .book-call:hover::after,
+  #site-header .header-nav .book-call:hover::after { transform: scaleX(1); }
 }
