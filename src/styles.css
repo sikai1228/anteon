@@ -913,10 +913,10 @@ html[data-boot="site"] #skip {
  * internal detail preserved), so the row needs no filter and no opacity. */
 .media-strip {
   width: 100vw;
-  /* 120 of white on each side of the band, a one-off just here: 120 above
-   * the top hairline, and below, the band margin stacks with the library
-   * section's own padding to total 120 whatever the section rhythm is. */
-  margin: 120px 0 calc(120px - var(--space-section)) calc(50% - 50vw);
+  /* 80 of white on each side of the band, hardcoded here off the section
+   * token: 80 above the top hairline, and 20 below stacking with the library
+   * section's 60 of padding for 80 below the bottom hairline. */
+  margin: 80px 0 20px calc(50% - 50vw);
   /* The section rhythm lives outside the hairlines; inside, the logos
    * keep their tighter own air. */
   padding-block: var(--space-10);
@@ -1656,6 +1656,10 @@ html.static .caption {
  * would draw a full width line at their base on hover. The cards carry
  * their own indicators (the media border), so that line is removed. */
 .header-nav .mega-card::after { content: none; }
+
+/* The film header has no divider on the trailer: its panel border stays
+ * clear. The sticky site header keeps its line. */
+#chrome .nav-mega-panel { border-bottom-color: transparent; }
 
 #chrome.mega-open .nav-mega-panel,
 #site-header.mega-open .nav-mega-panel {
