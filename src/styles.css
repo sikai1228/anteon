@@ -488,15 +488,12 @@ canvas#gl {
   gap: var(--space-1);
   height: 28px;
   padding-inline: var(--space-1);
-  border: var(--border-hair) solid var(--ink);
+  /* The outline holds the muted grey at every state; hover feedback lives
+   * on the option circles, not the shell. */
+  border: var(--border-hair) solid var(--ink-muted);
   border-radius: var(--radius-pill);
   background: var(--paper);
-  opacity: var(--o-muted);
-  transition: opacity var(--speed-quick) var(--ease);
 }
-
-.theme-switch:hover,
-.theme-switch:focus-within { opacity: 1; }
 
 .theme-opt {
   display: inline-grid;
@@ -509,10 +506,17 @@ canvas#gl {
   border-radius: var(--radius-pill);
   color: var(--ink-muted);
   cursor: pointer;
-  transition: color var(--speed-quick) var(--ease);
+  transition:
+    color var(--speed-quick) var(--ease),
+    box-shadow var(--speed-quick) var(--ease);
 }
 
-.theme-opt:hover { color: var(--ink); }
+/* The hovered option lifts as a circle: paper chip, shadow beneath. */
+.theme-opt:hover {
+  color: var(--ink);
+  background: var(--paper);
+  box-shadow: var(--shadow-2);
+}
 
 .theme-opt svg { width: 16px; height: 16px; }
 

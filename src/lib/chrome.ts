@@ -125,6 +125,21 @@ if (lang) {
   }
 }
 
+// The theme pill: selection state only for now — clicking moves the checked
+// segment; no theme engine sits behind it yet.
+const themeSwitch = document.querySelector<HTMLElement>('.theme-switch');
+if (themeSwitch) {
+  const opts = [...themeSwitch.querySelectorAll<HTMLButtonElement>('.theme-opt')];
+  for (const opt of opts) {
+    opt.addEventListener('click', () => {
+      for (const o of opts) {
+        o.setAttribute('aria-checked', o === opt ? 'true' : 'false');
+        o.classList.toggle('is-active', o === opt);
+      }
+    });
+  }
+}
+
 // Clicking the wordmark, in either header, returns to the very start as a
 // hard cut: the film runtime answers the event with an immediate Lenis jump
 // so the film cannot glide backward through its frames.
