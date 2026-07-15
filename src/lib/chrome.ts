@@ -226,7 +226,7 @@ if (themeSwitch) {
 // Clicking the wordmark, in either header, returns to the very start as a
 // hard cut: the film runtime answers the event with an immediate Lenis jump
 // so the film cannot glide backward through its frames.
-for (const w of document.querySelectorAll('#wordmark, .site-wordmark')) {
+for (const w of document.querySelectorAll('#wordmark, .site-wordmark, .footer-brand')) {
   w.addEventListener('click', () => {
     window.dispatchEvent(new CustomEvent('film-jump', { detail: 0 }));
     window.scrollTo(0, 0);
