@@ -32,14 +32,20 @@ const VIEW_H = 300;
  * under the wordmark on the left and the Book a call button on the right. */
 const LEFT = 0;
 const RIGHT = VIEW_W;
-const LANE_TOP = 30;
+/* The empty band above the first lane (LANE_TOP) is tuned to equal the gap
+ * from the last lane down to the box, so the figure's whitespace above and
+ * below reads the same. With the box top at 232 and ten lanes 18 apart, 35
+ * lands both gaps at 35 units. */
+const LANE_TOP = 35;
 const LANE_PITCH = 18;
 const LANE_COUNT = 10;
 const BOX_TOP = 232;
 const BOX_HEIGHT = 60;
-/* The lines run the full field, but the library box stays inset at its old
- * width so widening the field does not stretch it (BOX_LEFT and BOX_RIGHT
- * land it where it sat before the break-out). */
+/* The traffic fills the whole field, but the library box is pinned to the
+ * site's normal section width, not the wider break-out. The section width and
+ * the field width scale differently with the viewport, so the box inset cannot
+ * be a fixed viewBox number; layoutBox measures both and sets the rect on every
+ * resize. These two are only the first-paint fallback. */
 const BOX_LEFT = 52;
 const BOX_RIGHT = 1148;
 
@@ -121,6 +127,8 @@ interface Link {
 }
 
 interface Scene {
+  host: HTMLElement;
+  box: SVGRectElement;
   linesG: SVGGElement;
   linksG: SVGGElement;
   lines: Line[];
@@ -186,6 +194,8 @@ export function initCompilerDiagram(): void {
   if (!host) return;
 
   const scene = buildScene(host);
+  layoutBox(scene);
+  window.addEventListener('resize', () => layoutBox(scene));
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   seed(scene, reduced);
   renderAll(scene);
@@ -253,6 +263,8 @@ function buildScene(host: HTMLElement): Scene {
   host.append(svg);
 
   return {
+    host,
+    box,
     linesG,
     linksG,
     lines: [],
@@ -268,6 +280,28 @@ function buildScene(host: HTMLElement): Scene {
     ]),
     drawFate: bag<Fate>(['fix', 'fix', 'fix', 'holdout']),
   };
+}
+
+/** Pins the library box to the site's normal section width. The field breaks
+ * out to the header and footer span, but the box should read at the width every
+ * other section uses, so measure the section content box (the wrapper's padded
+ * parent) against the field width and inset the rect symmetrically. The label
+ * stays centred, so it needs no adjustment. */
+function layoutBox(scene: Scene): void {
+  const svg = scene.host.querySelector('svg');
+  const container = scene.host.parentElement;
+  if (!svg || !container) return;
+  const fieldW = svg.getBoundingClientRect().width;
+  if (fieldW <= 0) return;
+  const cs = getComputedStyle(container);
+  const contentW =
+    container.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  // The half difference, from screen pixels into viewBox units.
+  const inset = Math.max(0, ((fieldW - contentW) / 2) * (VIEW_W / fieldW));
+  const left = r1(inset);
+  const right = r1(VIEW_W - inset);
+  scene.box.setAttribute('x', String(left));
+  scene.box.setAttribute('width', String(r1(right - left)));
 }
 
 function addPacket(line: Line, x: number): Packet {
@@ -568,24 +602,17 @@ function maybeBranch(scene: Scene, line: Line): void {
   addBranch(scene, line, lane, forkX, rejoinX);
 }
 
-/** The interaction director. One connector at a time, on a minimum gap, in
- * story order: a red line asks first, the library answers the reddest line
- * that asked, and green lines draw on it between beats. The stagger keeps
- * the library from answering everything at once. */
+/** The interaction director. One connector at a time, on a minimum gap. A due
+ * answer is served before the next ask, so every red that asks gets fixed
+ * rather than left hanging while fresh reds keep asking; the reddest waiting
+ * line goes first, and green lines draw on the library between beats. */
 function control(scene: Scene): void {
   if (scene.t - scene.lastLinkAt < LINK_GAP_S) return;
   if (scene.links.length >= MAX_LINKS) return;
 
-  const asker = scene.lines.find(
-    (l) => l.fate === 'fix' && !l.asked && !l.fading && l.headX >= l.askX + 20,
-  );
-  if (asker) {
-    asker.asked = true;
-    asker.askedAt = scene.t;
-    spawnLink(scene, asker, asker.askX, false);
-    return;
-  }
-
+  // The library answers first: a red that already asked and is now due gets
+  // its rising connector before any new red is allowed to ask. Ordering the
+  // ask ahead of this starved the answers, so reds never turned green.
   const eligible = scene.lines.filter(
     (l) =>
       l.fate === 'fix' &&
@@ -601,6 +628,16 @@ function control(scene: Scene): void {
     const target = eligible[0];
     target.fixSent = true;
     spawnLink(scene, target, target.fixX, true);
+    return;
+  }
+
+  const asker = scene.lines.find(
+    (l) => l.fate === 'fix' && !l.asked && !l.fading && l.headX >= l.askX + 20,
+  );
+  if (asker) {
+    asker.asked = true;
+    asker.askedAt = scene.t;
+    spawnLink(scene, asker, asker.askX, false);
     return;
   }
 
