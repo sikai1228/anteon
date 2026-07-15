@@ -1092,14 +1092,18 @@ html[data-boot="site"] #skip {
   border: var(--border-hair) solid var(--line);
   border-radius: var(--radius-frame);
   background: var(--paper);
+  /* A settled speed, so the puff grows and collapses with a buttery flow,
+   * both on hover and under the idle game. */
   transition:
-    transform var(--speed-quick) var(--ease),
-    box-shadow var(--speed-quick) var(--ease);
+    transform var(--speed-settle) var(--ease),
+    box-shadow var(--speed-settle) var(--ease);
 }
 
 /* The four-tile hover, restored for the full grid: the hovered cell grows
- * a step and lifts onto a shadow. */
-.cell:hover {
+ * a step and lifts onto a shadow. The idle game (cellgame.ts) puffs one cell
+ * at a time the same way through .is-puffed. */
+.cell:hover,
+.cell.is-puffed {
   transform: scale(1.02);
   box-shadow: var(--shadow-2);
 }
@@ -1153,8 +1157,10 @@ html[data-boot="site"] #skip {
 }
 
 .cell-ex-b { opacity: 0; }
-.cell:hover .cell-ex-a { opacity: 0; }
-.cell:hover .cell-ex-b { opacity: 1; }
+.cell:hover .cell-ex-a,
+.cell.is-puffed .cell-ex-a { opacity: 0; }
+.cell:hover .cell-ex-b,
+.cell.is-puffed .cell-ex-b { opacity: 1; }
 
 /* The closing band: the film's thesis line, large in the site's sans, over a
  * single call. Centered, with the full section rhythm above and below. */

@@ -8,6 +8,7 @@
  * first scroll and never comes back.
  */
 
+import { initCellGame } from './cellgame';
 import { initTerminalDemo } from './demo';
 import { wirePrefs } from './prefs';
 
@@ -106,6 +107,10 @@ wirePrefs();
 
 // The hero terminal demo: the split-screen race (no-ops off the landing).
 initTerminalDemo();
+
+// The idle puff game on the two cell grids (no-ops off the landing, off
+// screen, and under reduced motion).
+initCellGame();
 
 // The hero word wheel, ported from EstateInventor's RotatingWord (a
 // Krea-style slot roll): the current and incoming words translate in
