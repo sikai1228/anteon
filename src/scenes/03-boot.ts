@@ -40,6 +40,17 @@ const DUST_FADE_OUT = 0.578;
 const SCATTER_IN = 0.535;
 const SCATTER_OUT = 0.56;
 
+/* The second print: the walk continuing toward the flag. NEW information,
+ * so it may draw in after the press; the boot's own lines remain the first
+ * print, untouched. One stride ahead of the pressed sole (its toe already
+ * points down world +x at rest), a hip's width aside, toed in a few
+ * degrees. */
+const STEPS_IN = 0.558;
+const STEPS_OUT = 0.588;
+const STEP_FORWARD = 4.2;
+const STEP_ASIDE = -2.3;
+const STEP_YAW = -0.1;
+
 /* Geometry, local units. Sole in local x-z, heel to toe along x, tread
  * ridges spaced along x and running across the width along z. */
 const SOLE_HALF_LEN = 1.774;
@@ -70,49 +81,60 @@ const WING_SCALE = 0.5;
 const MOON_HOVER_Y = 0.6;
 const MOON_GROUND_Y = 0.02;
 
-/* The sole silhouette, one source: lateral (+z) and medial (-z) half-width
- * profiles over the normalized length, heel tip to toe tip. The outline,
- * the tread clipping, and the heel line all derive from these two tables,
- * so the tread can never detach from the silhouette. The medial side
- * carries the arch pinch and the toe's big-toe bias; both tips and the
- * length envelope match the old outline exactly, so the swap, the carry,
- * and the press keep the same footprint. */
+/* The print is the classic bare footprint pictogram: a foot pad (ball,
+ * arch, heel) with five detached toe rounds above it. The pad's two edges
+ * are the single source both the outline and the tread clipping derive
+ * from, so the inherited bars can never detach from the silhouette; the
+ * toes are the sole's own strokes, drawn in the same cutout window as the
+ * outline, before the swap. Medial (-z) carries the arch and the big toe. */
 const EDGE_LATERAL: readonly (readonly [number, number])[] = [
   [-1.047, 0],
-  [-0.97, 0.42],
-  [-0.84, 0.64],
-  [-0.55, 0.68],
-  [-0.25, 0.66],
-  [0.05, 0.74],
-  [0.35, 0.92],
-  [0.55, 1.0],
-  [0.75, 0.94],
-  [0.9, 0.64],
-  [0.953, 0],
+  [-1.0, 0.4],
+  [-0.9, 0.58],
+  [-0.7, 0.62],
+  [-0.45, 0.6],
+  [-0.2, 0.62],
+  [0.05, 0.78],
+  [0.3, 0.92],
+  [0.45, 0.88],
+  [0.56, 0.5],
+  [0.6, 0],
 ];
 
 const EDGE_MEDIAL: readonly (readonly [number, number])[] = [
   [-1.047, 0],
-  [-0.97, 0.4],
-  [-0.84, 0.6],
-  [-0.55, 0.58],
-  [-0.3, 0.46],
-  [-0.05, 0.45],
-  [0.25, 0.68],
-  [0.5, 0.88],
-  [0.72, 0.97],
-  [0.92, 0.72],
-  [0.953, 0],
+  [-1.0, 0.38],
+  [-0.9, 0.55],
+  [-0.72, 0.58],
+  [-0.5, 0.48],
+  [-0.28, 0.35],
+  [-0.05, 0.38],
+  [0.2, 0.7],
+  [0.4, 0.85],
+  [0.55, 0.6],
+  [0.6, 0],
+];
+
+/* The five toes, centers in normalized length and width, radii in local
+ * units, big toe on the medial side, shrinking toward the pinky. */
+const TOES: readonly (readonly [number, number, number])[] = [
+  [0.75, -0.55, 0.24],
+  [0.84, -0.18, 0.14],
+  [0.86, 0.14, 0.12],
+  [0.81, 0.43, 0.11],
+  [0.72, 0.68, 0.1],
 ];
 
 const soleGroup = new THREE.Group();
 const dustGroup = new THREE.Group();
 const moonGroup = new THREE.Group();
+const stepGroup = new THREE.Group();
 const sceneGroup = new THREE.Group();
 let sole!: StrokeSetApi;
 let tread!: StrokeSetApi;
 let dust!: StrokeSetApi;
 let print!: StrokeSetApi;
+let steps!: StrokeSetApi;
 
 const _pos = new THREE.Vector3();
 const WING_POS = new THREE.Vector3();
@@ -171,13 +193,16 @@ const Q_WING = (() => {
   return new THREE.Quaternion().setFromRotationMatrix(m);
 })();
 
-/** One closed line around the sole: up the lateral edge, back down the
- * medial edge, closing on the heel tip it started from. */
-function soleOutline(y: number): THREE.Vector3[] {
+/** One closed line around the pad: up the lateral edge, back down the
+ * medial edge, closing on the heel tip it started from. zSign -1 mirrors
+ * the foot for the other side of the pair. */
+function soleOutline(y: number, zSign = 1): THREE.Vector3[] {
   const pts: THREE.Vector3[] = [];
-  for (const p of EDGE_LATERAL) pts.push(new THREE.Vector3(p[0] * SOLE_HALF_LEN, y, p[1] * SOLE_HALF_WID));
+  for (const p of EDGE_LATERAL)
+    pts.push(new THREE.Vector3(p[0] * SOLE_HALF_LEN, y, p[1] * SOLE_HALF_WID * zSign));
   const medial = [...EDGE_MEDIAL].reverse().slice(1);
-  for (const p of medial) pts.push(new THREE.Vector3(p[0] * SOLE_HALF_LEN, y, -p[1] * SOLE_HALF_WID));
+  for (const p of medial)
+    pts.push(new THREE.Vector3(p[0] * SOLE_HALF_LEN, y, -p[1] * SOLE_HALF_WID * zSign));
   return pts;
 }
 
@@ -195,7 +220,13 @@ function edgeHalf(edge: readonly (readonly [number, number])[], xn: number): num
 
 /** The inherited ribs: ridges at the ribs' own projected stations, clipped to
  * the outline, matching the flyer's rib width and boil phase. */
-function buildInheritedTread(set: StrokeSetApi, y: number, widthPx: number, boil?: number): void {
+function buildInheritedTread(
+  set: StrokeSetApi,
+  y: number,
+  widthPx: number,
+  boil?: number,
+  zSign = 1,
+): void {
   const pitchLocal = RIB_PITCH_WORLD / WING_SCALE;
   const kMax = Math.floor(SOLE_HALF_LEN / pitchLocal - 0.5);
   for (let k = -kMax - 1; k <= kMax; k++) {
@@ -206,30 +237,47 @@ function buildInheritedTread(set: StrokeSetApi, y: number, widthPx: number, boil
     if (lat + med < 0.24) continue;
     set.addStroke(
       poly([
-        [x, y, -med],
-        [x, y, (lat - med) / 2],
-        [x, y, lat],
+        [x, y, -med * zSign],
+        [x, y, ((lat - med) / 2) * zSign],
+        [x, y, lat * zSign],
       ]),
       boil !== undefined ? { widthPx, boilSeed: boil } : { widthPx },
     );
   }
 }
 
+/** One toe: a small hand-drawn round, closed back on its start. */
+function toeRound(cx: number, cz: number, r: number, y: number): THREE.Vector3[] {
+  const pts: THREE.Vector3[] = [];
+  const N = 11;
+  for (let i = 0; i <= N; i++) {
+    const a = (i / N) * Math.PI * 2;
+    // a light squash keeps the rounds toe-like rather than perfect circles
+    pts.push(new THREE.Vector3(cx + Math.cos(a) * r, y, cz + Math.sin(a) * r * 0.88));
+  }
+  return pts;
+}
+
+function buildToes(set: StrokeSetApi, y: number, widthPx?: number, zSign = 1): void {
+  for (const [xn, zn, r] of TOES) {
+    const path = toeRound(xn * SOLE_HALF_LEN, zn * SOLE_HALF_WID * zSign, r, y);
+    set.addStroke(path, widthPx !== undefined ? { widthPx } : undefined);
+  }
+}
+
 function buildSole(set: StrokeSetApi): void {
+  // The pad outline and the five toes are the sole's own drawing, all in
+  // the cutout window before the swap; the bars inside are the ribs.
   set.addStroke(soleOutline(0));
-  // The heel line sits at the heel block's end and spans the sole's own
-  // width there, so it stays inside the contour.
-  const HEEL_XN = -0.55;
-  const heelX = SOLE_HALF_LEN * HEEL_XN;
-  const lat = edgeHalf(EDGE_LATERAL, HEEL_XN) * SOLE_HALF_WID * 0.96;
-  const med = edgeHalf(EDGE_MEDIAL, HEEL_XN) * SOLE_HALF_WID * 0.96;
-  set.addStroke(
-    poly([
-      [heelX, 0, -med],
-      [heelX, 0, (lat - med) / 2],
-      [heelX, 0, lat],
-    ]),
-  );
+  buildToes(set, 0);
+}
+
+/** The other foot's print, drawn flat where it will lie: mirrored across
+ * the walking line so its arch and big toe face the first print's. */
+function buildStep(set: StrokeSetApi): void {
+  set.addStroke(soleOutline(0, -1), { widthPx: 2.6 });
+  buildToes(set, 0, 2.6, -1);
+  buildInheritedTread(set, 0, RIB_WIDTH_PX, undefined, -1);
 }
 
 function buildScatter(set: StrokeSetApi): void {
@@ -276,10 +324,12 @@ export const bootScene: FilmScene = {
     tread = ctx.makeStrokeSet({ style: { widthPx: RIB_WIDTH_PX, dust: false, wobbleAmp: 0 }, maxPoints: 120 });
     dust = ctx.makeStrokeSet({ style: { widthPx: 1.4, dust: false }, maxPoints: 128 });
     print = ctx.makeStrokeSet({ style: { widthPx: 1.9, dust: false }, maxPoints: 300 });
+    steps = ctx.makeStrokeSet({ style: { widthPx: 1.9, dust: false }, maxPoints: 160 });
     buildSole(sole);
     buildInheritedTread(tread, 0, RIB_WIDTH_PX, RIB_BOIL_SEED);
     buildDust(dust);
     buildScatter(print);
+    buildStep(steps);
     tread.setDraw(1); // fully built; it appears by the opacity step at the swap
 
     // the one boot: free-floating group posed in absolute world space,
@@ -292,7 +342,10 @@ export const bootScene: FilmScene = {
     // the ground story lives at the moon region as before
     moonGroup.position.set(REGIONS.moon, 0, 0);
     dustGroup.add(dust.object3d);
-    moonGroup.add(dustGroup, print.object3d);
+    stepGroup.add(steps.object3d);
+    stepGroup.position.set(STEP_FORWARD, MOON_GROUND_Y, STEP_ASIDE);
+    stepGroup.rotation.y = STEP_YAW;
+    moonGroup.add(dustGroup, print.object3d, stepGroup);
 
     sceneGroup.add(soleGroup, moonGroup);
     ctx.three.scene.add(sceneGroup);
@@ -325,6 +378,7 @@ export const bootScene: FilmScene = {
     dustGroup.position.y = mix(0, 0.5, smoothstep(PRESS_OUT, DUST_FADE_OUT, g));
 
     print.setDraw(smoothstep(SCATTER_IN, SCATTER_OUT, g));
+    steps.setDraw(smoothstep(STEPS_IN, STEPS_OUT, g));
 
     const t = ctx.time();
     const cam = ctx.three.camera;
@@ -333,6 +387,7 @@ export const bootScene: FilmScene = {
     tread.update(t, cam, vp);
     dust.update(t, cam, vp);
     print.update(t, cam, vp);
+    steps.update(t, cam, vp);
   },
 
   setVisible(v: boolean) {
@@ -344,5 +399,6 @@ export const bootScene: FilmScene = {
     tread.dispose();
     dust.dispose();
     print.dispose();
+    steps.dispose();
   },
 };
