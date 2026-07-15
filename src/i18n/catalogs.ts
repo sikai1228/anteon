@@ -18,6 +18,12 @@ export const LOCALES: readonly Locale[] = ['en', 'es'];
 export interface Catalog {
   /* Landing and site chrome, shared by both headers. */
   product: string;
+  megaEnginesTitle: string;
+  megaEnginesSub: string;
+  megaApisTitle: string;
+  megaApisSub: string;
+  megaLibraryTitle: string;
+  megaLibrarySub: string;
   apiKey: string;
   pricing: string;
   support: string;
@@ -207,6 +213,12 @@ type ChromeStrings = Omit<
 const CHROME: Record<Locale, ChromeStrings> = {
   en: {
     product: 'Product',
+    megaEnginesTitle: 'Engines',
+    megaEnginesSub: '1,000+ deterministic engines, ready for your AI to call',
+    megaApisTitle: 'API index',
+    megaApisSub: 'A ranked, continuously updated index of the top public APIs',
+    megaLibraryTitle: 'Firm library',
+    megaLibrarySub: 'Your own engines, compiled from your firm\u2019s work and shared across your team',
     apiKey: 'API key',
     pricing: 'Pricing',
     support: 'Support',
@@ -356,6 +368,12 @@ const CHROME: Record<Locale, ChromeStrings> = {
   },
   es: {
     product: 'Producto',
+    megaEnginesTitle: 'Motores',
+    megaEnginesSub: 'Más de 1.000 motores deterministas, listos para que tu IA los llame',
+    megaApisTitle: 'Índice de API',
+    megaApisSub: 'Un índice clasificado y siempre al día de las principales API públicas',
+    megaLibraryTitle: 'Biblioteca de tu empresa',
+    megaLibrarySub: 'Tus propios motores, compilados desde el trabajo de tu empresa y compartidos con tu equipo',
     apiKey: 'Clave de API',
     pricing: 'Precios',
     support: 'Soporte',

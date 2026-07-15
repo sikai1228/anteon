@@ -1508,6 +1508,100 @@ html.static .caption {
 
 #debug input[type="range"] { flex: 1; }
 #debug .t { min-width: 64px; text-align: right; }
+/* The Product mega menu. The trigger drops a panel that reads as the header
+ * extending downward: three cards for the platform pillars. prefs.ts adds
+ * mega-open to the header on hover, with a small close delay. */
+.nav-mega { display: flex; align-items: center; }
+
+.nav-mega-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--sans);
+  font-size: var(--type-nav);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  opacity: var(--o-muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.nav-mega-trigger:hover { opacity: 1; }
+
+.nav-mega-chev { transition: transform var(--speed-move) var(--ease); }
+
+.nav-mega-panel {
+  position: absolute;
+  top: var(--chrome-header);
+  left: 0;
+  right: 0;
+  max-height: 0;
+  overflow: hidden;
+  background: var(--paper);
+  border-bottom: var(--border-hair) solid transparent;
+  transition:
+    max-height var(--speed-settle) var(--ease),
+    border-bottom-color var(--speed-settle) var(--ease);
+}
+
+.mega-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-6);
+  max-width: var(--width-page);
+  margin: 0 auto;
+  padding: var(--space-8) var(--chrome-pad-x) var(--space-10);
+}
+
+.mega-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.mega-card-media {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-frame);
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+  border: var(--border-hair) solid var(--line);
+  transition: border-color var(--speed-quick) var(--ease);
+}
+
+.mega-card:hover .mega-card-media { border-color: var(--ink-faint); }
+
+.mega-card-title {
+  font-family: var(--sans);
+  font-size: var(--type-body-lg);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+}
+
+.mega-card-sub {
+  font-size: var(--type-nav);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+#chrome.mega-open .nav-mega-panel,
+#site-header.mega-open .nav-mega-panel {
+  max-height: 460px;
+  border-bottom-color: var(--line);
+}
+
+#chrome.mega-open .nav-mega-chev,
+#site-header.mega-open .nav-mega-chev { transform: rotate(180deg); }
+
+#chrome.mega-open .nav-mega-trigger,
+#site-header.mega-open .nav-mega-trigger { opacity: 1; }
+
+#site-header.mega-open::after { opacity: 0; }
+
 /* On small screens the nav folds into a three line menu. The sheet is one
  * panel that lives in the header at all times, covering just the bar when
  * closed and growing downward on open, so its bottom hairline is the
@@ -1529,6 +1623,37 @@ html.static .caption {
     color: var(--ink);
     cursor: pointer;
     pointer-events: auto;
+  }
+
+  /* In the hamburger sheet the mega is a stacked group: the trigger a
+   * label, its cards plain sub links, no media, no subs. */
+  .nav-mega { display: block; width: 100%; }
+  .nav-mega-trigger { width: 100%; justify-content: flex-start; }
+  .nav-mega-chev { display: none; }
+
+  .nav-mega-panel {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    background: none;
+    border-bottom: none;
+  }
+
+  .mega-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    max-width: none;
+    margin: 0;
+    padding: var(--space-4) 0 0 var(--space-4);
+  }
+
+  .mega-card { gap: var(--space-1); }
+  .mega-card-media,
+  .mega-card-sub { display: none; }
+  .mega-card-title {
+    font-size: var(--type-nav);
+    font-weight: var(--weight-regular);
+    color: var(--ink-muted);
   }
 
   .header-nav {
@@ -1556,7 +1681,7 @@ html.static .caption {
 
   #chrome.nav-open .header-nav,
   #site-header.nav-open .header-nav {
-    max-height: 400px;
+    max-height: 520px;
   }
 
   /* The bar's reserved space: the first link clears the header height plus

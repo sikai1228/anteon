@@ -44,6 +44,55 @@ export function wirePrefs(): void {
     }
   }
 
+  // The Product mega menu: hovering the trigger drops the platform panel,
+  // the header appearing to extend downward. A short close delay bridges
+  // the gap between the trigger and the panel below it. The trigger also
+  // toggles on click (touch and keyboard), and Escape closes. On small
+  // screens the panel is always laid out in the hamburger sheet, so this
+  // wiring is inert there (mouseenter does not fire on touch, and a click
+  // is stopped from closing the sheet).
+  const megaClose = new Map<Element, number>();
+  const closeMega = (header: Element, trigger: Element): void => {
+    header.classList.remove('mega-open');
+    trigger.setAttribute('aria-expanded', 'false');
+  };
+  for (const mega of document.querySelectorAll<HTMLElement>('.nav-mega')) {
+    const header = mega.closest('#chrome, #site-header, .page-header');
+    const trigger = mega.querySelector<HTMLElement>('.nav-mega-trigger');
+    if (!header || !trigger) continue;
+    const openMega = (): void => {
+      const t = megaClose.get(header);
+      if (t) window.clearTimeout(t);
+      header.classList.add('mega-open');
+      trigger.setAttribute('aria-expanded', 'true');
+    };
+    const scheduleClose = (): void => {
+      const t = megaClose.get(header);
+      if (t) window.clearTimeout(t);
+      megaClose.set(header, window.setTimeout(() => closeMega(header, trigger), 140));
+    };
+    mega.addEventListener('mouseenter', openMega);
+    mega.addEventListener('mouseleave', scheduleClose);
+    trigger.addEventListener('focus', openMega);
+    trigger.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (header.classList.contains('mega-open')) closeMega(header, trigger);
+      else openMega();
+    });
+    for (const card of mega.querySelectorAll('.mega-card')) {
+      card.addEventListener('click', () => closeMega(header, trigger));
+    }
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    for (const open of document.querySelectorAll('.mega-open')) {
+      const trig = open.querySelector('.nav-mega-trigger');
+      open.classList.remove('mega-open');
+      trig?.setAttribute('aria-expanded', 'false');
+    }
+  });
+
   // The small-screen menu: each header's toggle opens its own nav as a
   // dropdown sheet; picking a link, tapping outside, or Escape closes it.
   const toggles = [...document.querySelectorAll<HTMLButtonElement>('.nav-toggle')];

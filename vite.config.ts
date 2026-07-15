@@ -9,7 +9,6 @@ export default defineConfig({
       input: {
         main: new URL('index.html', import.meta.url).pathname,
         tokens: new URL('tokens.html', import.meta.url).pathname,
-        product: new URL('product.html', import.meta.url).pathname,
         pricing: new URL('pricing.html', import.meta.url).pathname,
         support: new URL('support.html', import.meta.url).pathname,
         about: new URL('about.html', import.meta.url).pathname,
