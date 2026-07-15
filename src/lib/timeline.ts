@@ -94,19 +94,32 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     }
   }
 
-  /* The site holds its ground. Once the viewer has risen out of the trailer
-   * onto the landing page, a latch sits at the boundary: scrolling up stalls
-   * there, and only sustained scrolling within a short window breaks it and
-   * rides back into the film. The boundary is the skip ride's own landing,
-   * the film element's full height. Scrolling down is never resisted. */
-  /* Sized so a casual trackpad flick and its momentum tail stay under the
-   * threshold, while a couple of seconds of real wheeling (or one decisive
-   * hard flick) gets through. */
-  const BREAK_PX = 1100;
-  const IDLE_RESET_MS = 500;
+  /* The site holds its ground with a rubber band, not a wall. Once the
+   * viewer is on the landing page, pulling up at the film boundary drags the
+   * page visibly down with parabolic resistance (displacement grows with the
+   * square root of the pull, so every further pixel costs more). Let go and
+   * the band springs back home. Pull past the critical mass and it breaks:
+   * the page releases upward into the trailer. Scrolling down is never
+   * resisted. The boundary is the skip ride's own landing, the film
+   * element's full height. */
+  /** Critical mass: upward input, in px, that breaks the band. Roughly two
+   * quick drags; their charge pools across the window below even while the
+   * visible stretch springs back between them. */
+  const BREAK_PX = 750;
   const SLACK = 4;
   /** Touch drags travel far less than wheel deltas for the same intent. */
   const TOUCH_GAIN = 2.5;
+  /** The band starts easing home this long after the last upward input. */
+  const RELEASE_MS = 90;
+  /** Spring return rate, per second: snappy, home in about a third of a
+   * second, still an ease rather than a cut. */
+  const SPRING_K = 14;
+  /** Pulls farther apart than this no longer pool toward the breakthrough. */
+  const CHARGE_WINDOW_MS = 1400;
+  /** Wheel deltas smaller than this are momentum dregs after the fingers
+   * lift: eaten so the page holds, but not counted, so the snap back starts
+   * at the real end of the gesture instead of the end of the tail. */
+  const TAIL_IGNORE_PX = 12;
 
   function boundary(): number {
     return spanPx + window.innerHeight;
@@ -119,36 +132,96 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     else window.scrollTo(0, px);
   }
 
+  /** How far the page can recede at full stretch. */
+  function maxDisp(): number {
+    return Math.min(Math.max(120, window.innerHeight * 0.2), 220);
+  }
+  /** The parabolic band: pull grows with the square of what you see. */
+  function dispOf(pullPx: number): number {
+    return maxDisp() * Math.sqrt(Math.min(pullPx / BREAK_PX, 1));
+  }
+
   let armed = false;
-  let breakAcc = 0;
-  let lastUpMs = 0;
+  /** The visible stretch; springs home on release. */
+  let pull = 0;
+  /** The breakthrough charge; survives the spring-back, pools across drags. */
+  let charge = 0;
+  let lastPullMs = 0;
+  let springRaf = 0;
+  let lastSpringMs = 0;
+  let touchY: number | null = null;
   let lastY = currentY();
+
+  // The band's own frame loop, alive only while stretched. It pins the page
+  // at the displaced position under input, holds it under a resting finger,
+  // and eases it home once the viewer lets go. Under reduced motion the
+  // stretch stays invisible and the threshold works as a plain latch.
+  function springFrame(now: number): void {
+    springRaf = 0;
+    if (!armed) {
+      pull = 0;
+      return;
+    }
+    const dt = Math.min((now - lastSpringMs) / 1000, 0.05);
+    lastSpringMs = now;
+    if (pull > 0 && touchY === null && now - lastPullMs > RELEASE_MS) {
+      pull *= Math.exp(-SPRING_K * dt);
+      if (pull < 1) {
+        pull = 0;
+        holdAt(boundary());
+        return;
+      }
+    }
+    holdAt(boundary() - (reduced ? 0 : dispOf(pull)));
+    springRaf = requestAnimationFrame(springFrame);
+  }
+  function ensureSpring(): void {
+    if (!springRaf) {
+      lastSpringMs = performance.now();
+      springRaf = requestAnimationFrame(springFrame);
+    }
+  }
+  function slacken(): void {
+    if (springRaf) cancelAnimationFrame(springRaf);
+    springRaf = 0;
+    pull = 0;
+    charge = 0;
+  }
+
+  function addPull(px: number): void {
+    const now = performance.now();
+    if (now - lastPullMs > CHARGE_WINDOW_MS) charge = 0;
+    lastPullMs = now;
+    charge += px;
+    pull = Math.min(pull + px, BREAK_PX);
+    if (charge >= BREAK_PX) {
+      // Through the critical mass: the band snaps and the page releases
+      // upward into the trailer, carrying the breakthrough's momentum.
+      armed = false;
+      slacken();
+      const to = currentY() - window.innerHeight * 0.5;
+      if (lenis && !reduced) lenis.scrollTo(to, { duration: 1.0 });
+      else window.scrollTo(0, to);
+      return;
+    }
+    ensureSpring();
+  }
 
   // Arm on the way in, clamp runaway momentum on the way out. Lenis scrolls
   // the window natively, so one native scroll listener covers both modes.
   function onScrollTick(): void {
     const y = currentY();
     const B = boundary();
-    if (armed && y < B - SLACK) {
-      // Momentum cannot coast past the latch; input at the boundary decides.
+    if (armed && springRaf === 0 && y < B - SLACK) {
+      // Coasting momentum cannot slip past the boundary; only the band's
+      // own loop may place the page above it.
       holdAt(B);
     } else if (!armed && ((lastY < B && y >= B) || y > B + window.innerHeight * 0.5)) {
-      // Crossing down into the site, or being well inside it, arms the latch.
+      // Crossing down into the site, or being well inside it, arms the band.
       armed = true;
-      breakAcc = 0;
+      slacken();
     }
     lastY = y;
-  }
-
-  function accumulate(px: number): void {
-    const now = performance.now();
-    if (now - lastUpMs > IDLE_RESET_MS) breakAcc = 0;
-    lastUpMs = now;
-    breakAcc += px;
-    if (breakAcc >= BREAK_PX) {
-      armed = false;
-      breakAcc = 0;
-    }
   }
 
   function onWheel(e: WheelEvent): void {
@@ -156,17 +229,18 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     const dy =
       e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
     if (dy >= 0) {
-      breakAcc = 0;
+      // Scrolling down lets the band go and passes through untouched.
+      if (pull > 0) slacken();
       return;
     }
-    // Captured on window before Lenis's own wheel handler; eating the event
-    // is what holds the page still under the viewer's upward intent.
+    // Captured on window before Lenis's own wheel handler; the band, not
+    // the scroller, decides where the page sits while it is stretched.
     e.preventDefault();
     e.stopPropagation();
-    accumulate(-dy);
+    if (-dy < TAIL_IGNORE_PX) return;
+    addPull(-dy);
   }
 
-  let touchY: number | null = null;
   function onTouchStart(e: TouchEvent): void {
     touchY = e.touches[0]?.clientY ?? null;
   }
@@ -178,26 +252,32 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     if (!armed || currentY() > boundary() + SLACK) return;
     // A finger moving down the screen scrolls up, toward the trailer.
     if (dy <= 0) {
-      breakAcc = 0;
+      if (pull > 0) slacken();
       return;
     }
     e.preventDefault();
     e.stopPropagation();
-    accumulate(dy * TOUCH_GAIN);
+    addPull(dy * TOUCH_GAIN);
+  }
+  function onTouchEnd(): void {
+    // The spring loop reads the lifted finger and eases the band home.
+    touchY = null;
   }
 
   window.addEventListener('scroll', onScrollTick, { passive: true });
   window.addEventListener('wheel', onWheel, { passive: false, capture: true });
   window.addEventListener('touchstart', onTouchStart, { passive: true, capture: true });
   window.addEventListener('touchmove', onTouchMove, { passive: false, capture: true });
+  window.addEventListener('touchend', onTouchEnd, { passive: true, capture: true });
+  window.addEventListener('touchcancel', onTouchEnd, { passive: true, capture: true });
 
   // The wordmarks jump here, not to the film's start: a hard cut onto the
   // landing page's top, latch armed, camera damp already settled.
   function onSiteJump(): void {
     measure();
+    slacken();
     holdAt(boundary());
     armed = true;
-    breakAcc = 0;
     sm = 1;
   }
   window.addEventListener('site-jump', onSiteJump);
@@ -282,7 +362,10 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     window.removeEventListener('wheel', onWheel, { capture: true });
     window.removeEventListener('touchstart', onTouchStart, { capture: true });
     window.removeEventListener('touchmove', onTouchMove, { capture: true });
+    window.removeEventListener('touchend', onTouchEnd, { capture: true });
+    window.removeEventListener('touchcancel', onTouchEnd, { capture: true });
     window.removeEventListener('site-jump', onSiteJump);
+    slacken();
     lenis?.destroy();
   }
 

@@ -16,7 +16,8 @@
  * token-guarded rAF clock drives both panes: the race starts in view,
  * pauses off screen, holds the end state, then resets and replays; stale
  * frame chains die on the token check, so re-entry can never double the
- * clock. Reduced motion renders both final states standing still. The
+ * clock. A fast forward control multiplies the race clock and resets with
+ * each replay. Reduced motion renders both final states standing still. The
  * terminal speaks static English on purpose: a depicted demo, outside
  * the page's i18n.
  */
@@ -49,6 +50,8 @@ interface PaneEvent {
 const TYPE_MS = 32;
 /** How much of the terminal must be visible before the race runs. */
 const IN_VIEW = 0.4;
+/** The fast forward control's clock multiplier while engaged. */
+const FF_SPEED = 8;
 /** The end state holds this long after the last beat, then the loop
  * resets and replays. */
 const LAST_MS = 55000;
@@ -122,7 +125,7 @@ interface Typer {
 
 /** The ticker moves in discrete steps, one per finished AI message. */
 function setCost(pane: Pane, usd: number): void {
-  if (pane.costEl) pane.costEl.textContent = 'API $' + usd.toFixed(2);
+  if (pane.costEl) pane.costEl.textContent = 'API cost: $' + usd.toFixed(2);
 }
 
 function isTyped(kind: EventKind): boolean {
@@ -192,6 +195,7 @@ export function initTerminalDemo(): void {
   const body = document.querySelector<HTMLElement>('.hero-terminal .terminal-body');
   if (!body || body.dataset.demoInit === '1') return;
   body.dataset.demoInit = '1';
+  const ffBtn = document.querySelector<HTMLButtonElement>('.hero-terminal .term-ff');
 
   const panes: Pane[] = [];
   for (const id of ['a', 'b'] as const) {
@@ -220,6 +224,8 @@ export function initTerminalDemo(): void {
   // story told standing still: Antaeon complete, the other side frozen
   // mid-grind on its working line.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // No race to hurry: the control leaves with the motion.
+    ffBtn?.remove();
     for (const ev of schedule) {
       const pane = byId(ev.pane);
       if (ev.kind !== 'work') {
@@ -239,7 +245,16 @@ export function initTerminalDemo(): void {
   let fired = 0;
   let running = false;
   let runToken = 0;
+  let speed = 1;
   let typers: Typer[] = [];
+
+  // The fast forward control, bottom right of the card: one click runs the
+  // race at FF_SPEED, another returns it to real time, and every replay
+  // starts back at real time.
+  ffBtn?.addEventListener('click', () => {
+    speed = speed === 1 ? FF_SPEED : 1;
+    ffBtn.classList.toggle('is-on', speed !== 1);
+  });
 
   function fire(ev: PaneEvent): void {
     const pane = byId(ev.pane);
@@ -273,6 +288,8 @@ export function initTerminalDemo(): void {
     typers = [];
     fired = 0;
     elapsed = 0;
+    speed = 1;
+    ffBtn?.classList.remove('is-on');
   }
 
   function frame(now: number, token: number): void {
@@ -285,7 +302,7 @@ export function initTerminalDemo(): void {
       return;
     }
     // Clamp the step so a throttled or resumed frame cannot teleport the race.
-    elapsed += Math.min(now - lastNow, 500);
+    elapsed += Math.min(now - lastNow, 500) * speed;
     lastNow = now;
 
     while (fired < schedule.length && schedule[fired].at <= elapsed) {

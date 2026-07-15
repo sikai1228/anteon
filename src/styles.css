@@ -590,9 +590,46 @@ canvas#gl {
  * right. The two status tones below are scoped to this frame only: it
  * depicts a product UI; the page itself keeps its one-accent law. */
 .hero-terminal {
+  position: relative;
   box-shadow: var(--shadow-2);
   --t-ok: #4a8f5f;
   --t-warn: #b8862f;
+}
+
+/* The fast forward control, resting quietly in the card's bottom right: a
+ * pill button on the site's rounding rule for circular controls. Engaged,
+ * it inverts to solid ink; every replay disengages it. It hides under
+ * reduced motion along with the race it would hurry. */
+.term-ff {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  display: grid;
+  place-items: center;
+  width: var(--space-8);
+  height: var(--space-8);
+  padding: 0;
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition:
+    color var(--speed-quick) var(--ease),
+    border-color var(--speed-quick) var(--ease),
+    background var(--speed-quick) var(--ease);
+}
+
+.term-ff:hover { color: var(--ink); border-color: var(--ink-faint); }
+
+.term-ff.is-on {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-ff { display: none; }
 }
 
 .terminal-body { display: flex; align-items: stretch; }
