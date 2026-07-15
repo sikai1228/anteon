@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <title>Antaeon</title>
-  <meta name="description" content="If I have seen further, it is by standing on the shoulders of Giants." />
+  <meta name="description" content="If I have seen further, it is by standing on the shoulders of Giants." data-i18n-attr="content:metaDescription" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0b0d'/%3E%3Cpath d='M4 12 Q8 3 12 12' stroke='%23eceae4' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/hanken-grotesk-latin.woff2" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/im-fell-english-regular-latin.woff2" />
@@ -17,10 +17,10 @@
   <header id="chrome">
     <span id="wordmark">Antaeon</span>
     <nav class="header-nav">
-      <a href="#">Product</a>
-      <a href="#">Pricing</a>
-      <a href="#">Support</a>
-      <button type="button" class="book-call"><span class="bc-label">Book a call</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
+      <a href="#" data-i18n="product">Product</a>
+      <a href="#" data-i18n="pricing">Pricing</a>
+      <a href="#" data-i18n="support">Support</a>
+      <button type="button" class="book-call"><span class="bc-label" data-i18n="bookCall">Book a call</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
     </nav>
   </header>
   <div id="film" style="height: 1400vh">
@@ -29,11 +29,11 @@
       <div id="fade" aria-hidden="true"></div>
       <div id="captions"></div>
       <figure id="quote">
-        <blockquote>&ldquo;If I have seen further, it is by standing on the shoulders of Giants.&rdquo;</blockquote>
-        <figcaption>&mdash;&nbsp;Sir Isaac Newton</figcaption>
+        <blockquote data-i18n="quoteText">&ldquo;If I have seen further, it is by standing on the shoulders of Giants.&rdquo;</blockquote>
+        <figcaption data-i18n="quoteAttribution">&mdash;&nbsp;Sir Isaac Newton</figcaption>
       </figure>
       <button id="skip" type="button">
-        <span class="skip-label">Skip the film</span>
+        <span class="skip-label" data-i18n="skipFilm">Skip the film</span>
         <span class="skip-key" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></span>
       </button>
     </div>
@@ -42,52 +42,59 @@
     <div id="site-header">
       <span class="site-wordmark">Antaeon</span>
       <nav class="header-nav">
-        <a href="#">Product</a>
-        <a href="#">Pricing</a>
-        <a href="#">Support</a>
-        <button type="button" class="book-call"><span class="bc-label">Book a call</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
+        <a href="#" data-i18n="product">Product</a>
+        <a href="#" data-i18n="pricing">Pricing</a>
+        <a href="#" data-i18n="support">Support</a>
+        <button type="button" class="book-call"><span class="bc-label" data-i18n="bookCall">Book a call</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
       </nav>
     </div>
     <section class="site-hero">
       <h1 id="logo">Antaeon</h1>
-      <p id="site-note">The site begins here.</p>
+      <p id="site-note" data-i18n="siteNote">The site begins here.</p>
     </section>
     <footer class="site-footer">
       <div class="footer-inner">
         <div class="footer-brandcol">
           <span class="footer-brand">Antaeon</span>
-          <p class="footer-tag">Your AI shouldn&rsquo;t stand alone.</p>
+          <p class="footer-tag" data-i18n="footerTag">Your AI shouldn&rsquo;t stand alone.</p>
         </div>
-        <nav class="footer-col" aria-label="Product">
-          <h2 class="footer-h">Product</h2>
-          <a href="#">Pricing<svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#">Support<svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#">Book a call<svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        <nav class="footer-col" aria-label="Product" data-i18n-attr="aria-label:product">
+          <h2 class="footer-h" data-i18n="product">Product</h2>
+          <a href="#"><span data-i18n="pricing">Pricing</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="#"><span data-i18n="support">Support</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="#"><span data-i18n="bookCall">Book a call</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
         </nav>
-        <nav class="footer-col" aria-label="Company">
-          <h2 class="footer-h">Company</h2>
-          <a href="#">About<svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#">Contact<svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="./credits.html">Credits<svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        <nav class="footer-col" aria-label="Company" data-i18n-attr="aria-label:company">
+          <h2 class="footer-h" data-i18n="company">Company</h2>
+          <a href="#"><span data-i18n="about">About</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="#"><span data-i18n="blog">Blog</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="#"><span data-i18n="contact">Contact</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="./credits.html"><span data-i18n="credits">Credits</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
         </nav>
-        <nav class="footer-col" aria-label="Legal">
-          <h2 class="footer-h">Legal</h2>
-          <a href="#">Privacy<svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
-          <a href="#">Terms<svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        <nav class="footer-col" aria-label="Legal" data-i18n-attr="aria-label:legal">
+          <h2 class="footer-h" data-i18n="legal">Legal</h2>
+          <a href="#"><span data-i18n="privacy">Privacy</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="#"><span data-i18n="terms">Terms</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+          <a href="#"><span data-i18n="cookiePolicy">Cookie policy</span><svg class="footer-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
         </nav>
       </div>
       <div class="footer-bottom">
-        <p class="footer-copy">&copy; 2026 Antaeon. All rights reserved.</p>
+        <p class="footer-copy" data-i18n="rights">&copy; 2026 Antaeon. All rights reserved.</p>
         <div class="footer-prefs">
+          <div class="theme-switch" role="radiogroup" aria-label="Theme" data-i18n-attr="aria-label:theme">
+            <button class="theme-opt is-active" type="button" role="radio" aria-checked="true" aria-label="System theme" data-i18n-attr="aria-label:themeSystem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg></button>
+            <button class="theme-opt" type="button" role="radio" aria-checked="false" aria-label="Light theme" data-i18n-attr="aria-label:themeLight"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg></button>
+            <button class="theme-opt" type="button" role="radio" aria-checked="false" aria-label="Dark theme" data-i18n-attr="aria-label:themeDark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+          </div>
           <details class="lang">
-            <summary class="lang-toggle" aria-label="Change language">
+            <summary class="lang-toggle" aria-label="Change language" data-i18n-attr="aria-label:ariaChangeLanguage">
               <svg class="lang-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
               <span class="lang-label">English</span>
               <svg class="lang-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
             </summary>
             <ul class="lang-menu">
-              <li><button class="lang-opt" type="button" aria-current="true">English</button></li>
-              <li><button class="lang-opt" type="button">Espa&ntilde;ol</button></li>
+              <li><button class="lang-opt" type="button" data-lang="en" aria-current="true">English</button></li>
+              <li><button class="lang-opt" type="button" data-lang="es">Espa&ntilde;ol</button></li>
             </ul>
           </details>
         </div>

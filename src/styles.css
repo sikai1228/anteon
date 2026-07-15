@@ -437,7 +437,7 @@ canvas#gl {
 }
 
 /* Column links: never underlined; on hover they darken to full ink and
- * reveal the up-right arrow. */
+ * reveal the up-right arrow in its fixed slot. */
 .footer-col a {
   color: var(--ink-muted);
   font-size: var(--type-nav);
@@ -476,6 +476,56 @@ canvas#gl {
 .footer-copy { margin: 0; }
 
 .footer-prefs { display: flex; align-items: center; gap: var(--space-2); }
+
+/* Compact theme switch (kit PT2, ported): system, light, dark as a segmented
+ * pill sitting left of the language pill. Visual only, no behavior is wired.
+ * It borrows the language pill's shell exactly (28px tall, pill radius, ink
+ * hairline on paper, one-opacity muting); the active mode is marked by ink
+ * weight, not a fill, keeping the board's one-white-one-black discipline. */
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 28px;
+  padding-inline: var(--space-1);
+  border: var(--border-hair) solid var(--ink);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  opacity: var(--o-muted);
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.theme-switch:hover,
+.theme-switch:focus-within { opacity: 1; }
+
+.theme-opt {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: none;
+  border-radius: var(--radius-pill);
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.theme-opt:hover { color: var(--ink); }
+
+.theme-opt svg { width: 16px; height: 16px; }
+
+/* The active mode reads by ink weight alone: its icon is full ink while the
+ * others stay muted. No fill or chip, so nothing renders as a solid block. */
+.theme-opt.is-active {
+  color: var(--ink);
+}
+
+.theme-opt:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
 
 /* The language pill, ported from the kit footer (PT4): a native details
  * menu opening upward. One opacity mutes the pill's text and hairline

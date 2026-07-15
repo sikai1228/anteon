@@ -13,6 +13,7 @@ import { LOOK } from './lib/types';
 import type { FilmContext, FilmScene, SceneDef, Viewport } from './lib/types';
 import { createTimeline, sampleCamera } from './lib/timeline';
 import { createCaptions } from './lib/captions';
+import { initI18n } from './i18n/i18n';
 import { mountDebug } from './lib/debug';
 import { createStrokeSet } from './lib/strokes';
 import { createPost } from './look/post';
@@ -31,6 +32,9 @@ function hasWebGL2(): boolean {
 }
 
 function boot(): void {
+  // Localize before anything reads copy: the caption engine builds its text
+  // from the active locale at construction, and the static stack does the same.
+  initI18n();
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const captions = createCaptions();
 

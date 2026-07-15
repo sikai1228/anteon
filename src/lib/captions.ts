@@ -7,7 +7,8 @@
  */
 
 import { FILM } from '../film.config';
-import { COPY } from '../copy';
+import type { Catalog } from '../i18n/catalogs';
+import { msg } from '../i18n/i18n';
 import { LOOK } from './types';
 
 export interface CaptionsApi {
@@ -127,7 +128,7 @@ export function createCaptions(): CaptionsApi {
       maxCh: c.maxCh ?? DEFAULT_MAXCH,
       spread: 0,
       wordDur: 0,
-      text: isQuote ? '' : COPY.captions[c.key as keyof typeof COPY.captions] ?? '',
+      text: isQuote ? '' : msg()[c.key as keyof Catalog] ?? '',
       lastFloat: NaN,
       lastDy: 0,
     });
@@ -242,6 +243,8 @@ export function createCaptions(): CaptionsApi {
   }
 
   let built = false;
+  let staticBuilt = false;
+  let lastP = 0;
   function buildDynamic(): void {
     for (const b of beats) {
       if (b.isQuote) {
@@ -377,6 +380,7 @@ export function createCaptions(): CaptionsApi {
   }
 
   function update(p: number): void {
+    lastP = p;
     if (!built) buildDynamic();
     for (const b of beats) {
       if (!b.el) continue;
@@ -397,6 +401,8 @@ export function createCaptions(): CaptionsApi {
     const span = document.createElement('span');
     span.textContent = b.text;
     div.appendChild(span);
+    b.el = div;
+    b.spanEl = span;
     return div;
   }
 
@@ -409,7 +415,41 @@ export function createCaptions(): CaptionsApi {
       if (b.isQuote) continue;
       captionsEl?.appendChild(makeCaptionStatic(b));
     }
+    staticBuilt = true;
   }
+
+  function refreshText(): void {
+    for (const b of beats) {
+      if (!b.isQuote) b.text = msg()[b.key as keyof Catalog] ?? '';
+    }
+  }
+
+  // A live locale swap. applyDom (in the i18n module) has already replaced the
+  // quote's own DOM and every chrome string; here the caption engine only
+  // rebuilds the caption words, whose text changed, re-measures the stage (the
+  // quote's line lengths moved, which the attribution alignment reads), and
+  // repaints at the current scroll. In static mode the captions are plain
+  // spans, so their text is simply reset.
+  function onLocaleChange(): void {
+    refreshText();
+    if (built) {
+      for (const b of beats) {
+        if (b.isQuote || !b.spanEl) continue;
+        b.spanEl.textContent = '';
+        b.words = [];
+        buildWords(b, b.spanEl);
+        b.lastFloat = NaN;
+      }
+      measureStage();
+      update(lastP);
+    } else if (staticBuilt) {
+      for (const b of beats) {
+        if (b.isQuote || !b.spanEl) continue;
+        b.spanEl.textContent = b.text;
+      }
+    }
+  }
+  window.addEventListener('locale-change', onLocaleChange);
 
   return { update, buildStatic };
 }

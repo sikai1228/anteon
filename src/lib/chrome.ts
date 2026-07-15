@@ -8,6 +8,8 @@
  * first scroll and never comes back.
  */
 
+import { setLocale } from '../i18n/i18n';
+
 const EXPAND_IN = 0.015;
 const EXPAND_OUT = 0.06;
 const SKIP_DISMISS_MS = 300;
@@ -99,11 +101,11 @@ function frame(): void {
 
 // The footer's language pill, ported from the kit: a native details menu
 // with the expected dismissals (Escape, click or focus outside, and
-// selection). No locale catalogs exist yet, so choosing only moves the
-// pill's own state.
+// selection). Choosing an option hands the locale to setLocale, which swaps
+// every string live and moves the pill's own label and checkmark; the pill's
+// initial state was already set by initI18n on boot.
 const lang = document.querySelector<HTMLDetailsElement>('.lang');
 if (lang) {
-  const label = lang.querySelector<HTMLElement>('.lang-label');
   const close = () => lang.removeAttribute('open');
   document.addEventListener('pointerdown', (e) => {
     if (lang.open && !lang.contains(e.target as Node)) close();
@@ -116,9 +118,8 @@ if (lang) {
   });
   for (const opt of lang.querySelectorAll<HTMLButtonElement>('.lang-opt')) {
     opt.addEventListener('click', () => {
-      for (const o of lang.querySelectorAll('.lang-opt')) o.removeAttribute('aria-current');
-      opt.setAttribute('aria-current', 'true');
-      if (label) label.textContent = opt.textContent;
+      const l = opt.dataset.lang;
+      if (l === 'en' || l === 'es') setLocale(l);
       close();
     });
   }
