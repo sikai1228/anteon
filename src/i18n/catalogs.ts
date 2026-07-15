@@ -182,7 +182,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel4: 'cash',
     siteNote: 'The site begins here.',
     heroSub:
-      'Antaeon is the determinism layer for enterprise AI. Hundreds of pre-built engines for the work every company burns tokens on, and a compiler that builds the ones only you need.',
+      'The determinism layer for enterprise AI: a standard library of exact engines, and a compiler that builds yours from your traffic.',
     mediaStripLabel: 'Team from',
     libraryTitle: 'The work your AI keeps re-solving',
     libraryBody:
@@ -295,7 +295,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel4: 'dinero',
     siteNote: 'Aquí empieza el sitio.',
     heroSub:
-      'Antaeon es la capa de determinismo para la IA empresarial. Cientos de motores listos para el trabajo en el que toda empresa quema tokens, y un compilador que construye los que solo tú necesitas.',
+      'La capa de determinismo para la IA empresarial: motores exactos de serie, y un compilador que construye los tuyos desde tu tráfico.',
     mediaStripLabel: 'Equipo formado en',
     libraryTitle: 'El trabajo que tu IA resuelve una y otra vez',
     libraryBody:
