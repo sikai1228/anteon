@@ -472,3 +472,168 @@ body {
 .doc-body a {
   color: var(--ink);
 }
+
+/* ---- Contact page ----
+ * Ported from EstateInventor's contact page: a two-column intro and form,
+ * resized to this measure and re-expressed in these tokens. The shell's h1
+ * "Contact" stays the page title; the lede and an alternate-contact line sit
+ * in the narrower left rail, the form in the wider right column. Fields keep
+ * the source's stacked-label pattern and its focus move, where the hairline
+ * recolors in place with no outer ring. The form is staged this round: the
+ * submit is an inert control, like the header's book a call, and posts
+ * nowhere. Additive block; nothing above changes.
+ */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: var(--space-16);
+  align-items: start;
+  margin-top: var(--space-8);
+  padding-bottom: var(--space-section-sm);
+}
+
+/* The left rail holds the prose measure so the lede never runs long on a
+ * wide screen. */
+.contact-intro { max-width: var(--width-prose); }
+
+.contact-lede {
+  margin: 0;
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The alternate-contact block. The source pointed here to an email address;
+ * with no inbox to publish, this points to the staged book a call control the
+ * header already carries. */
+.contact-alt { margin-top: var(--space-8); }
+
+.contact-alt-label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-size: var(--type-nav);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+
+.contact-alt-text {
+  margin: 0;
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
+}
+
+/* The form: labels stacked over inputs, a steady gap between fields. */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.contact-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.contact-form label {
+  font-size: var(--type-nav);
+  font-weight: var(--weight-medium);
+  color: var(--ink-muted);
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  max-width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-3) var(--space-4);
+  outline: none;
+  transition: border-color var(--speed-quick) var(--ease);
+}
+
+.contact-form textarea {
+  min-height: var(--space-40);
+  resize: vertical;
+}
+
+/* Focus recolors the hairline in place to the focus ink, with no outline and
+ * no width change, so there is never a second parallel line and the box never
+ * shifts. The source form's focus move, in this sheet's tokens. */
+.contact-form input:focus,
+.contact-form textarea:focus {
+  border-color: var(--focus);
+}
+
+/* Staged submit: outlined and hover-arrowed like the header's book a call, so
+ * the two staged controls read as one family. It is type="button" with no
+ * handler, so it posts nowhere this round. */
+.contact-submit {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  margin-top: var(--space-1);
+  font-family: var(--sans);
+  font-size: var(--type-nav);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border-control) solid var(--ink);
+  border-radius: var(--radius-control);
+  padding: var(--control-pad-y) var(--control-pad-x);
+  cursor: pointer;
+  opacity: var(--o-muted);
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.contact-submit:hover { opacity: 1; }
+
+.contact-submit:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* The arrow rests collapsed, nudged 5px left, and slides in on the right at
+ * hover. The 5px and 15px are the header control's own glyph geometry, taken
+ * verbatim from it; no token sits at either. */
+.contact-submit .cs-arrow {
+  display: grid;
+  place-items: center;
+  width: 0;
+  margin-left: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-5px);
+  transition:
+    width var(--speed-move) var(--ease),
+    margin-left var(--speed-move) var(--ease),
+    opacity var(--speed-quick) var(--ease),
+    transform var(--speed-move) var(--ease);
+}
+
+.contact-submit:hover .cs-arrow,
+.contact-submit:focus-visible .cs-arrow {
+  width: 15px;
+  margin-left: var(--control-pad-y);
+  opacity: 1;
+  transform: none;
+}
+
+.contact-submit .cs-arrow svg { width: 15px; height: 15px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-submit .cs-arrow { transition: none; }
+}
+
+/* Below the shell's mid breakpoint the two columns stack, the form following
+ * the intro at full width. */
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+    margin-top: var(--space-6);
+  }
+}
