@@ -193,11 +193,53 @@ body {
   gap: var(--space-2);
 }
 
-/* The mark rides the wordmark's own size, a hair under its cap height. */
+/* The mark rides the wordmark's own size, a hair under its cap height. It
+ * is three stacked layers on one canvas: the left hand, the right hand,
+ * and the spark between them, so the hands can move while the registration
+ * holds. */
 .brand-mark {
+  position: relative;
   height: 0.82em;
-  width: auto;
+  aspect-ratio: 436 / 256;
+}
+
+.brand-mark img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: block;
+}
+
+/* On hover the two fingers close the gap, touch for a beat at the spark,
+ * and open again. Each hand travels half the measured fingertip gap, a
+ * whisker more so the touch reads as contact. One cycle per hover, like
+ * the skip key's spin. */
+@keyframes hands-touch-l {
+  35%, 60% { transform: translate(6.1%, -1.2%); }
+}
+
+@keyframes hands-touch-r {
+  35%, 60% { transform: translate(-6.1%, 1.2%); }
+}
+
+a.wordmark:hover .brand-mark .hand-l,
+a.footer-brand:hover .brand-mark .hand-l {
+  animation: hands-touch-l 0.9s var(--ease);
+}
+
+a.wordmark:hover .brand-mark .hand-r,
+a.footer-brand:hover .brand-mark .hand-r {
+  animation: hands-touch-r 0.9s var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  a.wordmark:hover .brand-mark .hand-l,
+  a.footer-brand:hover .brand-mark .hand-l,
+  a.wordmark:hover .brand-mark .hand-r,
+  a.footer-brand:hover .brand-mark .hand-r {
+    animation: none;
+  }
 }
 
 .footer-tag {

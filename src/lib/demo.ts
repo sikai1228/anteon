@@ -5,8 +5,9 @@
  * assistant thinks out loud behind a pulsing working glyph that each next
  * step replaces. Antaeon answers in about five seconds with its results
  * check-marked; the other side stalls, fails the file search, receives
- * the user's upload, and is still visibly working when the loop freezes.
- * No clocks and no duration lines anywhere: the speed speaks for itself.
+ * the user's upload, and limps to the same answer a minute later, its
+ * older lines scrolling out of the frame as it grinds on. No clocks and
+ * no duration lines anywhere: the speed speaks for itself.
  * Each pane's head carries an API cost ticker at Opus 4.8 prices, ticking
  * once per finished AI message: Antaeon's engines are not model calls, so
  * its side stays at zero until the one closing message; the other side
@@ -53,10 +54,11 @@ const TYPE_MS = 32;
 const IN_VIEW = 0.4;
 /** The fast forward control's clock multiplier while engaged. */
 const FF_SPEED = 8;
-/** The race is over at this point on the clock: every beat has fired and
- * the end state stands. No auto replay; the fast forward control turns
- * into a reset control and a click starts the race over. */
-const LAST_MS = 55000;
+/** The race is over at this point on the clock: every beat has fired, the
+ * rival's late answer has finished typing, and both panes rest. No auto
+ * replay; the fast forward control turns into a reset control and a click
+ * starts the race over. */
+const LAST_MS = 66000;
 
 const SCRIPT: readonly DemoEvent[] = [
   {
@@ -87,8 +89,8 @@ const SCRIPT: readonly DemoEvent[] = [
   { pane: 'a', at: 5300, kind: 'prompt', text: '' },
 
   // The plain assistant: announcements, a pulsing working glyph that each
-  // next step replaces, a failed search, the user's upload, and a grind
-  // that is still going when the loop freezes.
+  // next step replaces, a failed search, the user's upload, and the same
+  // answer as the other pane, a minute late.
   { pane: 'b', at: 1200, kind: 'say', text: 'Let me look for the Q2 datasheet first…', cost: 0.01 },
   { pane: 'b', at: 2600, kind: 'work', text: 'Searching files' },
   { pane: 'b', at: 10500, kind: 'say', text: 'Found it. Converting the file format now…', cost: 0.11 },
@@ -104,6 +106,14 @@ const SCRIPT: readonly DemoEvent[] = [
   { pane: 'b', at: 47200, kind: 'work', text: 'Reading' },
   { pane: 'b', at: 52000, kind: 'say', text: 'Checking which sections apply to procurement…', cost: 1.31 },
   { pane: 'b', at: 53700, kind: 'work', text: 'Checking' },
+  {
+    pane: 'b',
+    at: 60000,
+    kind: 'say',
+    text: 'All done. supplier_q2.csv is ready, the spend totals and variance are computed, and an audit of the procurement team is required under §7.2(b), Vendor Audit Policy.',
+    cost: 1.58,
+  },
+  { pane: 'b', at: 65600, kind: 'prompt', text: '' },
 ];
 
 interface Pane {

@@ -141,11 +141,57 @@ html { scrollbar-width: thin; scrollbar-color: var(--slate) var(--board); }
   gap: var(--space-2);
 }
 
-/* The mark rides the wordmark's own size, a hair under its cap height. */
+/* The mark rides the wordmark's own size, a hair under its cap height. It
+ * is three stacked layers on one canvas: the left hand, the right hand,
+ * and the spark between them, so the hands can move while the registration
+ * holds. */
 .brand-mark {
+  position: relative;
   height: 0.82em;
-  width: auto;
+  aspect-ratio: 436 / 256;
+}
+
+.brand-mark img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: block;
+}
+
+/* On hover the two fingers close the gap, touch for a beat at the spark,
+ * and open again. Each hand travels half the measured fingertip gap, a
+ * whisker more so the touch reads as contact. One cycle per hover, like
+ * the skip key's spin. */
+@keyframes hands-touch-l {
+  35%, 60% { transform: translate(6.1%, -1.2%); }
+}
+
+@keyframes hands-touch-r {
+  35%, 60% { transform: translate(-6.1%, 1.2%); }
+}
+
+#wordmark:hover .brand-mark .hand-l,
+.site-wordmark:hover .brand-mark .hand-l,
+.footer-brand:hover .brand-mark .hand-l {
+  animation: hands-touch-l 0.9s var(--ease);
+}
+
+#wordmark:hover .brand-mark .hand-r,
+.site-wordmark:hover .brand-mark .hand-r,
+.footer-brand:hover .brand-mark .hand-r {
+  animation: hands-touch-r 0.9s var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #wordmark:hover .brand-mark .hand-l,
+  .site-wordmark:hover .brand-mark .hand-l,
+  .footer-brand:hover .brand-mark .hand-l,
+  #wordmark:hover .brand-mark .hand-r,
+  .site-wordmark:hover .brand-mark .hand-r,
+  .footer-brand:hover .brand-mark .hand-r {
+    animation: none;
+  }
 }
 
 /* The full-bleed band breaks out of its padded parent; clip the overshoot
@@ -675,17 +721,29 @@ html[data-boot="site"] #skip {
   visibility: hidden;
 }
 
-.terminal-body { display: flex; align-items: stretch; }
+/* Antaeon's pane alone sets the card's height (its transcript is the short
+ * one, and the card ends flush with it); the rival pane overlays the right
+ * half at that same height, so its longer transcript scrolls up and out of
+ * view inside the frame, the way a busy terminal behaves. */
+.terminal-body { position: relative; }
 
 .term-pane {
-  flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-.term-pane + .term-pane { border-left: var(--border-hair) solid var(--line); }
+.term-pane[data-pane="a"] { width: 50%; }
+
+.term-pane[data-pane="b"] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  border-left: var(--border-hair) solid var(--line);
+}
 
 /* Pane tabs: quiet caps, the home pane at full ink. */
 .term-head {
@@ -795,11 +853,16 @@ html[data-boot="site"] #skip {
   50%, 100% { opacity: 0; }
 }
 
-/* Stacked on a phone: Antaeon above, the rival below, the same script. */
+/* Stacked on a phone: Antaeon above, the rival below, the same script. The
+ * rival returns to the flow (no overlay), so both panes hug their content. */
 @media (max-width: 768px) {
-  .terminal-body { flex-direction: column; }
-  .term-pane { flex: 1 1 50%; }
-  .term-pane + .term-pane { border-left: none; border-top: var(--border-hair) solid var(--line); }
+  .term-pane[data-pane="a"] { width: 100%; }
+  .term-pane[data-pane="b"] {
+    position: static;
+    width: 100%;
+    border-left: none;
+    border-top: var(--border-hair) solid var(--line);
+  }
 }
 
 /* Reduced motion: demo.ts renders the final states; nothing blinks. */
