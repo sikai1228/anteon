@@ -97,9 +97,9 @@ if (!document.documentElement.classList.contains('static')) {
   skipEl?.addEventListener('click', () => {
     // No teleport: race through the whole film in about 1.5 seconds, fast
     // enough to skip, slow enough that every frame flashes past, landing on
-    // the finished white page. Any manual scroll cancels the ride.
+    // the closing card. Any manual scroll cancels the ride.
     const from = window.scrollY;
-    const to = span() + window.innerHeight;
+    const to = 0.975 * span();
     const T = 1500;
     let cancelled = false;
     const cancel = () => {
