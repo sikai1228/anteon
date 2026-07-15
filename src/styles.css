@@ -462,6 +462,20 @@ canvas#gl {
 .footer-col a:hover .footer-arrow,
 .footer-col a:focus-visible .footer-arrow { opacity: 1; }
 
+/* The edge column right-aligns so its text touches the page boundary
+ * exactly; its arrow slot moves to the label's left, keeping the reserved
+ * space without pushing the text off the line the pill sits on. */
+.footer-col:last-child { align-items: flex-end; }
+
+.footer-col:last-child a {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.footer-col:last-child .footer-arrow { margin-left: 0; }
+
 .footer-bottom {
   padding: 0 var(--chrome-pad-x) var(--space-20);
   display: flex;
