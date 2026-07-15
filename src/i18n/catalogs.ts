@@ -329,7 +329,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8ExB: 'ranked, then routed',
     compilerTitle: 'Your firm\u2019s own proprietary library',
     compilerBody:
-      'Antaeon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs, so you can watch it pay for itself.',
+      'Antaeon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs so you can watch it pay for itself.',
     compilerStep1Title: 'Watch',
     compilerStep1Body: 'It watches your live traffic, call by call.',
     compilerStep2Title: 'Find',
