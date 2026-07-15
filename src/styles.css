@@ -423,9 +423,13 @@ canvas#gl {
   font-size: var(--type-nav);
 }
 
+/* Every link column right-aligns to its own track's edge, the last one to
+ * the page boundary; arrow slots sit on the label's left so the text owns
+ * the aligned edge. */
 .footer-col {
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: var(--space-3);
 }
 
@@ -439,6 +443,10 @@ canvas#gl {
 /* Column links: never underlined; on hover they darken to full ink and
  * reveal the up-right arrow. */
 .footer-col a {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: var(--space-2);
   color: var(--ink-muted);
   font-size: var(--type-nav);
   text-decoration: none;
@@ -453,8 +461,6 @@ canvas#gl {
   display: inline-block;
   width: 1em;
   height: 1em;
-  margin-left: var(--space-2);
-  vertical-align: middle;
   opacity: 0;
   transition: opacity var(--speed-quick) var(--ease);
 }
@@ -462,19 +468,6 @@ canvas#gl {
 .footer-col a:hover .footer-arrow,
 .footer-col a:focus-visible .footer-arrow { opacity: 1; }
 
-/* The edge column right-aligns so its text touches the page boundary
- * exactly; its arrow slot moves to the label's left, keeping the reserved
- * space without pushing the text off the line the pill sits on. */
-.footer-col:last-child { align-items: flex-end; }
-
-.footer-col:last-child a {
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.footer-col:last-child .footer-arrow { margin-left: 0; }
 
 .footer-bottom {
   padding: 0 var(--chrome-pad-x) var(--space-20);
