@@ -68,14 +68,17 @@ function frame(): void {
   // the film box's side breathing and grows to full width as it rises across
   // the final viewport of scroll.
   // 0 when the site's top touches the viewport bottom, 1 when it reaches the
-  // top: the box's breathing eases out across exactly that climb.
-  const e = ease(clamp01((window.scrollY - span()) / window.innerHeight));
-  const re = Math.round(e * 1000) / 1000;
+  // top: the box's breathing eases out across exactly that climb, and the
+  // header's divider draws itself across the climb's last stretch, finishing
+  // the instant the page is full.
+  const er = clamp01((window.scrollY - span()) / window.innerHeight);
+  const re = Math.round(er * 1000) / 1000;
   if (re !== lastE) {
     lastE = re;
-    const closed = 1 - re;
+    const closed = 1 - ease(er);
     rootStyle.setProperty('--site-inset', (BOX_INSET * closed).toFixed(1) + 'px');
     rootStyle.setProperty('--site-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
+    rootStyle.setProperty('--site-line', ease((er - 0.85) / 0.15).toFixed(3));
   }
 
   // The skip control belongs to the landing: it leaves 0.3 seconds after

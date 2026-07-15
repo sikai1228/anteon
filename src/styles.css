@@ -330,28 +330,54 @@ canvas#gl {
   font-family: var(--sans);
   position: relative;
   z-index: var(--z-site);
-  min-height: 100vh;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  gap: 0.6em;
+  /* Tall enough to keep scrolling past the hero while the site is bare. */
+  min-height: 300vh;
   /* Enters as a box with the film box's side breathing, then grows to full
    * width as it rises; chrome.ts drives the vars from the entry progress. */
   margin: 0 var(--site-inset, var(--chrome-inset));
   border-radius: var(--site-radius, var(--radius-frame)) var(--site-radius, var(--radius-frame)) 0 0;
 }
 
-/* The site's own header: the wordmark lands where the standard header sits. */
+/* The site's own header: the wordmark lands where the standard header sits.
+ * Sticky, so the moment the site's top reaches the viewport's top it pins
+ * there for the rest of the scroll; frosted, so content reads through it. */
 #site-header {
-  position: absolute;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
+  z-index: 1;
   height: var(--chrome-header);
   display: flex;
   align-items: center;
   padding: 0 var(--chrome-pad-x);
   text-align: left;
+  background: var(--frost);
+  -webkit-backdrop-filter: blur(var(--frost-blur));
+  backdrop-filter: blur(var(--frost-blur));
+  /* Follow the box's top corners while it rises, square at full bleed. */
+  border-radius: var(--site-radius, var(--radius-frame)) var(--site-radius, var(--radius-frame)) 0 0;
+}
+
+/* The divider between header and body draws itself left to right as the
+ * box finishes rising; chrome.ts feeds --site-line from the scroll. */
+#site-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--border-hair);
+  background: var(--line);
+  transform: scaleX(var(--site-line, 0));
+  transform-origin: left;
+}
+
+/* The opening viewport of the site, centered under the pinned header. */
+.site-hero {
+  min-height: calc(100vh - var(--chrome-header));
+  display: grid;
+  place-content: center;
+  text-align: center;
+  gap: 0.6em;
 }
 
 #site-header .site-wordmark {

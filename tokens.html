@@ -349,6 +349,25 @@
     .glow-panel .card-line { font-size: var(--type-card); text-shadow: var(--glow-card); }
     .glow-panel code { color: var(--ash); font-family: var(--mono); }
 
+    /* Frost sample: the site header's glass, laid over the chalk line above
+     * so the blur and translucency actually show. */
+    .frost-demo {
+      margin-top: calc(-1 * var(--space-8));
+      width: fit-content;
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      background: var(--frost);
+      -webkit-backdrop-filter: blur(var(--frost-blur));
+      backdrop-filter: blur(var(--frost-blur));
+      border-radius: var(--radius-control);
+      padding: var(--space-3) var(--space-5);
+      font-family: var(--sans);
+      color: var(--ink);
+    }
+
+    .frost-demo code { color: var(--ink-soft); }
+
     footer {
       border-top: var(--border-hair) solid var(--line);
       margin-top: var(--space-section-sm);
@@ -579,6 +598,11 @@
       <div class="glow-panel">
         <p class="cap">The Wright brothers stood on Newton. <code>--glow-caption</code></p>
         <p class="card-line">Your AI shouldn&rsquo;t stand alone. <code>--glow-card</code></p>
+        <div class="frost-demo"><span>Layer2</span><code>--frost, blurred by --frost-blur</code></div>
+      </div>
+      <div class="rows" style="margin-top: var(--space-8)">
+        <div class="row"><code>--frost</code><span class="val">paper at 72%</span><span class="val">the pinned site header's glass</span></div>
+        <div class="row"><code>--frost-blur</code><span class="val">12px</span><span class="val">backdrop blur behind it</span></div>
       </div>
     </section>
 

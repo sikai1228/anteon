@@ -165,6 +165,10 @@
   --glow-caption: 0 0 16px rgba(236, 234, 228, 0.22);
   --glow-card: 0 0 22px rgba(236, 234, 228, 0.26);
 
+  /* Frosted chrome: the fixed site header over scrolling content. */
+  --frost: rgba(255, 255, 255, 0.72);
+  --frost-blur: 12px;
+
   /* Motion: five speeds, one easing. The ride is the skip button's full
    * pass through the film; chrome.ts reads it in seconds. */
   --speed-quick: 0.2s;
