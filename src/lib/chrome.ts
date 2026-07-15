@@ -8,6 +8,7 @@
  * first scroll and never comes back.
  */
 
+import { initTerminalDemo } from './demo';
 import { wirePrefs } from './prefs';
 
 const EXPAND_IN = 0.015;
@@ -102,6 +103,9 @@ function frame(): void {
 // The footer preference pills share one wiring with the shell pages, so
 // the footer behaves identically on every page.
 wirePrefs();
+
+// The hero terminal demo: the split-screen race (no-ops off the landing).
+initTerminalDemo();
 
 // The hero word wheel, ported from EstateInventor's RotatingWord (a
 // Krea-style slot roll): the current and incoming words translate in

@@ -544,7 +544,10 @@ canvas#gl {
  * and a dark, empty body. The page's color law holds: the dots stay neutral,
  * never window-chrome red/yellow/green; the board fill is the depicted screen. */
 .hero-terminal {
-  width: 100%;
+  /* Breakout: each edge sits halfway between the hero container's edge and
+   * the header's content edge (chrome-pad-x in from the viewport). */
+  width: calc(50% + 50vw - var(--chrome-pad-x));
+  margin-left: calc(25% - 25vw + var(--chrome-pad-x) / 2);
   margin-top: var(--space-16);
   border: var(--border-hair) solid var(--line);
   border-radius: var(--radius-frame);
@@ -573,11 +576,144 @@ canvas#gl {
   /* width:100% fills the frame; the ratio then sets height, and max-height
    * caps it (the body goes wider than 16/9 rather than leaving side gaps). */
   width: 100%;
-  background: var(--board);
+  background: var(--paper);
   /* Taller than a video frame: the conversation needs vertical room. */
   aspect-ratio: 16 / 10.5;
   max-height: 72vh;
 }
+
+/* --- The terminal demo (demo.ts): the split-screen race. ---------------
+ * A LIGHT terminal card in the idiom of a real agent CLI: user prompts as
+ * bordered quote blocks, tool calls as dot bullets with elbow results,
+ * transient working glyphs, a check on every verified result. Two panes
+ * share the body like a tmux split, Antaeon left, the plain assistant
+ * right. The two status tones below are scoped to this frame only: it
+ * depicts a product UI; the page itself keeps its one-accent law. */
+.hero-terminal {
+  box-shadow: var(--shadow-2);
+  --t-ok: #4a8f5f;
+  --t-warn: #b8862f;
+}
+
+.terminal-body { display: flex; align-items: stretch; }
+
+.term-pane {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.term-pane + .term-pane { border-left: var(--border-hair) solid var(--line); }
+
+/* Pane tabs: quiet caps, the home pane at full ink. */
+.term-head {
+  display: flex;
+  align-items: baseline;
+  padding: var(--space-4) var(--space-5) 0;
+  font-family: var(--sans);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.term-pane[data-pane="a"] .term-name { color: var(--ink); }
+
+.term-lines {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  line-height: var(--leading-body);
+  color: var(--ink);
+}
+
+.term-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  overflow-wrap: anywhere;
+}
+.term-line:first-child { margin-top: 0; }
+
+/* Glyph column: one mono cell wide so the transcript's left edge rules. */
+.term-glyph { flex: none; width: 1.2em; }
+
+/* The prompt block: what you sent, quoted behind a hairline. */
+.term-user {
+  border-left: var(--border-control) solid var(--line);
+  padding: var(--space-2) var(--space-3);
+  color: var(--ink-muted);
+}
+.term-caret { color: var(--ink-faint); }
+
+/* A tool call: the agent's dot, then the engine's name. */
+.term-tool .term-dot { color: var(--t-ok); }
+
+/* Elbow results sit under their tool call's text. */
+.term-out { margin-left: calc(1.2em + var(--space-2)); color: var(--ink-muted); }
+.term-out .term-elbow { color: var(--ink-faint); }
+.term-out .term-text { color: var(--ink); }
+.term-mark { flex: none; margin-left: var(--space-2); }
+.term-ok { color: var(--t-ok); }
+
+/* Assistant prose: the same dot, unfilled tone. */
+.term-say .term-dot-soft { color: var(--ink-faint); }
+
+/* The transient working line: an amber glyph pulsing until the next step
+ * replaces it. 1.2s is a cadence, not a transition; no token fits. */
+.term-work { color: var(--ink-soft); }
+.term-work .term-spin {
+  color: var(--t-warn);
+  animation: term-pulse 1.2s step-end infinite;
+}
+
+@keyframes term-pulse {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0.25; }
+}
+
+/* The failed search: the page accent earns its one appearance inside the
+ * depicted frame. */
+.term-fail .term-x { color: var(--accent); }
+
+.term-rest .term-caret { color: var(--ink-muted); }
+
+/* The block cursor rides its pane's newest line. Em-sized so it tracks
+ * the type; 1s is the classic terminal blink cadence. */
+.term-cursor {
+  display: inline-block;
+  flex: none;
+  width: 0.6em;
+  height: 1em;
+  align-self: center;
+  background: var(--ink);
+  animation: term-blink 1s step-end infinite;
+}
+
+@keyframes term-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* Stacked on a phone: Antaeon above, the rival below, the same script. */
+@media (max-width: 768px) {
+  .terminal-body { flex-direction: column; }
+  .term-pane { flex: 1 1 50%; }
+  .term-pane + .term-pane { border-left: none; border-top: var(--border-hair) solid var(--line); }
+}
+
+/* Reduced motion: demo.ts renders the final states; nothing blinks. */
+@media (prefers-reduced-motion: reduce) {
+  .term-cursor,
+  .term-work .term-spin { animation: none; }
+}
+/* --- end terminal demo --------------------------------------------------- */
 
 /* The media strip under the hero: every mark silhouetted to the same
  * faint ink so the row reads as one quiet texture, never color. */
@@ -662,7 +798,8 @@ canvas#gl {
 }
 
 /* A section's heading and its lede, left-aligned, held to prose measure. */
-.section-head { max-width: var(--width-prose); }
+/* Titles hold a readable measure; the lede runs the section's full width. */
+.section-head .section-title { max-width: var(--width-prose); }
 
 .section-title {
   margin: 0;
@@ -742,6 +879,9 @@ canvas#gl {
 .cell-ex {
   margin-top: auto;
   display: grid;
+  /* The two examples stack in one grid cell sized by the taller; a
+   * one-row example seats at the BOTTOM of that space, not the top. */
+  align-items: end;
   font-family: var(--mono);
   font-size: var(--type-micro);
   line-height: var(--leading-body);

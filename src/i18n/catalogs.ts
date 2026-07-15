@@ -43,6 +43,7 @@ export interface Catalog {
   heroWheel2: string;
   heroWheel3: string;
   heroWheel4: string;
+  heroWheel5: string;
   siteNote: string;
   /* The hero's subheadline and the team band's provenance label. */
   heroSub: string;
@@ -180,13 +181,14 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel2: 'time',
     heroWheel3: 'devs',
     heroWheel4: 'cash',
+    heroWheel5: 'effort',
     siteNote: 'The site begins here.',
     heroSub:
       "Your AI rebuilds solved algorithms, uses them once, and trashes them. Antaeon preloads 1,000+ and grows your firm's own library.",
     mediaStripLabel: 'Team from',
-    libraryTitle: 'The work your AI keeps re-solving',
+    libraryTitle: '1,000+ preloaded engines',
     libraryBody:
-      'Every category below has an exact answer. Antaeon ships deterministic engines for all of them, and compiles new ones from your traffic.',
+      'Every category below should be a deterministic call: the same input always produces the same output. Today, AI re-derives each answer from scratch and discards it. Antaeon ships 1,000+ AI compatible engines, ready to call, so every request saves time, tokens, and money from the first invocation.',
     cell1Name: 'Conversion',
     cell1Desc: 'Any format into any other, whether files, images, code, or encodings.',
     cell1ExA: 'docx → pdf',
@@ -293,13 +295,14 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel2: 'tiempo',
     heroWheel3: 'devs',
     heroWheel4: 'dinero',
+    heroWheel5: 'esfuerzo',
     siteNote: 'Aquí empieza el sitio.',
     heroSub:
       'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Antaeon precarga 1.000+ y cultiva la biblioteca de tu empresa.',
     mediaStripLabel: 'Equipo formado en',
-    libraryTitle: 'El trabajo que tu IA resuelve una y otra vez',
+    libraryTitle: 'Más de 1.000 motores precargados',
     libraryBody:
-      'Cada categoría de abajo tiene una respuesta exacta. Antaeon incluye motores deterministas para todas, y compila nuevos desde tu tráfico.',
+      'Cada categoría de abajo debería ser una llamada determinista: la misma entrada siempre produce la misma salida. Hoy la IA rederiva cada respuesta desde cero y la descarta. Antaeon incluye más de 1.000 motores compatibles con IA, listos para llamar, de modo que cada petición ahorra tiempo, tokens y dinero desde la primera invocación.',
     cell1Name: 'Conversión',
     cell1Desc: 'Cualquier formato a cualquier otro, ya sean archivos, imágenes, código o codificaciones.',
     cell1ExA: 'docx → pdf',
