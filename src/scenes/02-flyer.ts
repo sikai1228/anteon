@@ -195,12 +195,14 @@ function buildAirframe(set: StrokeSetApi): void {
     set.addStroke(poly([[xj, LEAD_Y, LOWER_Z], [xi, LEAD_Y, UPPER_Z]]), { widthPx: 1.4 });
   }
 
-  // front canard, a small biplane elevator ahead of the wing, plus its booms
+  // front canard, a small biplane elevator ahead of the wing, plus its
+  // booms; the model flip makes this the visual TAIL in flight, so it
+  // carries full presence rather than thinning out
   const canY = LEAD_Y + 1.6;
-  set.addStroke(poly([[-1.4, canY, UPPER_Z], [1.4, canY, UPPER_Z]]));
-  set.addStroke(poly([[-1.4, canY, LOWER_Z], [1.4, canY, LOWER_Z]]));
-  set.addStroke(poly([[-1.1, LEAD_Y, 0], [-1.1, canY, 0]]), { widthPx: 1.6 });
-  set.addStroke(poly([[1.1, LEAD_Y, 0], [1.1, canY, 0]]), { widthPx: 1.6 });
+  set.addStroke(poly([[-1.4, canY, UPPER_Z], [1.4, canY, UPPER_Z]]), { widthPx: 2.6 });
+  set.addStroke(poly([[-1.4, canY, LOWER_Z], [1.4, canY, LOWER_Z]]), { widthPx: 2.6 });
+  set.addStroke(poly([[-1.1, LEAD_Y, 0], [-1.1, canY, 0]]), { widthPx: 2.2 });
+  set.addStroke(poly([[1.1, LEAD_Y, 0], [1.1, canY, 0]]), { widthPx: 2.2 });
 
   // landing skids running fore and aft under the lower wing
   for (const x of [-1.0, 1.0]) {
