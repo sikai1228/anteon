@@ -9,7 +9,7 @@
 import 'lenis/dist/lenis.css';
 import * as THREE from 'three';
 import { FILM } from './film.config';
-import { LOOK } from './lib/types';
+import { LOOK, LOOK_NAME } from './lib/types';
 import type { FilmContext, FilmScene, SceneDef, Viewport } from './lib/types';
 import { createTimeline, sampleCamera } from './lib/timeline';
 import { createCaptions } from './lib/captions';
@@ -32,6 +32,9 @@ function hasWebGL2(): boolean {
 }
 
 function boot(): void {
+  // Tag the shell with any non-default look so tokens.css can restyle the
+  // stage, quote, captions, and controls to match the render.
+  if (LOOK_NAME !== 'chalk') document.documentElement.dataset.look = LOOK_NAME;
   // Localize before anything reads copy: the caption engine builds its text
   // from the active locale at construction, and the static stack does the same.
   initI18n();

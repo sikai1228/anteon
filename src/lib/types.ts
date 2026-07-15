@@ -119,9 +119,15 @@ export interface LookParams {
 
   fov: number;
   dprCap: number;
+
+  /** Ground synthesis mode for the post chain's final pass. */
+  ground: 'slate' | 'parchment';
 }
 
-export const LOOK: LookParams = {
+export type LookName = 'chalk' | 'vinci';
+
+/** The shipping look: chalk on a slate board. */
+const CHALK: LookParams = {
   chalkWhite: '#eceae4',
   board: '#0b0b0d',
   flagRed: '#e8503f',
@@ -149,7 +155,56 @@ export const LOOK: LookParams = {
 
   fov: 38,
   dprCap: 1.6,
+
+  ground: 'slate',
 };
+
+/**
+ * Prototype look (?look=vinci): iron gall ink on aged parchment. Thinner,
+ * steadier lines, subtler tooth, no bloom, the dust halo tightened into a
+ * faint ink bleed, flag colors dropped to sanguine and a muted ultramarine.
+ */
+const VINCI: LookParams = {
+  chalkWhite: '#3d2f1f',
+  board: '#e9dbbd',
+  flagRed: '#a64b32',
+  flagBlue: '#3f5a8a',
+
+  boilHz: 6,
+  boilAmpPct: 0.0011,
+
+  hatchAngleRad: -0.52,
+
+  toothPx: 3.0,
+  toothContrast: 0.28,
+
+  widthMul: 0.9,
+
+  dustWidthMul: 1.55,
+  dustAlpha: 0.05,
+
+  grain: 0.03,
+  grainHz: 24,
+  vignette: 0.14,
+  bloomStrength: 0,
+  bloomRadius: 0.55,
+  bloomThreshold: 0.5,
+
+  fov: 38,
+  dprCap: 1.6,
+
+  ground: 'parchment',
+};
+
+/** Resolved once at module init; guarded so tooling can import this file. */
+function resolveLookName(): LookName {
+  if (typeof window === 'undefined') return 'chalk';
+  return new URLSearchParams(window.location.search).get('look') === 'vinci' ? 'vinci' : 'chalk';
+}
+
+export const LOOK_NAME: LookName = resolveLookName();
+
+export const LOOK: LookParams = LOOK_NAME === 'vinci' ? VINCI : CHALK;
 
 /* ------------------------------------------------------------------ */
 /* Strokes: the one drawing primitive in the film                      */

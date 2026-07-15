@@ -7,7 +7,9 @@
  * The board base color comes from the RenderPass clear, so the composite has
  * a solid image to work on and the bloom pass is not fighting transparency.
  * The final pass only adds the board's texture where there is no chalk, which
- * keeps the strokes themselves clean.
+ * keeps the strokes themselves clean. Under the vinci look (LOOK.ground
+ * 'parchment') the same pass paints aged parchment instead: warm stains, a
+ * faint thread weave, browned edges, masked off the ink the same way.
  */
 
 import * as THREE from 'three';
@@ -34,6 +36,7 @@ uniform float uTime;
 uniform float uGrain;
 uniform float uGrainHz;
 uniform float uVignette;
+uniform float uInkMode;
 
 varying vec2 vUv;
 
@@ -77,16 +80,9 @@ float srgbChannel(float c){
 void main(){
   vec3 scene = texture2D(tDiffuse, vUv).rgb;
   float luma = dot(scene, vec3(0.299, 0.587, 0.114));
-  float chalkMask = smoothstep(0.10, 0.30, luma);
 
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 p = vec2(vUv.x * aspect, vUv.y);
-  float cloud = fbm(p * 2.5) - 0.5;
-  float ghosts =
-      ghost(vUv, vec2(0.32, 0.62), vec2(0.30, 0.05), 0.25) * 0.9 +
-      ghost(vUv, vec2(0.70, 0.40), vec2(0.24, 0.045), -0.35) * 0.7 +
-      ghost(vUv, vec2(0.50, 0.20), vec2(0.34, 0.04), 0.08) * 0.6;
-  float boardVar = cloud * 0.012 + ghosts * 0.02;
 
   // The chain already carries display-ready values (measured against the
   // board hex on screen), so no encode here; adding one lifts the near black
@@ -94,7 +90,32 @@ void main(){
   // amounts on top.
   vec3 col = clamp(scene, 0.0, 1.0);
 
-  col += boardVar * (1.0 - chalkMask);
+  if (uInkMode < 0.5) {
+    // Slate board: faint cloud and eraser ghosts, added only off the chalk.
+    float chalkMask = smoothstep(0.10, 0.30, luma);
+    float cloud = fbm(p * 2.5) - 0.5;
+    float ghosts =
+        ghost(vUv, vec2(0.32, 0.62), vec2(0.30, 0.05), 0.25) * 0.9 +
+        ghost(vUv, vec2(0.70, 0.40), vec2(0.24, 0.045), -0.35) * 0.7 +
+        ghost(vUv, vec2(0.50, 0.20), vec2(0.34, 0.04), 0.08) * 0.6;
+    float boardVar = cloud * 0.012 + ghosts * 0.02;
+    col += boardVar * (1.0 - chalkMask);
+  } else {
+    // Aged parchment: the bare-paper mask keeps the ink clean while
+    // low-frequency stains and browned edges pull the sheet warm (blue
+    // falls fastest), and a faint thread weave gives it fiber.
+    float bare = smoothstep(0.35, 0.70, luma);
+    float blotch = clamp(fbm(p * 1.6 + 19.3) * 0.9 + fbm(p * 5.1 + 47.7) * 0.45 - 0.5, 0.0, 1.0);
+    vec3 stain = vec3(1.0) - blotch * vec3(0.07, 0.11, 0.20);
+    vec2 dv = vUv - 0.5;
+    float rim = smoothstep(0.08, 0.50, dot(dv, dv));
+    vec3 edgeTint = vec3(1.0) - rim * vec3(0.07, 0.12, 0.22);
+    col *= mix(vec3(1.0), stain * edgeTint, bare);
+    float thread =
+        (vnoise2(vec2(p.x * 22.0, p.y * 170.0)) - 0.5) +
+        (vnoise2(vec2(p.x * 180.0, p.y * 16.0)) - 0.5) * 0.6;
+    col += thread * 0.016 * bare;
+  }
 
   float g = h21(vUv * uResolution + floor(uTime * uGrainHz) * 7.13);
   col += (g - 0.5) * uGrain;
@@ -127,12 +148,17 @@ export function createPost(
   // change it, and it roughly quarters the bloom's fill cost on the heavy beats.
   const bloomW = Math.max(1, Math.round((size.x * dpr) / 2));
   const bloomH = Math.max(1, Math.round((size.y * dpr) / 2));
-  const bloom = new UnrealBloomPass(
-    new THREE.Vector2(bloomW, bloomH),
-    look.bloomStrength,
-    look.bloomRadius,
-    look.bloomThreshold,
-  );
+  // A strength near zero still pays the full blur chain, so a look with
+  // bloom off (the ink prototype) skips the pass entirely.
+  const bloom =
+    look.bloomStrength > 0.001
+      ? new UnrealBloomPass(
+          new THREE.Vector2(bloomW, bloomH),
+          look.bloomStrength,
+          look.bloomRadius,
+          look.bloomThreshold,
+        )
+      : null;
 
   const finalPass = new ShaderPass({
     uniforms: {
@@ -142,13 +168,14 @@ export function createPost(
       uGrain: { value: look.grain },
       uGrainHz: { value: look.grainHz },
       uVignette: { value: look.vignette },
+      uInkMode: { value: look.ground === 'parchment' ? 1 : 0 },
     },
     vertexShader: COMPOSITE_VERTEX,
     fragmentShader: COMPOSITE_FRAGMENT,
   });
 
   composer.addPass(renderPass);
-  composer.addPass(bloom);
+  if (bloom) composer.addPass(bloom);
   composer.addPass(finalPass);
 
   return {
@@ -161,14 +188,16 @@ export function createPost(
       composer.setSize(v.w, v.h);
       // composer.setSize just resized bloom to the full framebuffer; put it back
       // to quarter resolution (half per axis).
-      bloom.setSize(
-        Math.max(1, Math.round((v.w * v.dpr) / 2)),
-        Math.max(1, Math.round((v.h * v.dpr) / 2)),
-      );
+      if (bloom) {
+        bloom.setSize(
+          Math.max(1, Math.round((v.w * v.dpr) / 2)),
+          Math.max(1, Math.round((v.h * v.dpr) / 2)),
+        );
+      }
       finalPass.uniforms.uResolution.value.set(v.w * v.dpr, v.h * v.dpr);
     },
     dispose(): void {
-      bloom.dispose();
+      if (bloom) bloom.dispose();
       finalPass.dispose();
       composer.dispose();
     },

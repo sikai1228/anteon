@@ -184,3 +184,15 @@
   --z-site: 7;
   --z-overlay: 10;
 }
+
+/* Prototype look (?look=vinci): pen and ink on parchment. main.ts sets the
+ * data-look attribute at boot; without the flag this block is inert and the
+ * chalk sheet above is untouched. Values mirror VINCI in src/lib/types.ts. */
+html[data-look="vinci"] {
+  --board: #e9dbbd;
+  --chalk: #3d2f1f;
+  --flag-red: #a64b32;
+  --flag-blue: #3f5a8a;
+  --glow-caption: 0 0 0 rgba(61, 47, 31, 0);
+  --glow-card: 0 0 0 rgba(61, 47, 31, 0);
+}
