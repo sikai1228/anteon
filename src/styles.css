@@ -422,33 +422,9 @@ canvas#gl {
   border-radius: var(--site-radius, var(--radius-frame)) var(--site-radius, var(--radius-frame)) 0 0;
 }
 
-/* The bar frost lives on a pseudo, not the header itself, so the header is
- * not a backdrop root and the mega panel nested inside it can blur the page
- * the same way, one continuous frosted surface. */
-#site-header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--frost);
-  -webkit-backdrop-filter: blur(var(--frost-blur));
-  backdrop-filter: blur(var(--frost-blur));
-  border-radius: inherit;
-}
-
 /* The divider between header and body draws itself left to right as the
  * box finishes rising; chrome.ts feeds --site-line from the scroll. */
-#site-header::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: var(--border-hair);
-  background: var(--line);
-  transform: scaleX(var(--site-line, 0));
-  transform-origin: left;
-}
+#site-header::after { display: none; }
 
 /* The opening of the site: the EstateInventor composition, left-aligned in the
  * page container under generous top padding. The headline sits top-left, the
@@ -936,9 +912,10 @@ html[data-boot="site"] #skip {
  * internal detail preserved), so the row needs no filter and no opacity. */
 .media-strip {
   width: 100vw;
-  /* The section rhythm outside the hairlines: 80 of white above the top
-   * line, and the library section's own 80 below the bottom line. */
-  margin: var(--space-section) 0 0 calc(50% - 50vw);
+  /* 120 of white on each side of the band, a one-off just here: 120 above
+   * the top hairline, and 40 below stacking with the library section's 80 to
+   * make 120 below the bottom hairline. */
+  margin: 120px 0 var(--space-10) calc(50% - 50vw);
   /* The section rhythm lives outside the hairlines; inside, the logos
    * keep their tighter own air. */
   padding-block: var(--space-10);
@@ -987,9 +964,13 @@ html[data-boot="site"] #skip {
 /* Narrow: the label stacks above the centered marks, as the reference does;
  * the divider makes no sense in a column and leaves. */
 @media (max-width: 640px) {
-  .media-strip-row { flex-direction: column; gap: var(--space-3); }
-  .media-strip-label { position: static; transform: none; }
-  .media-strip-divider { display: none; }
+  .media-strip-row { flex-wrap: wrap; gap: var(--space-4) var(--space-8); }
+  .media-strip-label {
+    position: static;
+    transform: none;
+    flex-basis: 100%;
+    text-align: center;
+  }
 }
 
 /* ---- The site's content sections: library, index, compiler, closing ----
@@ -1037,6 +1018,59 @@ html[data-boot="site"] #skip {
   font-size: var(--type-body-lg);
   line-height: var(--leading-body);
   color: var(--ink-muted);
+}
+
+/* The explore link at each section's foot: a quiet text link at the right
+ * edge that reveals an up-right arrow on hover. Right anchored, so the arrow
+ * expanding pushes the label left, the hero's book a call slide. It sits
+ * close under the section's content and points to the section's own page. */
+.section-explore {
+  margin-top: var(--space-6);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.explore-link {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: var(--type-body);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  text-decoration: none;
+  opacity: var(--o-muted);
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.explore-link:hover { opacity: 1; }
+
+.explore-link .ex-arrow {
+  display: grid;
+  place-items: center;
+  width: 0;
+  margin-left: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-5px);
+  transition:
+    width var(--speed-move) var(--ease),
+    margin-left var(--speed-move) var(--ease),
+    opacity var(--speed-quick) var(--ease),
+    transform var(--speed-move) var(--ease);
+}
+
+.explore-link:hover .ex-arrow,
+.explore-link:focus-visible .ex-arrow {
+  width: 15px;
+  margin-left: var(--control-pad-y);
+  opacity: 1;
+  transform: none;
+}
+
+.explore-link .ex-arrow svg { width: 15px; height: 15px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .explore-link .ex-arrow { transition: opacity var(--speed-quick) var(--ease); }
 }
 
 /* The grid of deterministic work: four across on the page, two on a tablet,
@@ -1564,18 +1598,17 @@ html.static .caption {
 
 .nav-mega-panel {
   position: absolute;
-  top: var(--chrome-header);
+  top: 0;
   left: 0;
   right: 0;
-  max-height: 0;
+  z-index: -1;
+  max-height: var(--chrome-header);
   overflow: hidden;
   background: var(--frost);
   -webkit-backdrop-filter: blur(var(--frost-blur));
   backdrop-filter: blur(var(--frost-blur));
-  border-bottom: var(--border-hair) solid transparent;
-  transition:
-    max-height var(--speed-settle) var(--ease),
-    border-bottom-color var(--speed-settle) var(--ease);
+  border-bottom: var(--border-hair) solid var(--line);
+  transition: max-height var(--speed-settle) var(--ease);
 }
 
 .mega-grid {
@@ -1583,7 +1616,7 @@ html.static .caption {
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-6);
   max-width: var(--width-page);
-  margin: 0 auto;
+  margin: var(--chrome-header) auto 0;
   padding: var(--space-8) var(--chrome-pad-x) var(--space-10);
 }
 
@@ -1625,8 +1658,7 @@ html.static .caption {
 
 #chrome.mega-open .nav-mega-panel,
 #site-header.mega-open .nav-mega-panel {
-  max-height: 460px;
-  border-bottom-color: var(--line);
+  max-height: calc(var(--chrome-header) + 460px);
 }
 
 #chrome.mega-open .nav-mega-chev,
@@ -1636,8 +1668,6 @@ html.static .caption {
 #site-header.mega-open .nav-mega-trigger { opacity: 1; }
 #chrome.mega-open .nav-mega-trigger::after,
 #site-header.mega-open .nav-mega-trigger::after { transform: scaleX(1); }
-
-#site-header.mega-open::after { opacity: 0; }
 
 /* On small screens the nav folds into a three line menu. The sheet is one
  * panel that lives in the header at all times, covering just the bar when

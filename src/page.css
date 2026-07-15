@@ -43,20 +43,6 @@ body {
   height: var(--chrome-header);
   padding: 0 var(--chrome-pad-x);
   background: transparent;
-  border-bottom: var(--border-hair) solid var(--line);
-}
-
-/* The bar frost lives on a pseudo, not the header itself, so the header is
- * not a backdrop root and the nested mega panel can blur the page too, one
- * continuous frosted surface. */
-.page-header::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--frost);
-  -webkit-backdrop-filter: blur(var(--frost-blur));
-  backdrop-filter: blur(var(--frost-blur));
 }
 
 
@@ -836,18 +822,17 @@ a.footer-brand:hover .brand-mark .hand-r {
 
 .nav-mega-panel {
   position: absolute;
-  top: var(--chrome-header);
+  top: 0;
   left: 0;
   right: 0;
-  max-height: 0;
+  z-index: -1;
+  max-height: var(--chrome-header);
   overflow: hidden;
   background: var(--frost);
   -webkit-backdrop-filter: blur(var(--frost-blur));
   backdrop-filter: blur(var(--frost-blur));
-  border-bottom: var(--border-hair) solid transparent;
-  transition:
-    max-height var(--speed-settle) var(--ease),
-    border-bottom-color var(--speed-settle) var(--ease);
+  border-bottom: var(--border-hair) solid var(--line);
+  transition: max-height var(--speed-settle) var(--ease);
 }
 
 .mega-grid {
@@ -855,7 +840,7 @@ a.footer-brand:hover .brand-mark .hand-r {
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-6);
   max-width: var(--width-page);
-  margin: 0 auto;
+  margin: var(--chrome-header) auto 0;
   padding: var(--space-8) var(--chrome-pad-x) var(--space-10);
 }
 
@@ -896,8 +881,7 @@ a.footer-brand:hover .brand-mark .hand-r {
 .header-nav .mega-card::after { content: none; }
 
 .page-header.mega-open .nav-mega-panel {
-  max-height: 460px;
-  border-bottom-color: var(--line);
+  max-height: calc(var(--chrome-header) + 460px);
 }
 
 .page-header.mega-open .nav-mega-chev { transform: rotate(180deg); }
@@ -905,7 +889,6 @@ a.footer-brand:hover .brand-mark .hand-r {
 .page-header.mega-open .nav-mega-trigger { opacity: 1; }
 .page-header.mega-open .nav-mega-trigger::after { transform: scaleX(1); }
 
-.page-header.mega-open { border-bottom-color: transparent; }
 
 /* On small screens the nav folds into a three line menu: one solid panel
  * in the header, covering the bar when closed and growing down on open, its

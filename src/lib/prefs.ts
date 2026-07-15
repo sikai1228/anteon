@@ -71,8 +71,12 @@ export function wirePrefs(): void {
       if (t) window.clearTimeout(t);
       megaClose.set(header, window.setTimeout(() => closeMega(header, trigger), 140));
     };
-    mega.addEventListener('mouseenter', openMega);
-    mega.addEventListener('mouseleave', scheduleClose);
+    // Open only when the pointer is on the Product trigger, not anywhere on
+    // the bar (the frosted panel spans the full header). It stays open while
+    // the pointer is anywhere in the header, the expanded panel included
+    // since it is a descendant, and collapses when the pointer leaves.
+    trigger.addEventListener('mouseenter', openMega);
+    header.addEventListener('mouseleave', scheduleClose);
     trigger.addEventListener('focus', openMega);
     trigger.addEventListener('click', (e) => {
       e.preventDefault();

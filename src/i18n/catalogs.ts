@@ -24,6 +24,7 @@ export interface Catalog {
   megaApisSub: string;
   megaLibraryTitle: string;
   megaLibrarySub: string;
+  explore: string;
   apiKey: string;
   pricing: string;
   support: string;
@@ -213,12 +214,13 @@ type ChromeStrings = Omit<
 const CHROME: Record<Locale, ChromeStrings> = {
   en: {
     product: 'Product',
-    megaEnginesTitle: 'Engines',
-    megaEnginesSub: '1,000+ deterministic engines, ready for your AI to call',
-    megaApisTitle: 'API index',
-    megaApisSub: 'A ranked, continuously updated index of the top public APIs',
-    megaLibraryTitle: 'Firm library',
-    megaLibrarySub: 'Your own engines, compiled from your firm\u2019s work and shared across your team',
+    megaEnginesTitle: 'Engine database',
+    megaEnginesSub: '1,000+ deterministic engines and the intelligence layer that guides your AI to call them',
+    megaApisTitle: 'API database',
+    megaApisSub: 'A hand-vetted, continuously updated index of the top APIs on the internet',
+    megaLibraryTitle: 'Personal database',
+    megaLibrarySub: 'Unique engines, compiled from your firm\u2019s unique work and shared across your team',
+    explore: 'Explore',
     apiKey: 'API key',
     pricing: 'Pricing',
     support: 'Support',
@@ -339,7 +341,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8Desc: 'The index runs far past this page, ranked by metrics that stay current.',
     apiCell8ExA: 'ask for any api',
     apiCell8ExB: 'ranked, then routed',
-    compilerTitle: 'Your firm\u2019s personal, proprietary, and self-improving library',
+    compilerTitle: 'A personal, self-improving library precision-built for your firm',
     compilerBody:
       'Antaeon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs so you can watch it pay for itself.',
     compilerStep1Title: 'Watch',
@@ -368,12 +370,13 @@ const CHROME: Record<Locale, ChromeStrings> = {
   },
   es: {
     product: 'Producto',
-    megaEnginesTitle: 'Motores',
-    megaEnginesSub: 'Más de 1.000 motores deterministas, listos para que tu IA los llame',
-    megaApisTitle: 'Índice de API',
-    megaApisSub: 'Un índice clasificado y siempre al día de las principales API públicas',
-    megaLibraryTitle: 'Biblioteca de tu empresa',
-    megaLibrarySub: 'Tus propios motores, compilados desde el trabajo de tu empresa y compartidos con tu equipo',
+    megaEnginesTitle: 'Base de datos de motores',
+    megaEnginesSub: 'Más de 1.000 motores deterministas y la capa de inteligencia que guía a tu IA para llamarlos',
+    megaApisTitle: 'Base de datos de API',
+    megaApisSub: 'Un índice verificado a mano y siempre al día de las mejores API de internet',
+    megaLibraryTitle: 'Base de datos personal',
+    megaLibrarySub: 'Motores únicos, compilados desde el trabajo único de tu empresa y compartidos con tu equipo',
+    explore: 'Explorar',
     apiKey: 'Clave de API',
     pricing: 'Precios',
     support: 'Soporte',
@@ -494,7 +497,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8Desc: 'El índice va mucho más allá de esta página, clasificado con métricas siempre al día.',
     apiCell8ExA: 'pide cualquier api',
     apiCell8ExB: 'clasificada y enrutada',
-    compilerTitle: 'La biblioteca personal y propietaria de tu empresa, que se mejora sola',
+    compilerTitle: 'Una biblioteca personal y autooptimizable, hecha a la medida de tu empresa',
     compilerBody:
       'Antaeon compila algoritmos únicos a partir del trabajo real de tu empresa y los comparte con todos tus empleados. La biblioteca crece sin parar, y un backend registra el uso y los KPI, para que veas cómo se amortiza sola.',
     compilerStep1Title: 'Observa',
