@@ -26,8 +26,12 @@ const NS = 'http://www.w3.org/2000/svg';
  * library slab spans the width below them. */
 const VIEW_W = 1200;
 const VIEW_H = 300;
-const LEFT = 12;
-const RIGHT = 1188;
+/* Draw bounds sit flush with the viewBox edges, so the strokes fill the whole
+ * SVG element. The wrapper's width is the header and footer content span (the
+ * chrome padding in from each viewport edge), so the traffic ends exactly
+ * under the wordmark on the left and the Book a call button on the right. */
+const LEFT = 0;
+const RIGHT = VIEW_W;
 const LANE_TOP = 30;
 const LANE_PITCH = 18;
 const LANE_COUNT = 10;
@@ -52,7 +56,7 @@ const DOWN_HOLD_S = 1.3;
 const UP_HOLD_S = 1.7;
 const LINK_GAP_S = 0.9;
 const MAX_LINKS = 4;
-const MAX_BRANCHES = 2;
+const MAX_BRANCHES = 4;
 const DT_CAP = 0.064;
 
 type Tone = 'green' | 'red';
@@ -299,7 +303,7 @@ function addLine(scene: Scene, lane: number, tone: Tone, fate: Fate, headX: numb
     askedAt: 0,
     fixSent: false,
     fixed: false,
-    branchAtX: Math.random() < 0.5 ? 260 + Math.random() * 560 : Infinity,
+    branchAtX: Math.random() < 0.72 ? 260 + Math.random() * 560 : Infinity,
     headX,
     speed: rand(DRAW_SPEED),
     holdLeft: rand(HOLD_S),
