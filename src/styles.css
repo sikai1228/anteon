@@ -416,7 +416,10 @@ canvas#gl {
 .footer-inner {
   padding: var(--space-20) var(--chrome-pad-x) var(--space-20);
   display: grid;
-  grid-template-columns: 1fr repeat(3, max-content);
+  /* Equal column tracks: the header pitch stays constant (track plus gap)
+   * no matter how wide any column's links run; a track only grows if a
+   * label ever outruns the shared width. */
+  grid-template-columns: 1fr repeat(3, minmax(var(--space-40), max-content));
   gap: var(--space-32) var(--space-24);
 }
 
