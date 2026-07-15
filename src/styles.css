@@ -638,13 +638,12 @@ canvas#gl {
 }
 
 .terminal-body {
-  /* The card hugs the transcript: it grows as lines land and ends flush
-   * with the last line, so no dead white sits inside the section rhythm.
-   * The floor keeps the empty first beat from collapsing; on short
-   * viewports the cap wins and the panes follow their own tails. */
+  /* A fixed window, like a real terminal: the ratio sets the height and
+   * the card never resizes while the race runs; transcripts that outgrow
+   * it scroll up and out inside their panes. */
   width: 100%;
   background: var(--paper);
-  min-height: calc(var(--space-40) * 2);
+  aspect-ratio: 16 / 10.5;
   max-height: 72vh;
 }
 
@@ -713,10 +712,9 @@ html[data-boot="site"] #skip {
   visibility: hidden;
 }
 
-/* Antaeon's pane alone sets the card's height (its transcript is the short
- * one, and the card ends flush with it); the rival pane overlays the right
- * half at that same height, so its longer transcript scrolls up and out of
- * view inside the frame, the way a busy terminal behaves. */
+/* The rival pane overlays the right half of the fixed window, so its
+ * longer transcript scrolls up and out of view inside the frame, the way
+ * a busy terminal behaves; Antaeon's pane fills the left half. */
 .terminal-body { position: relative; }
 
 .term-pane {
@@ -726,7 +724,7 @@ html[data-boot="site"] #skip {
   overflow: hidden;
 }
 
-.term-pane[data-pane="a"] { width: 50%; }
+.term-pane[data-pane="a"] { width: 50%; height: 100%; }
 
 .term-pane[data-pane="b"] {
   position: absolute;
@@ -767,9 +765,11 @@ html[data-boot="site"] #skip {
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
-  /* The taller bottom pad is the fast forward control's lane; the card is
-   * content-hugging, so this is the only air below the last line. */
-  padding: var(--space-4) var(--space-5) var(--space-12);
+  /* The air below the head is a margin, not padding: a scrolled transcript
+   * clips at the margin edge, so lines never ride up against the pane
+   * head. The taller bottom pad is the fast forward control's lane. */
+  margin-top: var(--space-5);
+  padding: 0 var(--space-5) var(--space-12);
   font-family: var(--mono);
   font-size: var(--type-nav);
   line-height: var(--leading-body);
@@ -952,6 +952,11 @@ html[data-boot="site"] #skip {
 /* A section's heading and its lede, left-aligned, held to prose measure. */
 /* Titles hold a readable measure; the lede runs the section's full width. */
 .section-head .section-title { max-width: var(--width-prose); }
+
+/* The title's two lines break where the copy says, not where the measure
+ * runs out; each line is its own catalog string, so the break survives a
+ * locale swap. */
+.section-title .title-line { display: block; }
 
 .section-title {
   margin: 0;

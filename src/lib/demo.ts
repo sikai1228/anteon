@@ -138,6 +138,30 @@ function setCost(pane: Pane, usd: number): void {
   if (pane.costEl) pane.costEl.textContent = 'API cost: $' + usd.toFixed(2);
 }
 
+/** Follow the newest line, but land the scroll on a whole line boundary:
+ * the transcript's visible top is always a full line, never a slice, and
+ * both panes share the same top edge under their heads. */
+function snapScroll(pane: Pane): void {
+  const box = pane.lines;
+  const max = box.scrollHeight - box.clientHeight;
+  if (max <= 0) {
+    box.scrollTop = 0;
+    return;
+  }
+  const kids = box.children;
+  if (!kids.length) return;
+  const base = (kids[0] as HTMLElement).offsetTop;
+  let snap = max;
+  for (let i = kids.length - 1; i >= 0; i -= 1) {
+    const t = (kids[i] as HTMLElement).offsetTop - base;
+    if (t <= max) {
+      snap = t;
+      break;
+    }
+  }
+  box.scrollTop = snap;
+}
+
 function isTyped(kind: EventKind): boolean {
   return kind === 'say' || kind === 'fail';
 }
@@ -247,6 +271,7 @@ export function initTerminalDemo(): void {
       pane.lines.append(makeLine(ev.pane, ev.kind, ev.text).line);
       if (ev.cost !== undefined) setCost(pane, ev.cost);
     }
+    for (const p of panes) snapScroll(p);
     return;
   }
 
@@ -295,7 +320,7 @@ export function initTerminalDemo(): void {
     if (ev.kind === 'work') pane.cursor.remove();
     else line.append(pane.cursor);
     pane.lines.append(line);
-    pane.lines.scrollTop = pane.lines.scrollHeight;
+    snapScroll(pane);
   }
 
   function resetPanes(): void {
@@ -335,7 +360,7 @@ export function initTerminalDemo(): void {
       if (n > t.shown) {
         t.shown = n;
         t.el.textContent = t.text.slice(0, n);
-        t.pane.lines.scrollTop = t.pane.lines.scrollHeight;
+        snapScroll(t.pane);
       }
       if (t.shown >= t.text.length) {
         // The message is done: its cost tick lands with the last character.

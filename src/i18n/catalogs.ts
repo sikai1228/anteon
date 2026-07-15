@@ -18,6 +18,7 @@ export const LOCALES: readonly Locale[] = ['en', 'es'];
 export interface Catalog {
   /* Landing and site chrome, shared by both headers. */
   product: string;
+  apiKey: string;
   pricing: string;
   support: string;
   bookCall: string;
@@ -53,6 +54,7 @@ export interface Catalog {
      examples (ExA at rest, ExB on hover). Cells 15 and 16 are the boundary and
      the buy-not-build case. */
   libraryTitle: string;
+  libraryTitle2: string;
   libraryBody: string;
   cell1Name: string;
   cell1Desc: string;
@@ -171,6 +173,7 @@ type ChromeStrings = Omit<
 const CHROME: Record<Locale, ChromeStrings> = {
   en: {
     product: 'Product',
+    apiKey: 'API key',
     pricing: 'Pricing',
     support: 'Support',
     bookCall: 'Book a call',
@@ -187,8 +190,9 @@ const CHROME: Record<Locale, ChromeStrings> = {
       "Your AI rebuilds solved algorithms, uses them once, and trashes them. Antaeon preloads 1,000+ and grows your firm's own proprietary library.",
     mediaStripLabel: 'Team from',
     libraryTitle: '1,000+ preloaded engines',
+    libraryTitle2: 'and the intelligence framework to call them',
     libraryBody:
-      'These tasks are deterministic and should invoke a pre-written algorithm. Modern AI systems reinvent them from scratch, often inaccurately, and discard the result immediately after one use. Antaeon preloads 1,000+ engines and trains your AI to call them intelligently, so every request runs faster, breaks less, and costs less.',
+      'There are thousands of tasks that are deterministic and should invoke a pre-written algorithm. Yet modern AI systems continue to reinvent them from scratch, often inaccurately, and discard the result immediately after one use. Antaeon preloads 1,000+ engines and trains your AI to call them intelligently, so every request runs faster, breaks less, and costs less.',
     cell1Name: 'Conversion',
     cell1Desc: 'Any format into any other, whether files, images, code, or encodings.',
     cell1ExA: 'docx → pdf',
@@ -285,6 +289,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
   },
   es: {
     product: 'Producto',
+    apiKey: 'Clave de API',
     pricing: 'Precios',
     support: 'Soporte',
     bookCall: 'Reserva una llamada',
@@ -301,8 +306,9 @@ const CHROME: Record<Locale, ChromeStrings> = {
       'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Antaeon precarga 1.000+ y cultiva la biblioteca propietaria de tu empresa.',
     mediaStripLabel: 'Equipo formado en',
     libraryTitle: 'Más de 1.000 motores precargados',
+    libraryTitle2: 'y el marco de inteligencia para llamarlos',
     libraryBody:
-      'Estas tareas son deterministas y deberían invocar un algoritmo ya escrito. Los sistemas de IA modernos reinventan esos algoritmos desde cero, a menudo con errores, y descartan el resultado tras un solo uso. Antaeon precarga más de 1.000 motores y entrena a tu IA para llamarlos con inteligencia, de modo que cada petición es más rápida, falla menos y cuesta menos.',
+      'Hay miles de tareas que son deterministas y deberían invocar un algoritmo ya escrito. Aun así, los sistemas de IA modernos siguen reinventándolas desde cero, a menudo con errores, y descartan el resultado tras un solo uso. Antaeon precarga más de 1.000 motores y entrena a tu IA para llamarlos con inteligencia, de modo que cada petición es más rápida, falla menos y cuesta menos.',
     cell1Name: 'Conversión',
     cell1Desc: 'Cualquier formato a cualquier otro, ya sean archivos, imágenes, código o codificaciones.',
     cell1ExA: 'docx → pdf',
