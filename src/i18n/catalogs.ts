@@ -167,12 +167,6 @@ export interface Catalog {
   /* The compiler section: heading, lede, and the three steps. */
   compilerTitle: string;
   compilerBody: string;
-  compilerStep1Title: string;
-  compilerStep1Body: string;
-  compilerStep2Title: string;
-  compilerStep2Body: string;
-  compilerStep3Title: string;
-  compilerStep3Body: string;
   /* The footer: tagline, the three column headings and their links, and the
      rights line. The Product column reuses product/pricing/support/bookCall. */
   footerTag: string;
@@ -344,12 +338,6 @@ const CHROME: Record<Locale, ChromeStrings> = {
     compilerTitle: 'A personal, self-improving library precision-built for your firm',
     compilerBody:
       'Antaeon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs so you can watch it pay for itself.',
-    compilerStep1Title: 'Watch',
-    compilerStep1Body: 'It watches your live traffic, call by call.',
-    compilerStep2Title: 'Find',
-    compilerStep2Body: 'It finds the hot paths you hit again and again.',
-    compilerStep3Title: 'Extend',
-    compilerStep3Body: 'It extends the library with engines that are yours alone.',
     footerTag: 'Your AI shouldn’t stand alone.',
     company: 'Company',
     legal: 'Legal',
@@ -500,12 +488,6 @@ const CHROME: Record<Locale, ChromeStrings> = {
     compilerTitle: 'Una biblioteca personal y autooptimizable, hecha a la medida de tu empresa',
     compilerBody:
       'Antaeon compila algoritmos únicos a partir del trabajo real de tu empresa y los comparte con todos tus empleados. La biblioteca crece sin parar, y un backend registra el uso y los KPI, para que veas cómo se amortiza sola.',
-    compilerStep1Title: 'Observa',
-    compilerStep1Body: 'Vigila tu tráfico en vivo, llamada por llamada.',
-    compilerStep2Title: 'Encuentra',
-    compilerStep2Body: 'Detecta las rutas que recorres una y otra vez.',
-    compilerStep3Title: 'Amplía',
-    compilerStep3Body: 'Extiende la biblioteca con motores que son solo tuyos.',
     footerTag: 'Tu IA no debería estar sola.',
     company: 'Empresa',
     legal: 'Legal',

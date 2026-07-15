@@ -1156,66 +1156,6 @@ html[data-boot="site"] #skip {
 .cell:hover .cell-ex-a { opacity: 0; }
 .cell:hover .cell-ex-b { opacity: 1; }
 
-/* The compiler's three steps in a row, joined by a single hairline that runs
- * behind the marks. Each mark sits on a paper chip that masks the line, so the
- * row reads as three nodes threaded on one connector. */
-.compiler-steps {
-  position: relative;
-  margin: var(--space-16) 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-8);
-}
-
-/* The connector sits at the marks' vertical centre, between the outer two. */
-.compiler-steps::before {
-  content: '';
-  position: absolute;
-  top: calc((var(--space-12) + var(--space-2)) / 2);
-  left: 16.66%;
-  right: 16.66%;
-  height: var(--border-hair);
-  background: var(--line);
-}
-
-.compiler-step { text-align: center; }
-
-.step-mark {
-  position: relative;
-  z-index: 1;
-  display: inline-grid;
-  place-items: center;
-  /* 56px: a paper chip wide enough to mask the connector behind it. */
-  width: calc(var(--space-12) + var(--space-2));
-  height: calc(var(--space-12) + var(--space-2));
-  margin-bottom: var(--space-5);
-  background: var(--paper);
-  color: var(--ink);
-}
-
-.step-svg { width: var(--space-10); height: var(--space-10); }
-
-/* The hot path's dot. Ink, not accent: the page's single accent is earned by
- * the library's buy-not-build cell, so nothing else here takes color. */
-.step-hot { fill: var(--ink); stroke: none; }
-
-.step-title {
-  margin: 0 0 var(--space-2);
-  font-size: var(--type-body-lg);
-  font-weight: var(--weight-semibold);
-  color: var(--ink);
-}
-
-.step-body {
-  margin: 0 auto;
-  max-width: 30ch;
-  font-size: var(--type-body);
-  line-height: var(--leading-body);
-  color: var(--ink-muted);
-}
-
 /* The closing band: the film's thesis line, large in the site's sans, over a
  * single call. Centered, with the full section rhythm above and below. */
 .site-closing {
@@ -1246,8 +1186,6 @@ html[data-boot="site"] #skip {
  * since there is no longer a row to thread. */
 @media (max-width: 768px) {
   .cell-grid { grid-template-columns: 1fr 1fr; }
-  .compiler-steps { grid-template-columns: 1fr; gap: var(--space-12); }
-  .compiler-steps::before { display: none; }
 }
 
 /* On a phone the cells go single file, and the description collapses so the
