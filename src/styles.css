@@ -19,8 +19,6 @@ body {
   font-family: var(--serif);
 }
 
-html { scrollbar-width: thin; scrollbar-color: var(--slate) var(--board); }
-
 /* The page chrome: a slim black header above the film's box. It fades as
  * the box expands to full bleed. */
 #chrome {
@@ -1518,7 +1516,7 @@ html.static .caption {
   .header-nav {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
     gap: var(--space-4);
     position: absolute;
     top: 100%;
@@ -1566,6 +1564,24 @@ html.static .caption {
   #site-header.nav-open::after {
     opacity: 0;
     transition: opacity var(--speed-quick) var(--ease);
+  }
+
+  /* One frosted panel, not two: nested backdrop filters cannot stack, so
+   * the open header goes clear and the sheet takes the frost, sliding up
+   * underneath the bar to blur the page for both as a single surface. */
+  #site-header.nav-open {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  #site-header.nav-open .header-nav {
+    top: 0;
+    z-index: -1;
+    padding-top: calc(var(--chrome-header) + var(--space-4));
+    background: var(--frost);
+    -webkit-backdrop-filter: blur(var(--frost-blur));
+    backdrop-filter: blur(var(--frost-blur));
   }
 }
   /* Inside the sheet, book a call rides as a plain link: no box, no
