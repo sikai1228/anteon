@@ -29,7 +29,11 @@ const OUTLINE_OUT = 0.479;
  * after the crop registers, the descent begins while the sweep is still
  * translating, and no window butts against another with a dead frame
  * between, so velocity never zeroes mid-story. */
-const CARRY_IN = 0.4795; // = SWAP_T: the lift eases out of the swap instant itself
+/* The boot leaves WITH the camera, never before it: departing during the
+ * held frame yeets the boot out of a static shot, which reads as a
+ * teleport. The hold now ends 0.003 after the swap, so the stillness is a
+ * blink and boot and camera exit the frame together. */
+const CARRY_IN = 0.4825; // = the camera hold's end key
 const CARRY_OUT = 0.507;
 const PRESS_IN = 0.5; // touchdown starts inside the sweep: a curved step
 const PRESS_OUT = 0.532;
