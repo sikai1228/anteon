@@ -139,6 +139,8 @@ body {
   max-width: var(--width-page);
   margin: 0 auto;
   padding-top: var(--space-section-sm);
+  /* The full section rhythm sits above the footer's hairline. */
+  padding-bottom: var(--space-section);
   padding-inline: var(--space-gutter);
 }
 
@@ -470,7 +472,7 @@ a.footer-brand:hover .brand-mark .hand-r {
  * the prose measure. Additive block; nothing above changes. */
 .doc-body {
   max-width: var(--width-prose);
-  padding-bottom: var(--space-section-sm);
+  padding-bottom: var(--space-section);
 }
 
 .doc-date {
@@ -541,7 +543,7 @@ a.footer-brand:hover .brand-mark .hand-r {
   gap: var(--space-16);
   align-items: start;
   margin-top: var(--space-8);
-  padding-bottom: var(--space-section-sm);
+  padding-bottom: var(--space-section);
 }
 
 /* The left rail holds the prose measure so the lede never runs long on a

@@ -874,9 +874,12 @@ html[data-boot="site"] #skip {
  * internal detail preserved), so the row needs no filter and no opacity. */
 .media-strip {
   width: 100vw;
-  /* The gap above the band's hairline matches the gap below it: both sit on
-   * the --space-section rhythm, the band's neighbor providing the lower one. */
-  margin: var(--space-section) 0 0 calc(50% - 50vw);
+  /* One step over the section rhythm: the heading below the band carries
+   * its own leading above its ink and the card above throws its shadow into
+   * the gap, so the extra 16px makes the white read equal on both sides. */
+  margin: calc(var(--space-section) + var(--space-4)) 0 0 calc(50% - 50vw);
+  /* The section rhythm lives outside the hairlines; inside, the logos
+   * keep their tighter own air. */
   padding-block: var(--space-10);
   border-top: var(--border-hair) solid var(--line);
   border-bottom: var(--border-hair) solid var(--line);
@@ -1056,25 +1059,6 @@ html[data-boot="site"] #skip {
 .cell-ex-b { opacity: 0; }
 .cell:hover .cell-ex-a { opacity: 0; }
 .cell:hover .cell-ex-b { opacity: 1; }
-
-/* Cell 16, and more: the page's one earned mark of accent, on its icon. */
-.cell-more .cell-icon { color: var(--accent); }
-
-/* The index: a quieter, typographically led band. One centered statement,
- * no cards, a breath between the two loud sections around it. */
-.section-statement {
-  max-width: var(--width-narrow);
-  margin-inline: auto;
-  text-align: center;
-}
-
-.statement-body {
-  margin: var(--space-5) auto 0;
-  max-width: var(--width-prose);
-  font-size: var(--type-body-lg);
-  line-height: var(--leading-body);
-  color: var(--ink-muted);
-}
 
 /* The compiler's three steps in a row, joined by a single hairline that runs
  * behind the marks. Each mark sits on a paper chip that masks the line, so the

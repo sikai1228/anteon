@@ -157,9 +157,6 @@ export interface Catalog {
   apiCell8Desc: string;
   apiCell8ExA: string;
   apiCell8ExB: string;
-  /* The index section: heading and its short body. */
-  indexTitle: string;
-  indexBody: string;
   /* The compiler section: heading, lede, and the three steps. */
   compilerTitle: string;
   compilerBody: string;
@@ -292,12 +289,12 @@ const CHROME: Record<Locale, ChromeStrings> = {
     cell15ExB: 'risk score > 80 → manual review',
     cell16Name: 'And more',
     cell16Desc: 'The library runs far past this page, and the compiler keeps adding to it.',
-    cell16ExA: '→ and counting',
-    cell16ExB: '→ yours included',
+    cell16ExA: 'timezones, checksums, ocr',
+    cell16ExB: 'tax math, dedupe, redlines',
     apiIndexTitle: 'A continuously updated index',
     apiIndexTitle2: 'of every API on the internet',
     apiIndexLede:
-      'Not everything deserves a new engine. Antaeon collates the internet\u2019s best APIs, ranks them with its own quality metrics, and when your AI is about to build something an API already does, recommends the right one, free or paid.',
+      'Not everything deserves a new engine. Antaeon collates the internet\u2019s best APIs, ranks them with its own quality metrics, and when your AI is about to build something an API already does, recommends the right one.',
     apiCell1Name: 'Stripe',
     apiCell1Desc: 'Payments, billing, and invoicing, from checkout to payout.',
     apiCell1ExA: 'invoice → paid',
@@ -330,9 +327,6 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8Desc: 'The index runs far past this page, ranked by metrics that stay current.',
     apiCell8ExA: 'ask for any api',
     apiCell8ExB: 'ranked, then routed',
-    indexTitle: 'Never build what someone already sells',
-    indexBody:
-      'A curated index of existing APIs sits alongside the library. When a service already does the job, Antaeon points you to it instead of asking you to build it again.',
     compilerTitle: 'The compiler makes the library yours',
     compilerBody:
       'A just-in-time compiler speeds up the paths a program runs most. Antaeon does the same for your AI, turning your hottest paths into engines that are yours alone.',
@@ -444,12 +438,12 @@ const CHROME: Record<Locale, ChromeStrings> = {
     cell15ExB: 'puntuación de riesgo > 80 → revisión manual',
     cell16Name: 'Y más',
     cell16Desc: 'La biblioteca va mucho más allá de esta página, y el compilador no deja de ampliarla.',
-    cell16ExA: '→ y sumando',
-    cell16ExB: '→ la tuya incluida',
+    cell16ExA: 'husos horarios, checksums, ocr',
+    cell16ExB: 'cálculo fiscal, dedupe, cotejos',
     apiIndexTitle: 'Un índice en continua actualización',
     apiIndexTitle2: 'de todas las API de internet',
     apiIndexLede:
-      'No todo merece un motor nuevo. Antaeon reúne las mejores API de internet, las clasifica con sus propias métricas de calidad y, cuando tu IA está a punto de construir algo que una API ya hace, te recomienda la adecuada, gratuita o de pago.',
+      'No todo merece un motor nuevo. Antaeon reúne las mejores API de internet, las clasifica con sus propias métricas de calidad y, cuando tu IA está a punto de construir algo que una API ya hace, te recomienda la adecuada.',
     apiCell1Name: 'Stripe',
     apiCell1Desc: 'Pagos, facturación y cobros, del checkout al abono.',
     apiCell1ExA: 'factura → pagada',
@@ -482,9 +476,6 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8Desc: 'El índice va mucho más allá de esta página, clasificado con métricas siempre al día.',
     apiCell8ExA: 'pide cualquier api',
     apiCell8ExB: 'clasificada y enrutada',
-    indexTitle: 'Nunca construyas lo que alguien ya vende',
-    indexBody:
-      'Junto a la biblioteca hay un índice curado de APIs que ya existen. Cuando un servicio ya hace el trabajo, Antaeon te lo indica en lugar de pedirte que lo construyas otra vez.',
     compilerTitle: 'El compilador hace tuya la biblioteca',
     compilerBody:
       'Un compilador just-in-time acelera las rutas que un programa ejecuta más. Antaeon hace lo mismo con tu IA, y convierte tus rutas más transitadas en motores que son solo tuyos.',
