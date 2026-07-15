@@ -36,6 +36,7 @@ export interface Catalog {
   card1: string;
   card2: string;
   /* The site hero. */
+  heroTitle: string;
   siteNote: string;
   /* The footer: tagline, the three column headings and their links, and the
      rights line. The Product column reuses product/pricing/support/bookCall. */
@@ -82,6 +83,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     support: 'Support',
     bookCall: 'Book a call',
     skipFilm: 'Skip the film',
+    heroTitle: 'The JIT compiler for enterprise AI',
     siteNote: 'The site begins here.',
     footerTag: 'Your AI shouldn’t stand alone.',
     company: 'Company',
@@ -107,6 +109,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     support: 'Soporte',
     bookCall: 'Reserva una llamada',
     skipFilm: 'Salta la película',
+    heroTitle: 'El compilador JIT para IA empresarial',
     siteNote: 'Aquí empieza el sitio.',
     footerTag: 'Tu IA no debería estar sola.',
     company: 'Empresa',
