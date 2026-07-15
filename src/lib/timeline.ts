@@ -102,10 +102,10 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
    * the page releases upward into the trailer. Scrolling down is never
    * resisted. The boundary is the skip ride's own landing, the film
    * element's full height. */
-  /** Critical mass: upward input, in px, that breaks the band. Roughly two
-   * quick drags; their charge pools across the window below even while the
-   * visible stretch springs back between them. */
-  const BREAK_PX = 750;
+  /** Critical mass: upward input, in px, that breaks the band. Drags in
+   * quick succession pool their charge across the window below even while
+   * the visible stretch springs back between them. */
+  const BREAK_PX = 1100;
   const SLACK = 4;
   /** Touch drags travel far less than wheel deltas for the same intent. */
   const TOUCH_GAIN = 2.5;
