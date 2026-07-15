@@ -196,7 +196,8 @@ body {
 /* The mark rides the wordmark's own size, a hair under its cap height. It
  * is three stacked layers on one canvas: the left hand, the right hand,
  * and the spark between them, so the hands can move while the registration
- * holds. */
+ * holds. Each layer's box is doubled and scaled back down, so the GPU
+ * keeps a sharp twice-size texture whether the hands rest or move. */
 .brand-mark {
   position: relative;
   height: 0.82em;
@@ -205,41 +206,34 @@ body {
 
 .brand-mark img {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  transform: scale(0.5);
+  transform-origin: 0 0;
+  will-change: transform;
+  transition: transform var(--speed-settle) var(--ease);
   display: block;
 }
 
-/* On hover the two fingers close the gap, touch for a beat at the spark,
- * and open again. Each hand travels half the measured fingertip gap, a
- * whisker more so the touch reads as contact. One cycle per hover, like
- * the skip key's spin. */
-@keyframes hands-touch-l {
-  35%, 60% { transform: translate(6.1%, -1.2%); }
-}
-
-@keyframes hands-touch-r {
-  35%, 60% { transform: translate(-6.1%, 1.2%); }
-}
-
+/* On hover the fingers close the measured gap and stay touched at the
+ * spark until the pointer leaves; leaving eases them open again. The
+ * travel percentages are half the measured gap twice over: once because
+ * each hand covers half the distance, once because the layer box is
+ * doubled. */
 a.wordmark:hover .brand-mark .hand-l,
 a.footer-brand:hover .brand-mark .hand-l {
-  animation: hands-touch-l 0.9s var(--ease);
+  transform: translate(3.05%, -0.6%) scale(0.5);
 }
 
 a.wordmark:hover .brand-mark .hand-r,
 a.footer-brand:hover .brand-mark .hand-r {
-  animation: hands-touch-r 0.9s var(--ease);
+  transform: translate(-3.05%, 0.6%) scale(0.5);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  a.wordmark:hover .brand-mark .hand-l,
-  a.footer-brand:hover .brand-mark .hand-l,
-  a.wordmark:hover .brand-mark .hand-r,
-  a.footer-brand:hover .brand-mark .hand-r {
-    animation: none;
-  }
+  .brand-mark img { transition: none; }
 }
 
 .footer-tag {
