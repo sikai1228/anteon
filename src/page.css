@@ -42,10 +42,21 @@ body {
   align-items: center;
   height: var(--chrome-header);
   padding: 0 var(--chrome-pad-x);
+  background: transparent;
+  border-bottom: var(--border-hair) solid var(--line);
+}
+
+/* The bar frost lives on a pseudo, not the header itself, so the header is
+ * not a backdrop root and the nested mega panel can blur the page too, one
+ * continuous frosted surface. */
+.page-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--frost);
   -webkit-backdrop-filter: blur(var(--frost-blur));
   backdrop-filter: blur(var(--frost-blur));
-  border-bottom: var(--border-hair) solid var(--line);
 }
 
 
@@ -787,6 +798,7 @@ a.footer-brand:hover .brand-mark .hand-r {
 .nav-mega { display: flex; align-items: center; }
 
 .nav-mega-trigger {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
@@ -805,6 +817,21 @@ a.footer-brand:hover .brand-mark .hand-r {
 
 .nav-mega-trigger:hover { opacity: 1; }
 
+.nav-mega-trigger::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: var(--border-hair);
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--speed-move) var(--ease);
+}
+
+.nav-mega-trigger:hover::after { transform: scaleX(1); }
+
 .nav-mega-chev { transition: transform var(--speed-move) var(--ease); }
 
 .nav-mega-panel {
@@ -814,7 +841,9 @@ a.footer-brand:hover .brand-mark .hand-r {
   right: 0;
   max-height: 0;
   overflow: hidden;
-  background: var(--paper);
+  background: var(--frost);
+  -webkit-backdrop-filter: blur(var(--frost-blur));
+  backdrop-filter: blur(var(--frost-blur));
   border-bottom: var(--border-hair) solid transparent;
   transition:
     max-height var(--speed-settle) var(--ease),
@@ -861,6 +890,11 @@ a.footer-brand:hover .brand-mark .hand-r {
   color: var(--ink-muted);
 }
 
+/* The mega cards are anchors inside the nav, so the nav link underline
+ * would draw a full width line at their base on hover. The cards carry
+ * their own indicators (the media border), so that line is removed. */
+.header-nav .mega-card::after { content: none; }
+
 .page-header.mega-open .nav-mega-panel {
   max-height: 460px;
   border-bottom-color: var(--line);
@@ -869,6 +903,7 @@ a.footer-brand:hover .brand-mark .hand-r {
 .page-header.mega-open .nav-mega-chev { transform: rotate(180deg); }
 
 .page-header.mega-open .nav-mega-trigger { opacity: 1; }
+.page-header.mega-open .nav-mega-trigger::after { transform: scaleX(1); }
 
 .page-header.mega-open { border-bottom-color: transparent; }
 
@@ -903,6 +938,8 @@ a.footer-brand:hover .brand-mark .hand-r {
     max-height: none;
     overflow: visible;
     background: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     border-bottom: none;
   }
 
@@ -922,6 +959,32 @@ a.footer-brand:hover .brand-mark .hand-r {
     font-weight: var(--weight-regular);
     color: var(--ink-muted);
   }
+
+  /* The trigger is a plain label in the sheet: full ink, no underline, no
+   * hover lift. The cards take a text-width underline on hover, like a nav
+   * link, rather than the full-row line. */
+  .nav-mega-trigger { opacity: 1; cursor: default; }
+  .nav-mega-trigger::after { display: none; }
+
+  .mega-card-title {
+    position: relative;
+    align-self: flex-start;
+  }
+  .mega-card-title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -3px;
+    height: var(--border-hair);
+    background: var(--ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--speed-move) var(--ease);
+  }
+  .mega-card:hover .mega-card-title::after { transform: scaleX(1); }
+
+  .page-header::before { display: none; }
 
   .page-header .header-nav {
     position: absolute;
