@@ -182,7 +182,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel4: 'cash',
     siteNote: 'The site begins here.',
     heroSub:
-      'Your AI rebuilds solved algorithms, uses them once, and trashes them. Antaeon preloads 1,000+, indexes the APIs, and grows yours.',
+      "Your AI rebuilds solved algorithms, uses them once, and trashes them. Antaeon preloads 1,000+ and grows your firm's own library.",
     mediaStripLabel: 'Team from',
     libraryTitle: 'The work your AI keeps re-solving',
     libraryBody:
@@ -295,7 +295,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel4: 'dinero',
     siteNote: 'Aquí empieza el sitio.',
     heroSub:
-      'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Antaeon precarga 1.000+, indexa las APIs y cultiva los tuyos.',
+      'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Antaeon precarga 1.000+ y cultiva la biblioteca de tu empresa.',
     mediaStripLabel: 'Equipo formado en',
     libraryTitle: 'El trabajo que tu IA resuelve una y otra vez',
     libraryBody:
