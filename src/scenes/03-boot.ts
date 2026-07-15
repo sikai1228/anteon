@@ -25,9 +25,13 @@ import { FILM, REGIONS } from '../film.config';
  * Moon runs 0.487 to 0.507; the press and print follow on the regolith. */
 const OUTLINE_IN = 0.468; // the sole draws itself over the held ridge field
 const OUTLINE_OUT = 0.479;
-const CARRY_IN = 0.487; // the boot rides the camera sweep through the dark
+/* One unbroken motion from the swap to the ground: the boot lifts right
+ * after the crop registers, the descent begins while the sweep is still
+ * translating, and no window butts against another with a dead frame
+ * between, so velocity never zeroes mid-story. */
+const CARRY_IN = 0.4795; // = SWAP_T: the lift eases out of the swap instant itself
 const CARRY_OUT = 0.507;
-const PRESS_IN = 0.509; // contact with the regolith
+const PRESS_IN = 0.5; // touchdown starts inside the sweep: a curved step
 const PRESS_OUT = 0.532;
 const DUST_IN = 0.528;
 const DUST_PEAK = 0.538;
@@ -311,16 +315,21 @@ function buildTrail(set: StrokeSetApi): void {
     // same parity both ways: the feet alternate correctly out from the
     // anchor in each direction
     const zSign = k % 2 === 1 ? -1 : 1;
+    // every stroke of stride k, both directions, shares one window: the
+    // pair behind and ahead appears at exactly the same moment
+    const win: [number, number] = [(k - 1) / TRAIL_N, k / TRAIL_N];
     for (const dir of [-1, 1] as const) {
+      // the walk stops short of the flag: no print directly under the pole
+      if (dir === 1 && k === TRAIL_N) continue;
       const x = dir * k * stride;
       const z = zSign * hip;
       const yaw = -zSign * TRAIL_YAW;
       const outline = placeStep([soleOutline(0, zSign)], x, z, yaw);
-      for (const path of outline) set.addStroke(path, { widthPx: 2.2 });
+      for (const path of outline) set.addStroke(path, { widthPx: 2.2, drawWindow: win });
       const toes = placeStep(toePaths(0, zSign), x, z, yaw);
-      for (const path of toes) set.addStroke(path, { widthPx: 2.0 });
+      for (const path of toes) set.addStroke(path, { widthPx: 2.0, drawWindow: win });
       const bars = placeStep(treadPaths(0, zSign), x, z, yaw);
-      for (const path of bars) set.addStroke(path, { widthPx: 1.6 });
+      for (const path of bars) set.addStroke(path, { widthPx: 1.6, drawWindow: win });
     }
   }
 }
