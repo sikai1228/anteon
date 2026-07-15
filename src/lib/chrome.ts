@@ -97,6 +97,19 @@ function frame(): void {
   requestAnimationFrame(frame);
 }
 
+// The footer wordmark replays its accent wipe each time it fully enters
+// view, matching the kit footer this is ported from: .is-wiped toggles on
+// full visibility and off on exit, so re-entry replays it.
+const wipeEl = document.querySelector<HTMLElement>('[data-footer-logo]');
+if (wipeEl && 'IntersectionObserver' in window) {
+  new IntersectionObserver(
+    (entries) => {
+      for (const en of entries) wipeEl.classList.toggle('is-wiped', en.isIntersecting);
+    },
+    { threshold: 1 },
+  ).observe(wipeEl);
+}
+
 // Clicking the wordmark, in either header, returns to the very start as a
 // hard cut: the film runtime answers the event with an immediate Lenis jump
 // so the film cannot glide backward through its frames.

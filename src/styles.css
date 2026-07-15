@@ -330,8 +330,11 @@ canvas#gl {
   font-family: var(--sans);
   position: relative;
   z-index: var(--z-site);
-  /* Tall enough to keep scrolling past the hero while the site is bare. */
+  /* Tall enough to keep scrolling past the hero while the site is bare;
+   * a flex column so the footer holds the bottom edge of that space. */
   min-height: 300vh;
+  display: flex;
+  flex-direction: column;
   /* Enters as a box with the film box's side breathing, then grows to full
    * width as it rises; chrome.ts drives the vars from the entry progress. */
   margin: 0 var(--site-inset, var(--chrome-inset));
@@ -394,6 +397,152 @@ canvas#gl {
   font-weight: var(--weight-medium);
 }
 #site-note { opacity: var(--o-faint); margin: 0; }
+
+/* The site footer, ported from the kit's footer v0 (SiteFooter, PT2):
+ * brand column with the accent wipe, link columns with fixed-slot arrows,
+ * and a muted bottom row. Values translated onto this site's tokens. */
+.site-footer {
+  margin-top: auto;
+  border-top: var(--border-hair) solid var(--line);
+}
+
+.footer-inner {
+  max-width: var(--width-page);
+  margin: 0 auto;
+  padding: var(--space-20) var(--space-gutter) var(--space-32);
+  display: grid;
+  grid-template-columns: 1fr repeat(3, max-content);
+  gap: var(--space-24);
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  font-size: var(--type-wordmark);
+  letter-spacing: var(--tracking-widest);
+}
+
+.footer-tag {
+  margin: var(--space-3) 0 0;
+  color: var(--ink-soft);
+  font-size: var(--type-nav);
+}
+
+/* Wordmark accent-wipe: an absolute overlay (no layout shift) sweeps the
+ * flag red across the wordmark when the footer enters view, the film's one
+ * color moment replayed in the shell. chrome.ts toggles .is-wiped. */
+.brand-wipe {
+  --line-width: 6px;
+  position: relative;
+  display: inline-block;
+}
+
+.brand-wipe .actual-text { color: var(--ink); }
+
+.brand-wipe .hover-text {
+  position: absolute;
+  inset: 0;
+  left: -14px;
+  padding-left: 14px;
+  box-sizing: border-box;
+  width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--accent);
+  -webkit-text-stroke: 1px var(--accent);
+  border-right: var(--line-width) solid transparent;
+  transition: width 1.2s var(--ease);
+  pointer-events: none;
+}
+
+.brand-wipe.is-wiped .hover-text {
+  width: calc(100% + 28px);
+  border-right-color: var(--accent);
+  animation: logo-line-out 3s var(--ease) forwards;
+}
+
+@keyframes logo-line-out {
+  0%, 90% { border-right-color: var(--accent); }
+  100% { border-right-color: transparent; }
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.footer-h {
+  font-size: var(--type-nav);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+  margin: 0 0 var(--space-1);
+}
+
+/* Column links: never underlined; on hover they darken to full ink and
+ * reveal the up-right arrow. */
+.footer-col a {
+  color: var(--ink-muted);
+  font-size: var(--type-nav);
+  text-decoration: none;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.footer-col a:hover { color: var(--ink); }
+
+/* The arrow occupies a fixed inline slot at all times (its space is always
+ * reserved); only its opacity animates, so the label never shifts on hover. */
+.footer-arrow {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-left: var(--space-2);
+  vertical-align: middle;
+  opacity: 0;
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.footer-col a:hover .footer-arrow,
+.footer-col a:focus-visible .footer-arrow { opacity: 1; }
+
+.footer-bottom {
+  max-width: var(--width-page);
+  margin: 0 auto;
+  padding: 0 var(--space-gutter) var(--space-20);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+  color: var(--ink-soft);
+  font-size: var(--type-nav);
+}
+
+.footer-copy { margin: 0; }
+
+.footer-prefs { display: flex; align-items: center; gap: var(--space-2); }
+
+.footer-prefs a {
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.footer-prefs a:hover { color: var(--ink); }
+
+/* Below --bp-md the columns pair up and the bottom row stacks. */
+@media (max-width: 768px) {
+  .footer-inner { grid-template-columns: 1fr 1fr; gap: var(--space-12); }
+  .footer-bottom { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-wipe .hover-text { transition: none; }
+  .brand-wipe.is-wiped .hover-text { animation: none; }
+  .footer-arrow { transition: none; }
+}
 
 /* Static mode: reduced motion or no WebGL. The runtime adds .static to <html>. */
 html.static #film { height: auto; }
