@@ -59,6 +59,11 @@
   --accent: var(--flag-red);
   --focus: var(--flag-blue);
 
+  /* Status inks for form feedback. Success and error both read AA on paper,
+   * and appear only in the validation bars, never as a ground. */
+  --status-success: #157a4d;
+  --status-error: #c33a29;
+
   /* Muting steps, applied as element opacity so a control's text and
    * hairline dim identically (the header's hover trick). */
   --o-rest: 0.88;
@@ -91,8 +96,10 @@
   --weight-light: 350;
   --weight-regular: 400;
   --weight-medium: 500;
+  --weight-display: 560;
   --weight-semibold: 600;
 
+  --leading-display: 1.05;
   --leading-tight: 1.1;
   --leading-heading: 1.25;
   --leading-caption: 1.38;
@@ -100,6 +107,7 @@
   --leading-quote: 1.5;
   --leading-body: 1.6;
 
+  --tracking-tight: -0.015em;
   --tracking-wide: 0.01em;
   --tracking-wider: 0.02em;
   --tracking-widest: 0.03em;

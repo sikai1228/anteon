@@ -188,7 +188,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     mediaStripLabel: 'Team from',
     libraryTitle: '1,000+ preloaded engines',
     libraryBody:
-      'These tasks are deterministic and should invoke a pre-written algorithm. Modern AI systems reinvent them from scratch, often inaccurately, and discard the result immediately after use. Antaeon preloads 1,000+ engines for your AI to call, so every request runs faster, breaks less, and costs less.',
+      'These tasks are deterministic and should invoke a pre-written algorithm. Modern AI systems reinvent them from scratch, often inaccurately, and discard the result immediately after one use. Antaeon preloads 1,000+ engines and trains your AI to call them intelligently, so every request runs faster, breaks less, and costs less.',
     cell1Name: 'Conversion',
     cell1Desc: 'Any format into any other, whether files, images, code, or encodings.',
     cell1ExA: 'docx → pdf',
@@ -302,7 +302,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     mediaStripLabel: 'Equipo formado en',
     libraryTitle: 'Más de 1.000 motores precargados',
     libraryBody:
-      'Estas tareas son deterministas y deberían invocar un algoritmo ya escrito. Los sistemas de IA modernos reinventan esos algoritmos desde cero, a menudo con errores, y descartan el resultado justo después de usarlo. Antaeon precarga más de 1.000 motores que tu IA puede llamar, de modo que cada petición es más rápida, falla menos y cuesta menos.',
+      'Estas tareas son deterministas y deberían invocar un algoritmo ya escrito. Los sistemas de IA modernos reinventan esos algoritmos desde cero, a menudo con errores, y descartan el resultado tras un solo uso. Antaeon precarga más de 1.000 motores y entrena a tu IA para llamarlos con inteligencia, de modo que cada petición es más rápida, falla menos y cuesta menos.',
     cell1Name: 'Conversión',
     cell1Desc: 'Cualquier formato a cualquier otro, ya sean archivos, imágenes, código o codificaciones.',
     cell1ExA: 'docx → pdf',

@@ -105,7 +105,7 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   /** Critical mass: upward input, in px, that breaks the band. Drags in
    * quick succession pool their charge across the window below even while
    * the visible stretch springs back between them. */
-  const BREAK_PX = 1100;
+  const BREAK_PX = 1500;
   const SLACK = 4;
   /** Touch drags travel far less than wheel deltas for the same intent. */
   const TOUCH_GAIN = 2.5;
@@ -346,6 +346,9 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
       holdAt(targetPx);
       sm = 1;
       armed = true;
+      // The head script's boot guard hid the film stage; the scroll now
+      // sits on the site, so the stage can come back.
+      delete document.documentElement.dataset.boot;
       tries += 1;
       if (tries < 12 && Math.abs(currentY() - targetPx) > 2) {
         requestAnimationFrame(applyPx);
@@ -353,6 +356,8 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     };
     applyPx();
   }
+  // Whatever path seeding took, the boot guard must not outlive it.
+  delete document.documentElement.dataset.boot;
 
   function destroy(): void {
     window.removeEventListener('resize', measure);

@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="light" />
   <title>Antaeon tokens</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230b0b0d'/%3E%3Cpath d='M4 12 Q8 3 12 12' stroke='%23eceae4' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/logo/favicon-16.png" />
+  <link rel="apple-touch-icon" href="/logo/apple-touch.png" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/hanken-grotesk-latin.woff2" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/im-fell-english-regular-latin.woff2" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/im-fell-english-italic-latin.woff2" />
@@ -416,6 +418,8 @@
         <figure class="swatch"><div class="chip" style="background: var(--line)"></div><figcaption><code>--line</code><span class="val">#dedcd5</span></figcaption></figure>
         <figure class="swatch"><div class="chip" style="background: var(--flag-red)"></div><figcaption><code>--flag-red</code><span class="val">#e8503f, is --accent</span></figcaption></figure>
         <figure class="swatch"><div class="chip" style="background: var(--flag-blue)"></div><figcaption><code>--flag-blue</code><span class="val">#5f7fd6, is --focus</span></figcaption></figure>
+        <figure class="swatch"><div class="chip" style="background: var(--status-success)"></div><figcaption><code>--status-success</code><span class="val">#157a4d, success bar</span></figcaption></figure>
+        <figure class="swatch"><div class="chip" style="background: var(--status-error)"></div><figcaption><code>--status-error</code><span class="val">#c33a29, error bar</span></figcaption></figure>
       </div>
       <div class="board-panel">
         <figure class="swatch"><div class="chip" style="background: var(--board)"></div><figcaption><code>--board</code><span class="val">#0b0b0d</span></figcaption></figure>
@@ -444,7 +448,7 @@
       </div>
 
       <div class="rows">
-        <div class="row"><code>--type-display</code><span class="val">clamp(34px, 5vw, 64px)</span><span class="type-sample" style="font-size: var(--type-display); line-height: var(--leading-tight); letter-spacing: var(--tracking-display); font-weight: var(--weight-medium)">Antaeon</span></div>
+        <div class="row"><code>--type-display</code><span class="val">clamp(34px, 5vw, 64px)</span><span class="type-sample" style="font-size: var(--type-display); line-height: var(--leading-display); letter-spacing: var(--tracking-tight); font-weight: var(--weight-display)">Antaeon</span></div>
         <div class="row"><code>--type-title</code><span class="val">clamp(28px, 3.2vw, 44px)</span><span class="type-sample" style="font-size: var(--type-title); line-height: var(--leading-heading); font-weight: var(--weight-medium)">Shoulders of Giants</span></div>
         <div class="row"><code>--type-card</code><span class="val">clamp(26px, 4.2vw, 46px)</span><span class="type-sample serif" style="font-size: var(--type-card)">Your AI shouldn&rsquo;t stand alone.</span></div>
         <div class="row"><code>--type-quote</code><span class="val">clamp(22px, 3.4vw, 40px)</span><span class="type-sample serif" style="font-size: var(--type-quote); line-height: var(--leading-quote)">Standing on the shoulders of Giants.</span></div>
@@ -464,6 +468,7 @@
         <span class="w" style="font-weight: var(--weight-light)">Antaeon<small>--weight-light 350</small></span>
         <span class="w" style="font-weight: var(--weight-regular)">Antaeon<small>--weight-regular 400</small></span>
         <span class="w" style="font-weight: var(--weight-medium)">Antaeon<small>--weight-medium 500</small></span>
+        <span class="w" style="font-weight: var(--weight-display)">Antaeon<small>--weight-display 560</small></span>
         <span class="w" style="font-weight: var(--weight-semibold)">Antaeon<small>--weight-semibold 600</small></span>
       </div>
       <p class="intro">350 is the skip label's step: light text on the board gains apparent weight, so it sits under the nav's numeric 400.</p>
@@ -472,12 +477,14 @@
         <div class="row"><code>--tracking-wide</code><span class="val">0.01em</span><span style="letter-spacing: var(--tracking-wide)">Book a call</span></div>
         <div class="row"><code>--tracking-wider</code><span class="val">0.02em</span><span style="letter-spacing: var(--tracking-wider)">Skip the film</span></div>
         <div class="row"><code>--tracking-widest</code><span class="val">0.03em</span><span style="letter-spacing: var(--tracking-widest)">Antaeon</span></div>
+        <div class="row"><code>--tracking-tight</code><span class="val">-0.015em</span><span style="letter-spacing: var(--tracking-tight)">Antaeon</span></div>
         <div class="row"><code>--tracking-display</code><span class="val">0.04em</span><span style="letter-spacing: var(--tracking-display)">Antaeon</span></div>
         <div class="row"><code>--tracking-caps</code><span class="val">0.08em</span><span style="letter-spacing: var(--tracking-caps); text-transform: uppercase; font-size: var(--type-nav)">Antaeon</span></div>
       </div>
 
       <div class="rows" style="margin-top: var(--space-8)">
-        <div class="row"><code>--leading-tight</code><span class="val">1.1</span><span class="val">display lines</span></div>
+        <div class="row"><code>--leading-display</code><span class="val">1.05</span><span class="val">hero display lines</span></div>
+        <div class="row"><code>--leading-tight</code><span class="val">1.1</span><span class="val">tight stacks</span></div>
         <div class="row"><code>--leading-heading</code><span class="val">1.25</span><span class="val">titles</span></div>
         <div class="row"><code>--leading-caption</code><span class="val">1.38</span><span class="val">anchored captions</span></div>
         <div class="row"><code>--leading-stage</code><span class="val">1.45</span><span class="val">stage text</span></div>

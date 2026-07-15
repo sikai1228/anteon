@@ -184,6 +184,22 @@ body {
   text-decoration: none;
 }
 
+/* The mark leads the name in the header and the footer alike: one inline row,
+ * centered, a small gap before the letters. */
+.page-header .wordmark,
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* The mark rides the wordmark's own size, a hair under its cap height. */
+.brand-mark {
+  height: 0.82em;
+  width: auto;
+  display: block;
+}
+
 .footer-tag {
   margin: var(--space-3) 0 0;
   color: var(--ink-soft);
@@ -522,6 +538,28 @@ body {
   color: var(--ink-soft);
 }
 
+/* The alternate contact points at the same staged book a call the header
+ * carries, so a click does nothing yet. It sits inline in the sentence as a
+ * plain underlined word, not a boxed control. */
+.contact-here {
+  font: inherit;
+  color: var(--ink-muted);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.contact-here:hover { color: var(--ink); }
+
+.contact-here:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
 /* The form: labels stacked over inputs, a steady gap between fields. */
 .contact-form {
   display: flex;
@@ -556,7 +594,14 @@ body {
 }
 
 .contact-form textarea {
+  /* The message field grows with its content. min-height keeps the empty
+   * field at its original size, and it stops growing near half the viewport
+   * and scrolls from there. Browsers without field-sizing keep the fixed
+   * min-height and the manual resize handle below. */
+  field-sizing: content;
   min-height: var(--space-40);
+  max-height: 50vh;
+  overflow-y: auto;
   resize: vertical;
 }
 
@@ -568,13 +613,16 @@ body {
   border-color: var(--focus);
 }
 
-/* Staged submit: outlined and hover-arrowed like the header's book a call, so
- * the two staged controls read as one family. It is type="button" with no
- * handler, so it posts nowhere this round. */
+/* Staged submit, now the full width of the form. It stays outlined and
+ * hover-arrowed like the header's book a call, so the two controls read as one
+ * family. This round it validates the fields and confirms optimistically, and
+ * posts nowhere until an endpoint exists. */
 .contact-submit {
-  align-self: flex-start;
-  display: inline-flex;
+  position: relative;
+  display: flex;
+  justify-content: center;
   align-items: center;
+  width: 100%;
   margin-top: var(--space-1);
   font-family: var(--sans);
   font-size: var(--type-nav);
@@ -596,36 +644,72 @@ body {
   outline-offset: 2px;
 }
 
-/* The arrow rests collapsed, nudged 5px left, and slides in on the right at
- * hover. The 5px and 15px are the header control's own glyph geometry, taken
- * verbatim from it; no token sits at either. */
+/* The arrow is placed absolutely at the right edge, resting nudged 4px left at
+ * zero opacity and sliding into place on hover and focus. The label stays
+ * centered the whole time, since the arrow no longer takes part in the flow.
+ * The 15px is the header control's own glyph size, taken verbatim from it. */
 .contact-submit .cs-arrow {
   display: grid;
   place-items: center;
-  width: 0;
-  margin-left: 0;
+  position: absolute;
+  right: var(--control-pad-x);
+  top: 50%;
   opacity: 0;
-  overflow: hidden;
-  transform: translateX(-5px);
+  transform: translate(-4px, -50%);
   transition:
-    width var(--speed-move) var(--ease),
-    margin-left var(--speed-move) var(--ease),
     opacity var(--speed-quick) var(--ease),
     transform var(--speed-move) var(--ease);
 }
 
 .contact-submit:hover .cs-arrow,
 .contact-submit:focus-visible .cs-arrow {
-  width: 15px;
-  margin-left: var(--control-pad-y);
   opacity: 1;
-  transform: none;
+  transform: translate(0, -50%);
 }
 
 .contact-submit .cs-arrow svg { width: 15px; height: 15px; }
 
+/* On success the button itself becomes the confirmation: the same box and
+ * the same dimensions, tinted with the success ink, the arrow standing
+ * down. Typing anything new reopens the form and the button reverts. */
+.contact-submit.is-sent {
+  color: var(--status-success);
+  border-color: color-mix(in srgb, var(--status-success) 35%, transparent);
+  background: color-mix(in srgb, var(--status-success) 10%, transparent);
+  cursor: default;
+  opacity: 1;
+}
+
+.contact-submit.is-sent .cs-arrow { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .contact-submit .cs-arrow { transition: none; }
+}
+
+/* The status bar under the submit shows a validation result. It stays hidden
+ * until the script fills it, then takes the success or error ink with a
+ * matching hairline and a faint tint of the same. */
+.contact-status {
+  margin-top: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--type-nav);
+  line-height: var(--leading-body);
+  border: var(--border-hair) solid transparent;
+  border-radius: var(--radius-control);
+}
+
+.contact-status[hidden] { display: none; }
+
+.contact-status.is-success {
+  color: var(--status-success);
+  border-color: color-mix(in srgb, var(--status-success) 35%, transparent);
+  background: color-mix(in srgb, var(--status-success) 10%, transparent);
+}
+
+.contact-status.is-error {
+  color: var(--status-error);
+  border-color: color-mix(in srgb, var(--status-error) 35%, transparent);
+  background: color-mix(in srgb, var(--status-error) 10%, transparent);
 }
 
 /* Below the shell's mid breakpoint the two columns stack, the form following

@@ -14,10 +14,11 @@
  *
  * The script is data (one event list), so retiming is data editing. One
  * token-guarded rAF clock drives both panes: the race starts in view,
- * pauses off screen, holds the end state, then resets and replays; stale
- * frame chains die on the token check, so re-entry can never double the
- * clock. A fast forward control multiplies the race clock and resets with
- * each replay. Reduced motion renders both final states standing still. The
+ * pauses off screen, and holds its end state; stale frame chains die on
+ * the token check, so re-entry can never double the clock. The fast
+ * forward control multiplies the race clock; at the finish it becomes the
+ * reset, and a click replays from the top at real time. Reduced motion
+ * renders both final states standing still. The
  * terminal speaks static English on purpose: a depicted demo, outside
  * the page's i18n.
  */
@@ -52,11 +53,10 @@ const TYPE_MS = 32;
 const IN_VIEW = 0.4;
 /** The fast forward control's clock multiplier while engaged. */
 const FF_SPEED = 8;
-/** The end state holds this long after the last beat, then the loop
- * resets and replays. */
+/** The race is over at this point on the clock: every beat has fired and
+ * the end state stands. No auto replay; the fast forward control turns
+ * into a reset control and a click starts the race over. */
 const LAST_MS = 55000;
-const HOLD_MS = 6000;
-const CYCLE_MS = LAST_MS + HOLD_MS;
 
 const SCRIPT: readonly DemoEvent[] = [
   {
@@ -246,12 +246,21 @@ export function initTerminalDemo(): void {
   let running = false;
   let runToken = 0;
   let speed = 1;
+  let finished = false;
   let typers: Typer[] = [];
 
   // The fast forward control, bottom right of the card: one click runs the
-  // race at FF_SPEED, another returns it to real time, and every replay
-  // starts back at real time.
+  // race at FF_SPEED, another returns it to real time. Once the race is
+  // over the same control is the reset, and a click starts the race again
+  // from the top, back at real time.
   ffBtn?.addEventListener('click', () => {
+    if (finished) {
+      finished = false;
+      resetPanes();
+      ffBtn.classList.remove('is-reset');
+      ffBtn.title = 'Fast forward';
+      return;
+    }
     speed = speed === 1 ? FF_SPEED : 1;
     ffBtn.classList.toggle('is-on', speed !== 1);
   });
@@ -325,9 +334,17 @@ export function initTerminalDemo(): void {
       }
     }
 
-    // The end state holds, then the loop resets; the next frame refires
-    // the opening user line and the race replays.
-    if (elapsed >= CYCLE_MS) resetPanes();
+    // The race ends standing: the finish state stays up, and the fast
+    // forward control becomes the reset.
+    if (!finished && elapsed >= LAST_MS) {
+      finished = true;
+      speed = 1;
+      if (ffBtn) {
+        ffBtn.classList.remove('is-on');
+        ffBtn.classList.add('is-reset');
+        ffBtn.title = 'Play again';
+      }
+    }
 
     requestAnimationFrame((n) => frame(n, token));
   }
