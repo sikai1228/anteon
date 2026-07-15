@@ -698,6 +698,21 @@ canvas#gl {
   border: var(--border-hair) solid var(--line);
   border-radius: var(--radius-frame);
   background: var(--paper);
+  transition:
+    transform var(--speed-quick) var(--ease),
+    box-shadow var(--speed-quick) var(--ease);
+}
+
+/* The four-tile hover, restored for the full grid: the hovered cell grows
+ * a step and lifts onto a shadow. */
+.cell:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cell { transition: none; }
+  .cell:hover { transform: none; }
 }
 
 .cell-icon {

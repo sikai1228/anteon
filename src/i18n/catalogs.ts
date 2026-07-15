@@ -182,7 +182,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel4: 'cash',
     siteNote: 'The site begins here.',
     heroSub:
-      'The determinism layer for enterprise AI: a standard library of exact engines, and a compiler that builds yours from your traffic.',
+      'Your AI rebuilds solved algorithms, uses them once, and trashes them. Antaeon preloads 1,000+, indexes the APIs, and grows yours.',
     mediaStripLabel: 'Team from',
     libraryTitle: 'The work your AI keeps re-solving',
     libraryBody:
@@ -295,7 +295,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel4: 'dinero',
     siteNote: 'Aquí empieza el sitio.',
     heroSub:
-      'La capa de determinismo para la IA empresarial: motores exactos de serie, y un compilador que construye los tuyos desde tu tráfico.',
+      'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Antaeon precarga 1.000+, indexa las APIs y cultiva los tuyos.',
     mediaStripLabel: 'Equipo formado en',
     libraryTitle: 'El trabajo que tu IA resuelve una y otra vez',
     libraryBody:
