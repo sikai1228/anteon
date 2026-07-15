@@ -8,7 +8,7 @@
  * first scroll and never comes back.
  */
 
-import { setLocale } from '../i18n/i18n';
+import { wirePrefs } from './prefs';
 
 const EXPAND_IN = 0.015;
 const EXPAND_OUT = 0.06;
@@ -99,31 +99,9 @@ function frame(): void {
   requestAnimationFrame(frame);
 }
 
-// The footer's language pill, ported from the kit: a native details menu
-// with the expected dismissals (Escape, click or focus outside, and
-// selection). Choosing an option hands the locale to setLocale, which swaps
-// every string live and moves the pill's own label and checkmark; the pill's
-// initial state was already set by initI18n on boot.
-const lang = document.querySelector<HTMLDetailsElement>('.lang');
-if (lang) {
-  const close = () => lang.removeAttribute('open');
-  document.addEventListener('pointerdown', (e) => {
-    if (lang.open && !lang.contains(e.target as Node)) close();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && lang.open) close();
-  });
-  document.addEventListener('focusin', (e) => {
-    if (lang.open && !lang.contains(e.target as Node)) close();
-  });
-  for (const opt of lang.querySelectorAll<HTMLButtonElement>('.lang-opt')) {
-    opt.addEventListener('click', () => {
-      const l = opt.dataset.lang;
-      if (l === 'en' || l === 'es') setLocale(l);
-      close();
-    });
-  }
-}
+// The footer preference pills share one wiring with the shell pages, so
+// the footer behaves identically on every page.
+wirePrefs();
 
 // The hero word wheel, ported from EstateInventor's RotatingWord (a
 // Krea-style slot roll): the current and incoming words translate in
@@ -208,21 +186,6 @@ if (wheelEl && !document.documentElement.classList.contains('static')) {
   }
 }
 
-// The theme pill: selection state only for now — clicking moves the checked
-// segment; no theme engine sits behind it yet.
-const themeSwitch = document.querySelector<HTMLElement>('.theme-switch');
-if (themeSwitch) {
-  const opts = [...themeSwitch.querySelectorAll<HTMLButtonElement>('.theme-opt')];
-  for (const opt of opts) {
-    opt.addEventListener('click', () => {
-      for (const o of opts) {
-        o.setAttribute('aria-checked', o === opt ? 'true' : 'false');
-        o.classList.toggle('is-active', o === opt);
-      }
-    });
-  }
-}
-
 // Clicking the wordmark, in either header, returns to the very start as a
 // hard cut: the film runtime answers the event with an immediate Lenis jump
 // so the film cannot glide backward through its frames.
@@ -237,9 +200,9 @@ if (!document.documentElement.classList.contains('static')) {
   skipEl?.addEventListener('click', () => {
     // No teleport: race through the whole film in about 1.5 seconds, fast
     // enough to skip, slow enough that every frame flashes past, landing on
-    // the closing card. Any manual scroll cancels the ride.
+    // the site's hero, fully risen. Any manual scroll cancels the ride.
     const from = window.scrollY;
-    const to = 0.975 * span();
+    const to = span() + window.innerHeight;
     const T = RIDE_MS;
     let cancelled = false;
     const cancel = () => {

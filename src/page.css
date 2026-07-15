@@ -205,8 +205,14 @@ body {
   margin: 0 0 var(--space-1);
 }
 
-/* No hover arrow on the shells: the label alone lifts from muted to ink. */
+/* The same hover arrow as the main page: every link carries the fixed
+ * slot on the label's left, revealed on hover, so the footer behaves
+ * identically no matter the page. */
 .footer-col a {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: var(--space-2);
   color: var(--ink-muted);
   font-size: var(--type-nav);
   text-decoration: none;
@@ -214,6 +220,21 @@ body {
 }
 
 .footer-col a:hover { color: var(--ink); }
+
+.footer-arrow {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  opacity: 0;
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.footer-col a:hover .footer-arrow,
+.footer-col a:focus-visible .footer-arrow { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-arrow { transition: none; }
+}
 
 .footer-copy {
   grid-column: 1;
@@ -389,4 +410,65 @@ body {
 
   .footer-copy,
   .footer-prefs { grid-column: 1 / -1; }
+}
+
+/* ---- Legal prose ----
+ * The three legal shells (privacy, terms, cookie policy) share one document
+ * treatment: an effective-date line, a lead, then h2 sections, all held to
+ * the prose measure. Additive block; nothing above changes. */
+.doc-body {
+  max-width: var(--width-prose);
+  padding-bottom: var(--space-section-sm);
+}
+
+.doc-date {
+  margin: 0 0 var(--space-8);
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
+}
+
+.doc-lead {
+  margin: 0 0 var(--space-10);
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+.doc-body h2 {
+  margin: var(--space-10) 0 var(--space-3);
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+
+.doc-body p {
+  margin: 0 0 var(--space-4);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+.doc-body ul {
+  margin: 0 0 var(--space-4);
+  padding-left: var(--space-5);
+  color: var(--ink-muted);
+}
+
+.doc-body li {
+  margin: 0 0 var(--space-2);
+  line-height: var(--leading-body);
+}
+
+/* The storage keys read in mono, a shade smaller so they sit level with
+ * the prose around them. */
+.doc-body code {
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  color: var(--ink);
+}
+
+/* In-document links hold the ink like the rest of the shell chrome; the
+ * underline alone marks them. Accent stays earned elsewhere. */
+.doc-body a {
+  color: var(--ink);
 }
