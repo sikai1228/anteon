@@ -4,11 +4,12 @@
 
 * { box-sizing: border-box; }
 
-/* The outer layer is paper white; the film is the black box set into it.
- * Once the box expands to full bleed, the white is gone until the site. */
+/* The outer layer is paper white everywhere; the board lives inside the
+ * stage box, never on the page ground, so overscroll at any edge shows
+ * paper instead of a black sliver. */
 html {
   margin: 0;
-  background: var(--board);
+  background: var(--paper);
 }
 
 body {
@@ -186,6 +187,10 @@ html { scrollbar-width: thin; scrollbar-color: var(--slate) var(--board); }
 
 @media (prefers-reduced-motion: reduce) {
   .brand-mark img { transition: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header-nav { transition: none; }
 }
 
 /* The full-bleed band breaks out of its padded parent; clip the overshoot
@@ -599,11 +604,12 @@ canvas#gl {
   border-radius: var(--radius-control);
 }
 
-/* On a phone the subhead and its call stack; the call keeps the right
- * edge it owns on desktop. */
+/* On a phone the row would stack the call under the subhead; instead the
+ * quiet call leaves entirely at these widths. The header's book a call
+ * still carries the action. */
 @media (max-width: 640px) {
   .hero-intro { flex-direction: column; align-items: flex-start; gap: var(--space-4); }
-  .hero-intro .hero-bookcall { align-self: flex-end; }
+  .hero-intro .hero-bookcall { display: none; }
 }
 
 /* The terminal placeholder: a depicted window reserving the demo's home below
@@ -1506,7 +1512,30 @@ html.static .caption {
 .nav-toggle { display: none; }
 
 @media (max-width: 640px) {
-  .header-nav { display: none; }
+  /* The sheet is always in the header, collapsed to nothing; opening
+   * animates its height, so the bottom hairline gets pushed down and the
+   * links appear with the movement instead of popping in. */
+  .header-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-4);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0 var(--chrome-pad-x);
+    background: var(--paper);
+    border-bottom: var(--border-hair) solid var(--line);
+    max-height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    transition:
+      max-height var(--speed-settle) var(--ease),
+      padding var(--speed-settle) var(--ease),
+      visibility 0s linear var(--speed-settle);
+  }
 
   .nav-toggle {
     display: grid;
@@ -1524,18 +1553,19 @@ html.static .caption {
 
   #chrome.nav-open .header-nav,
   #site-header.nav-open .header-nav {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: var(--space-4);
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin: 0;
+    max-height: 360px;
     padding: var(--space-4) var(--chrome-pad-x) var(--space-5);
-    background: var(--paper);
-    border-bottom: var(--border-hair) solid var(--line);
+    visibility: visible;
+    transition:
+      max-height var(--speed-settle) var(--ease),
+      padding var(--speed-settle) var(--ease);
+  }
+
+  /* While the sheet is open, the header's own divider yields: one paper
+   * surface from the bar through the sheet to its traveling bottom line. */
+  #site-header.nav-open::after {
+    opacity: 0;
+    transition: opacity var(--speed-quick) var(--ease);
   }
 }
   /* Inside the sheet, book a call rides as a plain link: no box, no
