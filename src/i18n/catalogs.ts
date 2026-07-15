@@ -292,7 +292,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     cell16ExA: 'timezones, checksums, ocr',
     cell16ExB: 'tax math, dedupe, redlines',
     apiIndexTitle: 'A continuously updated index',
-    apiIndexTitle2: 'of every API on the internet',
+    apiIndexTitle2: 'of the top APIs on the internet',
     apiIndexLede:
       'Not everything deserves a new engine. Antaeon collates the internet\u2019s best APIs, ranks them with its own quality metrics, and when your AI is about to build something an API already does, recommends the right one.',
     apiCell1Name: 'Stripe',
@@ -327,7 +327,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8Desc: 'The index runs far past this page, ranked by metrics that stay current.',
     apiCell8ExA: 'ask for any api',
     apiCell8ExB: 'ranked, then routed',
-    compilerTitle: 'Your firm\u2019s own proprietary library',
+    compilerTitle: 'Your firm\u2019s personal, proprietary, and self-improving library',
     compilerBody:
       'Antaeon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs so you can watch it pay for itself.',
     compilerStep1Title: 'Watch',
@@ -441,7 +441,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     cell16ExA: 'husos horarios, checksums, ocr',
     cell16ExB: 'cálculo fiscal, dedupe, cotejos',
     apiIndexTitle: 'Un índice en continua actualización',
-    apiIndexTitle2: 'de todas las API de internet',
+    apiIndexTitle2: 'de las principales API de internet',
     apiIndexLede:
       'No todo merece un motor nuevo. Antaeon reúne las mejores API de internet, las clasifica con sus propias métricas de calidad y, cuando tu IA está a punto de construir algo que una API ya hace, te recomienda la adecuada.',
     apiCell1Name: 'Stripe',
@@ -476,7 +476,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8Desc: 'El índice va mucho más allá de esta página, clasificado con métricas siempre al día.',
     apiCell8ExA: 'pide cualquier api',
     apiCell8ExB: 'clasificada y enrutada',
-    compilerTitle: 'La biblioteca propietaria de tu empresa',
+    compilerTitle: 'La biblioteca personal y propietaria de tu empresa, que se mejora sola',
     compilerBody:
       'Antaeon compila algoritmos únicos a partir del trabajo real de tu empresa y los comparte con todos tus empleados. La biblioteca crece sin parar, y un backend registra el uso y los KPI, para que veas cómo se amortiza sola.',
     compilerStep1Title: 'Observa',

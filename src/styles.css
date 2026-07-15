@@ -924,10 +924,9 @@ html[data-boot="site"] #skip {
  * internal detail preserved), so the row needs no filter and no opacity. */
 .media-strip {
   width: 100vw;
-  /* One step over the section rhythm: the heading below the band carries
-   * its own leading above its ink and the card above throws its shadow into
-   * the gap, so the extra 16px makes the white read equal on both sides. */
-  margin: calc(var(--space-section) + var(--space-4)) 0 0 calc(50% - 50vw);
+  /* The section rhythm outside the hairlines: 80 of white above the top
+   * line, and the library section's own 80 below the bottom line. */
+  margin: var(--space-section) 0 0 calc(50% - 50vw);
   /* The section rhythm lives outside the hairlines; inside, the logos
    * keep their tighter own air. */
   padding-block: var(--space-10);
