@@ -10,10 +10,21 @@
 
 const EXPAND_IN = 0.015;
 const EXPAND_OUT = 0.06;
-const BOX_TOP = 84;
-const BOX_INSET = 17;
-const BOX_RADIUS = 10;
 const SKIP_DISMISS_MS = 300;
+
+// The box geometry and the ride's length come from tokens.css, so the token
+// sheet stays the single source; the fallbacks repeat its shipped values.
+const tokens = getComputedStyle(document.documentElement);
+
+function tokenNum(name: string, fallback: number): number {
+  const v = parseFloat(tokens.getPropertyValue(name));
+  return Number.isFinite(v) ? v : fallback;
+}
+
+const BOX_TOP = tokenNum('--chrome-header', 84);
+const BOX_INSET = tokenNum('--chrome-inset', 17);
+const BOX_RADIUS = tokenNum('--radius-frame', 10);
+const RIDE_MS = tokenNum('--speed-ride', 1.5) * 1000;
 
 function clamp01(x: number): number {
   return x < 0 ? 0 : x > 1 ? 1 : x;
@@ -100,7 +111,7 @@ if (!document.documentElement.classList.contains('static')) {
     // the closing card. Any manual scroll cancels the ride.
     const from = window.scrollY;
     const to = 0.975 * span();
-    const T = 1500;
+    const T = RIDE_MS;
     let cancelled = false;
     const cancel = () => {
       cancelled = true;

@@ -9,6 +9,7 @@ export default defineConfig({
       input: {
         main: new URL('index.html', import.meta.url).pathname,
         credits: new URL('credits.html', import.meta.url).pathname,
+        tokens: new URL('tokens.html', import.meta.url).pathname,
       },
     },
   },

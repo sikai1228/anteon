@@ -1,39 +1,6 @@
-/* One board, one value. Chalk white on near-black slate, nothing else. */
-
-/* Self-hosted faces: Hanken Grotesk carries everything outside the film;
- * IM Fell English, the Oxford Fell Types of the 1670s, Newton's own
- * decade, is the film's serif on every device. */
-@font-face {
-  font-family: 'IM Fell English';
-  src: url('/fonts/im-fell-english-regular-latin.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'IM Fell English';
-  src: url('/fonts/im-fell-english-italic-latin.woff2') format('woff2');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Hanken Grotesk';
-  src: url('/fonts/hanken-grotesk-latin.woff2') format('woff2');
-  font-weight: 100 900;
-  font-display: swap;
-}
-
-:root {
-  --chalk: #eceae4;
-  --board: #0b0b0d;
-  --paper: #ffffff;
-  --ink: #17171a;
-  --serif: "IM Fell English", Georgia, "Times New Roman", serif;
-  --sans: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
-}
+/* One board, one value. Chalk white on near-black slate, nothing else.
+ * Every number and color here is a token from tokens.css (loaded first);
+ * this sheet only arranges them. */
 
 * { box-sizing: border-box; }
 
@@ -51,7 +18,7 @@ body {
   font-family: var(--serif);
 }
 
-html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
+html { scrollbar-width: thin; scrollbar-color: var(--slate) var(--board); }
 
 /* The page chrome: a slim black header above the film's box. It fades as
  * the box expands to full bleed. */
@@ -60,19 +27,19 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   top: 0;
   left: 0;
   right: 0;
-  height: 84px;
+  height: var(--chrome-header);
   display: flex;
   align-items: center;
-  padding: 0 22px;
+  padding: 0 var(--chrome-pad-x);
   background: var(--paper);
-  z-index: 5;
+  z-index: var(--z-header);
   pointer-events: none;
 }
 
 #wordmark {
   font-family: var(--sans);
-  font-size: 21px;
-  letter-spacing: 0.03em;
+  font-size: var(--type-wordmark);
+  letter-spacing: var(--tracking-widest);
   color: var(--ink);
 }
 
@@ -81,19 +48,19 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: var(--chrome-nav-gap);
   pointer-events: auto;
 }
 
 .header-nav a {
   position: relative;
   font-family: var(--sans);
-  font-size: 15px;
-  letter-spacing: 0.01em;
+  font-size: var(--type-nav);
+  letter-spacing: var(--tracking-wide);
   color: var(--ink);
   text-decoration: none;
-  opacity: 0.72;
-  transition: opacity 0.2s ease;
+  opacity: var(--o-muted);
+  transition: opacity var(--speed-quick) var(--ease);
 }
 
 /* The underline draws itself left to right, exactly the text's width. */
@@ -103,11 +70,11 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   left: 0;
   right: 0;
   bottom: -3px;
-  height: 1px;
+  height: var(--border-hair);
   background: var(--ink);
   transform: scaleX(0);
   transform-origin: left;
-  transition: transform 0.25s ease;
+  transition: transform var(--speed-move) var(--ease);
 }
 
 .header-nav a:hover {
@@ -124,17 +91,17 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   display: inline-flex;
   align-items: center;
   font-family: var(--sans);
-  font-size: 15px;
-  letter-spacing: 0.01em;
+  font-size: var(--type-nav);
+  letter-spacing: var(--tracking-wide);
   color: var(--ink);
   background: var(--paper);
-  border: 1.5px solid var(--ink);
-  border-radius: 8px;
-  padding: 9px 17px;
+  border: var(--border-control) solid var(--ink);
+  border-radius: var(--radius-control);
+  padding: var(--control-pad-y) var(--control-pad-x);
   cursor: pointer;
   /* One opacity mutes text and hairline to exactly the links' grey. */
-  opacity: 0.72;
-  transition: opacity 0.2s ease;
+  opacity: var(--o-muted);
+  transition: opacity var(--speed-quick) var(--ease);
 }
 
 .book-call:hover { opacity: 1; }
@@ -147,12 +114,16 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
   opacity: 0;
   overflow: hidden;
   transform: translateX(-5px);
-  transition: width 0.25s ease, margin-left 0.25s ease, opacity 0.2s ease, transform 0.25s ease;
+  transition:
+    width var(--speed-move) var(--ease),
+    margin-left var(--speed-move) var(--ease),
+    opacity var(--speed-quick) var(--ease),
+    transform var(--speed-move) var(--ease);
 }
 
 .book-call:hover .bc-arrow {
   width: 15px;
-  margin-left: 9px;
+  margin-left: var(--control-pad-y);
   opacity: 1;
   transform: none;
 }
@@ -172,17 +143,17 @@ html { scrollbar-width: thin; scrollbar-color: #2a2a2e var(--board); }
  * so the film expands to full bleed in the same breath. */
 #stage {
   position: fixed;
-  top: var(--box-top, 84px);
-  left: var(--box-inset, 17px);
-  right: var(--box-inset, 17px);
-  bottom: var(--box-inset, 17px);
+  top: var(--box-top, var(--chrome-header));
+  left: var(--box-inset, var(--chrome-inset));
+  right: var(--box-inset, var(--chrome-inset));
+  bottom: var(--box-inset, var(--chrome-inset));
   background: var(--board);
-  border: 1px solid var(--box-border, #dedcd5);
-  border-radius: var(--box-radius, 10px);
+  border: var(--border-hair) solid var(--box-border, var(--line));
+  border-radius: var(--box-radius, var(--radius-frame));
   overflow: hidden;
   /* Above the header: the expanding box covers the solid white chrome
    * instead of the chrome fading (a fade reads as a gray band). */
-  z-index: 6;
+  z-index: var(--z-stage);
 }
 
 /* The board fills the viewport regardless of the box, so expansion reads as
@@ -201,30 +172,30 @@ canvas#gl,
   bottom: 22px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--control-gap);
   font-family: var(--sans);
-  font-size: 16px;
+  font-size: var(--type-label);
   /* Optically matched: light-on-dark gains apparent weight, so the label
    * sits below the nav links' numeric 400. */
-  font-weight: 350;
-  letter-spacing: 0.02em;
+  font-weight: var(--weight-light);
+  letter-spacing: var(--tracking-wider);
   color: var(--chalk);
-  opacity: 0.88;
+  opacity: var(--o-rest);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--speed-settle) var(--ease);
   pointer-events: auto;
 }
 
 #skip .skip-key {
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border: 1.5px solid var(--chalk);
-  border-radius: 8px;
+  width: var(--control-key);
+  height: var(--control-key);
+  border: var(--border-control) solid var(--chalk);
+  border-radius: var(--radius-control);
 }
 
 /* One full spin per hover; ends where it began, so no exit snap, and a
@@ -234,7 +205,7 @@ canvas#gl,
 }
 
 #skip:hover .skip-key svg {
-  animation: skip-spin 0.55s ease;
+  animation: skip-spin var(--speed-spin) var(--ease);
 }
 
 #skip:hover { opacity: 1; }
@@ -270,15 +241,15 @@ canvas#gl {
   place-items: center;
   text-align: center;
   opacity: 0;
-  padding: 0 6vw;
+  padding: 0 var(--stage-pad);
   will-change: opacity, transform;
 }
 
 .caption span {
-  max-width: 26ch;
-  font-size: clamp(20px, 3vw, 34px);
-  line-height: 1.45;
-  letter-spacing: 0.01em;
+  max-width: var(--width-quote);
+  font-size: var(--type-stage);
+  line-height: var(--leading-stage);
+  letter-spacing: var(--tracking-wide);
   text-wrap: balance;
 }
 
@@ -292,9 +263,9 @@ canvas#gl {
 }
 
 .caption.anchored span {
-  font-size: clamp(21px, 2.6vw, 31px);
-  line-height: 1.38;
-  text-shadow: 0 0 16px rgba(236, 234, 228, 0.22);
+  font-size: var(--type-caption);
+  line-height: var(--leading-caption);
+  text-shadow: var(--glow-caption);
 }
 
 /* Liquid reveal: the runtime drives each word's opacity and rise from the
@@ -305,15 +276,15 @@ canvas#gl {
 }
 
 .caption.card span {
-  font-size: clamp(26px, 4.2vw, 46px);
-  text-shadow: 0 0 22px rgba(236, 234, 228, 0.26);
+  font-size: var(--type-card);
+  text-shadow: var(--glow-card);
   /* The closing statements hold one line. */
   max-width: none;
   white-space: nowrap;
 }
 
 .caption.small span {
-  font-size: clamp(14px, 1.6vw, 18px);
+  font-size: var(--type-small);
   opacity: 0.8;
 }
 
@@ -325,15 +296,15 @@ canvas#gl {
   display: grid;
   place-content: center;
   text-align: center;
-  padding: 0 6vw;
+  padding: 0 var(--stage-pad);
   will-change: opacity, transform;
 }
 
 #quote blockquote {
   margin: 0 0 1.1em;
-  font-size: clamp(22px, 3.4vw, 40px);
-  line-height: 1.5;
-  max-width: 26ch;
+  font-size: var(--type-quote);
+  line-height: var(--leading-quote);
+  max-width: var(--width-quote);
   text-wrap: balance;
   /* Hug the rendered lines so the shared column ends at the text's own ink
    * edge; the attribution right-aligns to that, not to a wider box. */
@@ -342,10 +313,10 @@ canvas#gl {
 }
 
 #quote figcaption {
-  font-size: clamp(13px, 1.4vw, 16px);
+  font-size: var(--type-note);
   font-style: italic;
-  opacity: 0.62;
-  letter-spacing: 0.02em;
+  opacity: var(--o-soft);
+  letter-spacing: var(--tracking-wider);
   /* Right-aligned to the quote block's own edge: the figcaption stretches to
    * the grid column the blockquote defines, so its right edge is the quote's. */
   text-align: right;
@@ -358,7 +329,7 @@ canvas#gl {
   color: var(--ink);
   font-family: var(--sans);
   position: relative;
-  z-index: 7;
+  z-index: var(--z-site);
   min-height: 100vh;
   display: grid;
   place-content: center;
@@ -366,8 +337,8 @@ canvas#gl {
   gap: 0.6em;
   /* Enters as a box with the film box's side breathing, then grows to full
    * width as it rises; chrome.ts drives the vars from the entry progress. */
-  margin: 0 var(--site-inset, 17px);
-  border-radius: var(--site-radius, 10px) var(--site-radius, 10px) 0 0;
+  margin: 0 var(--site-inset, var(--chrome-inset));
+  border-radius: var(--site-radius, var(--radius-frame)) var(--site-radius, var(--radius-frame)) 0 0;
 }
 
 /* The site's own header: the wordmark lands where the standard header sits. */
@@ -376,22 +347,27 @@ canvas#gl {
   top: 0;
   left: 0;
   right: 0;
-  height: 84px;
+  height: var(--chrome-header);
   display: flex;
   align-items: center;
-  padding: 0 22px;
+  padding: 0 var(--chrome-pad-x);
   text-align: left;
 }
 
 #site-header .site-wordmark {
   font-family: var(--sans);
-  font-size: 21px;
-  letter-spacing: 0.03em;
+  font-size: var(--type-wordmark);
+  letter-spacing: var(--tracking-widest);
   color: var(--ink);
 }
 
-#logo { font-size: clamp(34px, 5vw, 64px); letter-spacing: 0.04em; margin: 0; font-weight: 500; }
-#site-note { opacity: 0.5; margin: 0; }
+#logo {
+  font-size: var(--type-display);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+  font-weight: var(--weight-medium);
+}
+#site-note { opacity: var(--o-faint); margin: 0; }
 
 /* Static mode: reduced motion or no WebGL. The runtime adds .static to <html>. */
 html.static #film { height: auto; }
@@ -414,15 +390,15 @@ html.static .caption {
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 10;
+  z-index: var(--z-overlay);
   display: flex;
-  gap: 10px;
+  gap: var(--space-3);
   align-items: center;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   background: rgba(10, 10, 12, 0.86);
-  border-top: 1px solid #26262b;
-  font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
-  color: #b9b7b0;
+  border-top: var(--border-hair) solid var(--line-board);
+  font: var(--type-micro)/1.4 var(--mono);
+  color: var(--ash);
 }
 
 #debug input[type="range"] { flex: 1; }
