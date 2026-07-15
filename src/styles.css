@@ -1509,37 +1509,15 @@ html.static .caption {
 
 #debug input[type="range"] { flex: 1; }
 #debug .t { min-width: 64px; text-align: right; }
-/* On small screens: the nav folds into a three line menu. The links
- * keep their language; they just arrive as a dropdown sheet under the
- * header when the toggle opens. */
+/* On small screens the nav folds into a three line menu. The sheet is one
+ * panel that lives in the header at all times, covering just the bar when
+ * closed and growing downward on open, so its bottom hairline is the
+ * divider and travels down with the reveal. The paper and the frost sit on
+ * the panel, warm from first paint, so opening never toggles a backdrop on
+ * and the page never flashes through the bar. */
 .nav-toggle { display: none; }
 
 @media (max-width: 640px) {
-  /* The sheet is always in the header, collapsed to nothing; opening
-   * animates its height, so the bottom hairline gets pushed down and the
-   * links appear with the movement instead of popping in. */
-  .header-nav {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-4);
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin: 0;
-    padding: 0 var(--chrome-pad-x);
-    background: var(--paper);
-    border-bottom: var(--border-hair) solid var(--line);
-    max-height: 0;
-    overflow: hidden;
-    visibility: hidden;
-    transition:
-      max-height var(--speed-settle) var(--ease),
-      padding var(--speed-settle) var(--ease),
-      visibility 0s linear var(--speed-settle);
-  }
-
   .nav-toggle {
     display: grid;
     place-items: center;
@@ -1554,43 +1532,54 @@ html.static .caption {
     pointer-events: auto;
   }
 
+  .header-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin: 0;
+    /* No top padding: it cannot compress under the closed max-height and
+     * would leave the panel hanging below the bar. The bar reservation is a
+     * margin on the first link instead, which the clip absorbs. */
+    padding: 0 var(--chrome-pad-x) var(--space-5);
+    max-height: var(--chrome-header);
+    overflow: hidden;
+    background: var(--paper);
+    border-bottom: var(--border-hair) solid var(--line);
+    transform: translateZ(0);
+    transition: max-height var(--speed-settle) var(--ease);
+  }
+
   #chrome.nav-open .header-nav,
   #site-header.nav-open .header-nav {
-    max-height: 360px;
-    padding: var(--space-4) var(--chrome-pad-x) var(--space-5);
-    visibility: visible;
-    transition:
-      max-height var(--speed-settle) var(--ease),
-      padding var(--speed-settle) var(--ease);
+    max-height: 400px;
   }
 
-  /* While the sheet is open, the header's own divider yields: one paper
-   * surface from the bar through the sheet to its traveling bottom line. */
-  #site-header.nav-open::after {
-    opacity: 0;
-    transition: opacity var(--speed-quick) var(--ease);
+  /* The bar's reserved space: the first link clears the header height plus
+   * a step, and the panel clips it away while closed. */
+  .header-nav > :first-child {
+    margin-top: calc(var(--chrome-header) + var(--space-4));
   }
 
-  /* One frosted panel, not two: nested backdrop filters cannot stack, so
-   * the open header goes clear and the sheet takes the frost, sliding up
-   * underneath the bar to blur the page for both as a single surface. */
-  #site-header.nav-open {
+  #site-header {
     background: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
-  #site-header.nav-open .header-nav {
-    top: 0;
-    z-index: -1;
-    padding-top: calc(var(--chrome-header) + var(--space-4));
+  #site-header::after { display: none; }
+
+  #site-header .header-nav {
     background: var(--frost);
     -webkit-backdrop-filter: blur(var(--frost-blur));
     backdrop-filter: blur(var(--frost-blur));
   }
-}
-  /* Inside the sheet, book a call rides as a plain link: no box, no
-   * arrow, the same muted ink and drawn underline as its neighbors. */
+
   #chrome.nav-open .header-nav .book-call,
   #site-header.nav-open .header-nav .book-call {
     border: none;
@@ -1619,4 +1608,4 @@ html.static .caption {
 
   #chrome.nav-open .header-nav .book-call:hover::after,
   #site-header.nav-open .header-nav .book-call:hover::after { transform: scaleX(1); }
-
+}

@@ -31,23 +31,24 @@ body {
 /* The standard site header: a white bar, the wordmark home on the left, the
  * shared nav on the right, closed by a hairline. Mirrors #chrome and the
  * tokens page's .bar. */
+/* One unified header on every page: the shell header renders like the
+ * landing's sticky frosted site header, a blurred bar over scrolling
+ * content with a hairline beneath. */
 .page-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
   display: flex;
   align-items: center;
   height: var(--chrome-header);
   padding: 0 var(--chrome-pad-x);
-  background: var(--paper);
+  background: var(--frost);
+  -webkit-backdrop-filter: blur(var(--frost-blur));
+  backdrop-filter: blur(var(--frost-blur));
   border-bottom: var(--border-hair) solid var(--line);
 }
 
 
-
-@media (max-width: 640px) {
-  .page-header {
-    position: relative;
-    z-index: var(--z-header);
-  }
-}
 
 /* The wordmark is the way home. */
 .page-header .wordmark {
@@ -608,8 +609,6 @@ a.footer-brand:hover .brand-mark .hand-r {
   background: none;
   border: 0;
   padding: 0;
-  text-decoration: underline;
-  text-underline-offset: 2px;
   cursor: pointer;
   transition: color var(--speed-quick) var(--ease);
 }
@@ -782,37 +781,12 @@ a.footer-brand:hover .brand-mark .hand-r {
     margin-top: var(--space-6);
   }
 }
-/* On small screens: the nav folds into a three line menu. The links
- * keep their language; they just arrive as a dropdown sheet under the
- * header when the toggle opens. */
+/* On small screens the nav folds into a three line menu: one solid panel
+ * in the header, covering the bar when closed and growing down on open, its
+ * border the divider that travels with the reveal. */
 .nav-toggle { display: none; }
 
 @media (max-width: 640px) {
-  /* The sheet is always in the header, collapsed to nothing; opening
-   * animates its height, so the bottom hairline gets pushed down and the
-   * links appear with the movement instead of popping in. */
-  .header-nav {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-4);
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    margin: 0;
-    padding: 0 var(--chrome-pad-x);
-    background: var(--paper);
-    border-bottom: var(--border-hair) solid var(--line);
-    max-height: 0;
-    overflow: hidden;
-    visibility: hidden;
-    transition:
-      max-height var(--speed-settle) var(--ease),
-      padding var(--speed-settle) var(--ease),
-      visibility 0s linear var(--speed-settle);
-  }
-
   .nav-toggle {
     display: grid;
     place-items: center;
@@ -827,22 +801,46 @@ a.footer-brand:hover .brand-mark .hand-r {
     pointer-events: auto;
   }
 
-  .page-header.nav-open .header-nav {
-    max-height: 360px;
-    padding: var(--space-4) var(--chrome-pad-x) var(--space-5);
-    visibility: visible;
-    transition:
-      max-height var(--speed-settle) var(--ease),
-      padding var(--speed-settle) var(--ease);
+  .page-header .header-nav {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin: 0;
+    /* No top padding: it cannot compress under the closed max-height and
+     * would leave the panel hanging below the bar. The bar reservation is a
+     * margin on the first link instead, which the clip absorbs. */
+    padding: 0 var(--chrome-pad-x) var(--space-5);
+    max-height: var(--chrome-header);
+    overflow: hidden;
+    background: var(--frost);
+    -webkit-backdrop-filter: blur(var(--frost-blur));
+    backdrop-filter: blur(var(--frost-blur));
+    border-bottom: var(--border-hair) solid var(--line);
+    transform: translateZ(0);
+    transition: max-height var(--speed-settle) var(--ease);
   }
 
-  /* While the sheet is open, the header's own divider yields: one paper
-   * surface from the bar through the sheet to its traveling bottom line. */
-  .page-header { transition: border-bottom-color var(--speed-quick) var(--ease); }
-  .page-header.nav-open { border-bottom-color: transparent; }
-}
-  /* Inside the sheet, book a call rides as a plain link: no box, no
-   * arrow, the same muted ink and drawn underline as its neighbors. */
+  .page-header.nav-open .header-nav { max-height: 400px; }
+
+  .page-header .header-nav > :first-child {
+    margin-top: calc(var(--chrome-header) + var(--space-4));
+  }
+
+  /* The bar clears so the frosted panel is the one surface, bar included,
+   * its border the divider that travels down as the sheet opens. */
+  .page-header {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-bottom-color: transparent;
+  }
+
   .page-header.nav-open .header-nav .book-call {
     border: none;
     background: none;
@@ -867,4 +865,4 @@ a.footer-brand:hover .brand-mark .hand-r {
   }
 
   .page-header.nav-open .header-nav .book-call:hover::after { transform: scaleX(1); }
-
+}

@@ -174,7 +174,6 @@ export interface Catalog {
   about: string;
   blog: string;
   contact: string;
-  credits: string;
   privacy: string;
   terms: string;
   cookiePolicy: string;
@@ -343,7 +342,6 @@ const CHROME: Record<Locale, ChromeStrings> = {
     about: 'About',
     blog: 'Blog',
     contact: 'Contact',
-    credits: 'Credits',
     privacy: 'Privacy',
     terms: 'Terms',
     cookiePolicy: 'Cookie policy',
@@ -493,7 +491,6 @@ const CHROME: Record<Locale, ChromeStrings> = {
     about: 'Nosotros',
     blog: 'Blog',
     contact: 'Contacto',
-    credits: 'Créditos',
     privacy: 'Privacidad',
     terms: 'Términos',
     cookiePolicy: 'Política de cookies',
