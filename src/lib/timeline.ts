@@ -76,32 +76,93 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     else window.scrollTo(0, px);
   }
 
-  // Deep link ?t=0.42: scroll there on load, seeding the damp so the camera
-  // does not glide in from the top. Lenis measures its limits on its own
-  // schedule and can clamp an early scrollTo back to zero, so the jump is
-  // applied immediately and re-applied across the first few frames until the
-  // scroll position actually sticks.
+  // Refresh keeps your place. Native restoration is disabled above (the film
+  // owns its scroll), so the position persists by hand: film progress, not
+  // pixels, so a resize between visits still lands the same beat. Stored per
+  // tab (sessionStorage): a same-tab reload resumes, a fresh visit starts the
+  // film from the top, and an explicit ?t deep link always wins.
+  // Two coordinates saved: film progress (beat-accurate, survives resize)
+  // and raw pixels, which carry positions BEYOND the film where progress
+  // clamps to 1 (the site pages under the film).
+  const SCROLL_KEY = 'antaeon-scroll';
+  function saveScroll(): void {
+    try {
+      const pos = lenis ? lenis.scroll : window.scrollY;
+      sessionStorage.setItem(SCROLL_KEY, progress().toFixed(5) + '|' + Math.round(pos));
+    } catch {
+      // Storage can be unavailable (private modes); losing resume is fine.
+    }
+  }
+  function onVisibility(): void {
+    if (document.visibilityState === 'hidden') saveScroll();
+  }
+  window.addEventListener('pagehide', saveScroll);
+  document.addEventListener('visibilitychange', onVisibility);
+
+  // Seed target: deep link ?t=0.42 first, else the stored resume point.
+  // Lenis measures its limits on its own schedule and can clamp an early
+  // scrollTo back to zero, so the jump is applied immediately and re-applied
+  // across the first few frames until the scroll position actually sticks;
+  // seeding the damp keeps the camera from gliding in from the top.
+  let seed: number | null = null;
+  let seedPx: number | null = null;
   const tParam = new URLSearchParams(window.location.search).get('t');
   if (tParam !== null) {
     const t = parseFloat(tParam);
-    if (!Number.isNaN(t)) {
-      const target = clamp01(t);
-      let tries = 0;
-      const apply = (): void => {
-        measure();
-        scrollToP(target);
-        sm = target;
-        tries += 1;
-        if (tries < 12 && Math.abs(progress() - target) > 0.002) {
-          requestAnimationFrame(apply);
+    if (!Number.isNaN(t)) seed = clamp01(t);
+  }
+  if (seed === null) {
+    try {
+      const stored = sessionStorage.getItem(SCROLL_KEY);
+      if (stored !== null) {
+        const [pStr, pxStr] = stored.split('|');
+        const p = parseFloat(pStr);
+        const px = parseFloat(pxStr);
+        if (Number.isFinite(p) && p < 0.9995) {
+          if (p > 0.0005) seed = clamp01(p);
+        } else if (Number.isFinite(px) && px > 0) {
+          // The viewer was below the film, on the site itself: pixels are
+          // the only meaningful coordinate there.
+          seedPx = px;
         }
-      };
-      apply();
+      }
+    } catch {
+      // No storage, no resume.
     }
+  }
+  if (seed !== null) {
+    const target = seed;
+    let tries = 0;
+    const apply = (): void => {
+      measure();
+      scrollToP(target);
+      sm = target;
+      tries += 1;
+      if (tries < 12 && Math.abs(progress() - target) > 0.002) {
+        requestAnimationFrame(apply);
+      }
+    };
+    apply();
+  } else if (seedPx !== null) {
+    const targetPx = seedPx;
+    let tries = 0;
+    const applyPx = (): void => {
+      if (lenis) lenis.scrollTo(targetPx, { immediate: true, force: true });
+      else window.scrollTo(0, targetPx);
+      sm = 1;
+      tries += 1;
+      const at = lenis ? lenis.scroll : window.scrollY;
+      if (tries < 12 && Math.abs(at - targetPx) > 2) {
+        requestAnimationFrame(applyPx);
+      }
+    };
+    applyPx();
   }
 
   function destroy(): void {
     window.removeEventListener('resize', measure);
+    window.removeEventListener('pagehide', saveScroll);
+    document.removeEventListener('visibilitychange', onVisibility);
     lenis?.destroy();
   }
 
