@@ -338,7 +338,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     compilerTitle: 'A personal, self-improving library precision-built for your firm',
     compilerBody:
       'Anteon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs so you can watch it pay for itself.',
-    footerTag: 'Your AI shouldn’t stand alone.',
+    footerTag: 'Solved problems should stay solved',
     company: 'Company',
     legal: 'Legal',
     about: 'About',
@@ -488,7 +488,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     compilerTitle: 'Una biblioteca personal y autooptimizable, hecha a la medida de tu empresa',
     compilerBody:
       'Anteon compila algoritmos únicos a partir del trabajo real de tu empresa y los comparte con todos tus empleados. La biblioteca crece sin parar, y un backend registra el uso y los KPI, para que veas cómo se amortiza sola.',
-    footerTag: 'Tu IA no debería estar sola.',
+    footerTag: 'Los problemas resueltos deberían seguir resueltos',
     company: 'Empresa',
     legal: 'Legal',
     about: 'Nosotros',
