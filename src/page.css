@@ -13,12 +13,14 @@ html::-webkit-scrollbar { display: none; width: 0; height: 0; }
 * { box-sizing: border-box; }
 
 /* A flex column holds the footer to the foot of these near-empty shells, the
- * same margin-top:auto move styles.css makes on #site. */
+ * same margin-top:auto move styles.css makes on #site. The top padding is
+ * the fixed header's reserved lane, so the flow starts under the bar. */
 body {
   margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: var(--chrome-header);
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
@@ -32,11 +34,16 @@ body {
  * shared nav on the right, closed by a hairline. Mirrors #chrome and the
  * tokens page's .bar. */
 /* One unified header on every page: the shell header renders like the
- * landing's sticky frosted site header, a blurred bar over scrolling
- * content with a hairline beneath. */
+ * landing's frosted site header, a blurred bar over scrolling content with
+ * a hairline beneath. Fixed at a pixel top, not sticky: a sticky bar
+ * re-seats itself against the viewport on every scroll step, and on a
+ * phone the URL bar's show and hide makes that re-seating visible as a
+ * few-pixel jitter. The body's padding below reserves the bar's height. */
 .page-header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: var(--z-header);
   display: flex;
   align-items: center;
@@ -164,6 +171,12 @@ body {
   color: var(--ink);
 }
 
+/* On a phone the page headline owns the full content width, gutter to
+ * gutter; any reading measure a page puts on it holds above this width. */
+@media (max-width: 640px) {
+  .page-main h1 { max-width: none; }
+}
+
 .page-empty {
   margin: 0;
   font-size: var(--type-body-lg);
@@ -235,16 +248,25 @@ body {
  * spark until the pointer leaves; leaving eases them open again. The
  * travel percentages are half the measured gap twice over: once because
  * each hand covers half the distance, once because the layer box is
- * doubled. */
-a.wordmark:hover .brand-mark .hand-l,
-a.footer-brand:hover .brand-mark .hand-l {
-  transform: translate(3.05%, -0.6%) scale(0.5);
+ * doubled. Gated to real pointers: on a touch screen :hover sticks after
+ * a tap with no pointer to leave, so touch runs on is-touched below. */
+@media (hover: hover) {
+  a.wordmark:hover .brand-mark .hand-l,
+  a.footer-brand:hover .brand-mark .hand-l {
+    transform: translate(3.05%, -0.6%) scale(0.5);
+  }
+
+  a.wordmark:hover .brand-mark .hand-r,
+  a.footer-brand:hover .brand-mark .hand-r {
+    transform: translate(-3.05%, 0.6%) scale(0.5);
+  }
 }
 
-a.wordmark:hover .brand-mark .hand-r,
-a.footer-brand:hover .brand-mark .hand-r {
-  transform: translate(-3.05%, 0.6%) scale(0.5);
-}
+/* The tap variant of the same touch: prefs.ts sets is-touched on the mark
+ * for three seconds, or until the first scroll, so the hands close and
+ * release on their own instead of holding a stuck hover. */
+.brand-mark.is-touched .hand-l { transform: translate(3.05%, -0.6%) scale(0.5); }
+.brand-mark.is-touched .hand-r { transform: translate(-3.05%, 0.6%) scale(0.5); }
 
 @media (prefers-reduced-motion: reduce) {
   .brand-mark img { transition: none; }
@@ -486,6 +508,28 @@ a.footer-brand:hover .brand-mark .hand-r {
     text-align: right;
     /* Tight under the pills: pull back most of the shared row gap. */
     margin-top: calc(-1 * var(--space-8));
+  }
+}
+
+/* On a phone the shared tracks turn cramped and labels wrap mid-phrase, so
+ * the columns stack under the brand instead, one per row and flush left.
+ * The hover arrow slot leaves with no hover to serve, and the pills and the
+ * rights line close the run on the same left edge. */
+@media (max-width: 640px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-10);
+  }
+  .footer-col { align-items: flex-start; }
+  .footer-col a { flex-direction: row; }
+  .footer-arrow { display: none; }
+  .footer-prefs { grid-column: 1; justify-self: start; }
+  .footer-copy {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+    /* Tight under the pills, on the smaller stacked row gap. */
+    margin-top: calc(-1 * var(--space-6));
   }
 }
 

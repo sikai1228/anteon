@@ -156,4 +156,29 @@ export function wirePrefs(): void {
       if (e.key === 'Escape') closeAll();
     });
   }
+
+  // The wordmark hands on touch: a tap leaves :hover stuck with no pointer
+  // to lift away, so the sheets gate the hover move to real pointers and a
+  // tap closes the hands through is-touched here instead. The touch
+  // releases three seconds on, or at the first scroll, whichever comes
+  // first, and a fresh tap resets the clock. Additive beside the wordmarks'
+  // own click handlers (home links and the landing's site-jump).
+  let handsTimer = 0;
+  let touchedMark: Element | null = null;
+  const releaseHands = (): void => {
+    window.clearTimeout(handsTimer);
+    touchedMark?.classList.remove('is-touched');
+    touchedMark = null;
+  };
+  window.addEventListener('scroll', releaseHands, { passive: true });
+  for (const w of document.querySelectorAll('#wordmark, .wordmark, .site-wordmark, .footer-brand')) {
+    const mark = w.querySelector('.brand-mark');
+    if (!mark) continue;
+    w.addEventListener('click', () => {
+      releaseHands();
+      touchedMark = mark;
+      mark.classList.add('is-touched');
+      handsTimer = window.setTimeout(releaseHands, 3000);
+    });
+  }
 }

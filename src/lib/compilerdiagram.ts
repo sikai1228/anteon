@@ -32,9 +32,19 @@ const VIEW_H = 293;
 /* Draw bounds sit flush with the viewBox edges, so the strokes fill the whole
  * SVG element. The wrapper's width is the header and footer content span (the
  * chrome padding in from each viewport edge), so the traffic ends exactly
- * under the wordmark on the left and the Book a call button on the right. */
+ * under the wordmark on the left and the Book a call button on the right.
+ * The right bound is scene.viewW: the fixed VIEW_W on desktop, and on a
+ * phone the drawable width layoutBox derives from the container. */
 const LEFT = 0;
-const RIGHT = VIEW_W;
+/* Below this viewport width the aspect lock decouples: the viewBox width
+ * tracks the container at one unit per CSS pixel while the height stays
+ * VIEW_H, so lane pitch, stroke weight, and the label render at their
+ * desktop pixel size and only the horizontal extent compresses. At and
+ * above it the field is the fixed VIEW_W and renders exactly as before. */
+const DESKTOP_MIN_VW = 900;
+/* The narrowest drawable width; a container thinner than this falls back
+ * to uniform scaling, far below any phone viewport. */
+const FIELD_MIN = 240;
 /* The empty band above the first lane (LANE_TOP) is tuned to equal the gap
  * from the last lane down to the box, so the figure's whitespace above and
  * below reads the same. With the box top at 232 and ten lanes 18 apart, 35
@@ -139,6 +149,11 @@ interface Link {
 interface Scene {
   host: HTMLElement;
   box: SVGRectElement;
+  label: SVGTextElement;
+  /** The drawable width in viewBox units. VIEW_W on desktop; on a phone
+   * layoutBox retunes it to the container so the field compresses only
+   * horizontally. Every horizontal plan reads it through sx. */
+  viewW: number;
   /** The box's horizontal span in viewBox units; layoutBox keeps it current so
    * connectors only ever drop within the box, never out at the field edges. */
   boxL: number;
@@ -200,6 +215,12 @@ function make<K extends keyof SVGElementTagNameMap>(
 }
 
 const laneY = (lane: number): number => LANE_TOP + lane * LANE_PITCH;
+
+/** Positions planned along the field (fork windows, spawn offsets) are tuned
+ * in the VIEW_W-unit desktop field; sx maps one into the current drawable
+ * width so the same plan compresses with the field. On desktop scene.viewW
+ * is VIEW_W and every value passes through unchanged. */
+const sx = (scene: Scene, x: number): number => (x * scene.viewW) / VIEW_W;
 
 const hseg = (a: number, b: number, y: number): string =>
   b > a ? `M${r1(a)} ${y}H${r1(b)}` : '';
@@ -282,6 +303,8 @@ function buildScene(host: HTMLElement): Scene {
   return {
     host,
     box,
+    label,
+    viewW: VIEW_W,
     boxL: BOX_LEFT,
     boxR: BOX_RIGHT,
     linesG,
@@ -302,28 +325,77 @@ function buildScene(host: HTMLElement): Scene {
   };
 }
 
-/** Pins the library box to the site's normal section width. The field breaks
- * out to the header and footer span, but the box should read at the width every
- * other section uses, so measure the section content box (the wrapper's padded
- * parent) against the field width and inset the rect symmetrically. The label
- * stays centred, so it needs no adjustment. */
+/** Sizes the drawable field and pins the library box to the site's normal
+ * section width. On desktop the field is the fixed VIEW_W. On a phone the
+ * aspect-locked viewBox would scale the whole figure down uniformly, so the
+ * viewBox width tracks the container at one unit per CSS pixel instead: the
+ * vertical layout and stroke weights render at their desktop size and only
+ * the horizontal extent compresses. The box then insets from the current
+ * field the way every other section insets from the break-out span, and the
+ * label re-centres on the field. */
 function layoutBox(scene: Scene): void {
   const svg = scene.host.querySelector('svg');
   const container = scene.host.parentElement;
   if (!svg || !container) return;
   const fieldW = svg.getBoundingClientRect().width;
   if (fieldW <= 0) return;
+  const w =
+    window.innerWidth < DESKTOP_MIN_VW
+      ? Math.max(FIELD_MIN, Math.round(fieldW))
+      : VIEW_W;
+  if (w !== scene.viewW) {
+    const prevW = scene.viewW;
+    scene.viewW = w;
+    svg.setAttribute('viewBox', `0 0 ${w} ${VIEW_H}`);
+    scene.label.setAttribute('x', String(w / 2));
+    rescaleField(scene, prevW);
+  }
   const cs = getComputedStyle(container);
   const contentW =
     container.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
   // The half difference, from screen pixels into viewBox units.
-  const inset = Math.max(0, ((fieldW - contentW) / 2) * (VIEW_W / fieldW));
+  const inset = Math.max(0, ((fieldW - contentW) / 2) * (scene.viewW / fieldW));
   const left = r1(inset);
-  const right = r1(VIEW_W - inset);
+  const right = r1(scene.viewW - inset);
   scene.boxL = left;
   scene.boxR = right;
   scene.box.setAttribute('x', String(left));
   scene.box.setAttribute('width', String(r1(right - left)));
+}
+
+/** After the drawable width changes mid-run (a rotation across the desktop
+ * boundary), carry the whole composition over proportionally: heads, fix
+ * points, fork plans, packets, and connector feet keep their relative
+ * positions, so full-span lines stay full-span and a fixed line's green
+ * still starts where its connector landed. One render then syncs the DOM,
+ * which matters when the loop is paused or reduced motion holds one frame. */
+function rescaleField(scene: Scene, prevW: number): void {
+  const k = scene.viewW / prevW;
+  for (const line of scene.lines) {
+    line.headX *= k;
+    if (Number.isFinite(line.fixX)) line.fixX *= k;
+    if (Number.isFinite(line.askX)) line.askX *= k;
+    if (Number.isFinite(line.branchAtX)) line.branchAtX *= k;
+    const b = line.branch;
+    if (b) {
+      b.forkX *= k;
+      if (Number.isFinite(b.rejoinX)) b.rejoinX *= k;
+      b.maxX = b.rejoinX === Infinity ? scene.viewW : b.rejoinX + LANE_PITCH;
+      b.headX = Math.min(b.headX * k, b.maxX);
+      if (b.packet) b.packet.x *= k;
+    }
+    for (const p of line.packets) p.x *= k;
+  }
+  for (const link of scene.links) {
+    const m = /^M([\d.-]+) /.exec(link.el.getAttribute('d') ?? '');
+    if (!m) continue;
+    const x = r1(parseFloat(m[1]) * k);
+    link.el.setAttribute(
+      'd',
+      link.up ? `M${x} ${BOX_TOP}V${link.line.y}` : `M${x} ${link.line.y}V${BOX_TOP}`,
+    );
+  }
+  renderAll(scene);
 }
 
 function addPacket(line: Line, x: number): Packet {
@@ -364,7 +436,7 @@ function addLine(scene: Scene, lane: number, tone: Tone, fate: Fate, headX: numb
     askedAt: 0,
     fixSent: false,
     fixed: false,
-    branchAtX: Math.random() < 0.9 ? 220 + Math.random() * 600 : Infinity,
+    branchAtX: Math.random() < 0.9 ? sx(scene, 220 + Math.random() * 600) : Infinity,
     headX,
     speed: rand(DRAW_SPEED),
     holdLeft: rand(HOLD_S),
@@ -375,7 +447,7 @@ function addLine(scene: Scene, lane: number, tone: Tone, fate: Fate, headX: numb
   scene.lines.push(line);
   scene.laneUsed[lane] = 'line';
   addPacket(line, headX > LEFT ? LEFT + Math.random() * (headX - LEFT) : LEFT);
-  addPacket(line, LEFT - 150 - Math.random() * 300);
+  addPacket(line, LEFT - sx(scene, 150 + Math.random() * 300));
   return line;
 }
 
@@ -391,7 +463,7 @@ function addBranch(scene: Scene, line: Line, lane: number, forkX: number, rejoin
     y0: line.y,
     y1: laneY(lane),
     headX: forkX,
-    maxX: rejoinX === Infinity ? RIGHT : rejoinX + LANE_PITCH,
+    maxX: rejoinX === Infinity ? scene.viewW : rejoinX + LANE_PITCH,
   };
   line.branch = branch;
   scene.laneUsed[lane] = 'branch';
@@ -457,7 +529,7 @@ function seed(scene: Scene, settled: boolean): void {
   otherLanes.forEach((lane, i) => {
     const tone = tones[i] ?? 'green';
     const fate: Fate = tone === 'red' ? (fates.pop() ?? 'fix') : 'green';
-    const headX = LEFT + (phases[i] ?? 1) * (RIGHT - LEFT);
+    const headX = LEFT + (phases[i] ?? 1) * (scene.viewW - LEFT);
     const line = addLine(scene, lane, tone, fate, headX);
     // A red already drawn past its fix point booted with the fix applied;
     // one still short of it will ask and be answered live.
@@ -470,13 +542,13 @@ function seed(scene: Scene, settled: boolean): void {
   });
 
   parentLanes.forEach((lane, i) => {
-    const parent = addLine(scene, lane, 'green', 'green', RIGHT);
+    const parent = addLine(scene, lane, 'green', 'green', scene.viewW);
     parent.branchAtX = Infinity;
     if (i === 0) {
-      const forkX = 320 + Math.random() * 120;
-      addBranch(scene, parent, lane + 1, forkX, forkX + 160 + Math.random() * 120);
+      const forkX = sx(scene, 320 + Math.random() * 120);
+      addBranch(scene, parent, lane + 1, forkX, forkX + sx(scene, 160 + Math.random() * 120));
     } else {
-      addBranch(scene, parent, lane + 1, 480 + Math.random() * 180, Infinity);
+      addBranch(scene, parent, lane + 1, sx(scene, 480 + Math.random() * 180), Infinity);
     }
     const branch = parent.branch;
     if (branch) {
@@ -569,8 +641,8 @@ function step(scene: Scene, dt: number): void {
 }
 
 function advanceLine(scene: Scene, line: Line, dt: number): void {
-  if (line.headX < RIGHT) {
-    line.headX = Math.min(line.headX + line.speed * dt, RIGHT);
+  if (line.headX < scene.viewW) {
+    line.headX = Math.min(line.headX + line.speed * dt, scene.viewW);
   } else if (!line.fading) {
     // A parent carrying a splitoff waits for it to reach the edge before
     // retiring, so the branch is never cut off mid-run and the field keeps its
@@ -585,7 +657,7 @@ function advanceLine(scene: Scene, line: Line, dt: number): void {
         // time and the rest stay drawn across. The randomised re-check spreads
         // the retirements instead of releasing them together.
         const full = scene.lines.reduce(
-          (n, l) => n + (!l.fading && l.headX >= RIGHT ? 1 : 0),
+          (n, l) => n + (!l.fading && l.headX >= scene.viewW ? 1 : 0),
           0,
         );
         if (full > MIN_SPAN) line.fading = true;
@@ -612,8 +684,8 @@ function advanceLine(scene: Scene, line: Line, dt: number): void {
   for (const p of line.packets) {
     p.x += p.speed * dt;
     // A packet never outruns the drawing head; it rides the tip instead.
-    if (p.x > line.headX - 6 && line.headX < RIGHT) p.x = line.headX - 6;
-    if (p.x > RIGHT) p.x = LEFT - 60 - Math.random() * 320;
+    if (p.x > line.headX - 6 && line.headX < scene.viewW) p.x = line.headX - 6;
+    if (p.x > scene.viewW) p.x = LEFT - sx(scene, 60 + Math.random() * 320);
   }
   if (branch?.packet) {
     const q = branch.packet;
@@ -664,7 +736,7 @@ function maybeBranch(scene: Scene, line: Line): void {
   // in and out.
   const rejoinX =
     Math.random() < 0.3
-      ? Math.min(forkX + 120 + Math.random() * 260, RIGHT - 120)
+      ? Math.min(forkX + sx(scene, 120 + Math.random() * 260), scene.viewW - sx(scene, 120))
       : Infinity;
   addBranch(scene, line, lane, forkX, rejoinX);
 }
@@ -681,7 +753,7 @@ function maintainBranches(scene: Scene): void {
   // screen. Older lines would make short-lived spurs and the count would sag.
   for (const line of scene.lines) {
     if (line.branch || line.fading || line.gone) continue;
-    if (line.headX < 180 || line.headX > 620) continue;
+    if (line.headX < sx(scene, 180) || line.headX > sx(scene, 620)) continue;
     if (toneAt(line, line.headX - 40) !== 'green') continue;
     const open = [line.lane - 1, line.lane + 1].filter(
       (n) => n >= 0 && n < LANE_COUNT && scene.laneUsed[n] === null,
@@ -812,7 +884,8 @@ function branchD(b: Branch): string {
   const elbow = Math.min(h, b.forkX + LANE_PITCH);
   parts.push(`L${r1(elbow)} ${r1(b.y0 + s * (elbow - b.forkX))}`);
   if (h > b.forkX + LANE_PITCH) {
-    const runEnd = Math.min(h, b.rejoinX === Infinity ? RIGHT : b.rejoinX);
+    // For a splitoff running to the edge, maxX is the drawable right bound.
+    const runEnd = Math.min(h, b.rejoinX === Infinity ? b.maxX : b.rejoinX);
     if (runEnd > elbow) parts.push(`L${r1(runEnd)} ${b.y1}`);
     if (b.rejoinX !== Infinity && h > b.rejoinX) {
       const back = Math.min(h, b.rejoinX + LANE_PITCH);

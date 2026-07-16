@@ -175,18 +175,27 @@ body {
  * spark until the pointer leaves; leaving eases them open again. The
  * travel percentages are half the measured gap twice over: once because
  * each hand covers half the distance, once because the layer box is
- * doubled. */
-#wordmark:hover .brand-mark .hand-l,
-.site-wordmark:hover .brand-mark .hand-l,
-.footer-brand:hover .brand-mark .hand-l {
-  transform: translate(3.05%, -0.6%) scale(0.5);
+ * doubled. Gated to real pointers: on a touch screen :hover sticks after
+ * a tap with no pointer to leave, so touch runs on is-touched below. */
+@media (hover: hover) {
+  #wordmark:hover .brand-mark .hand-l,
+  .site-wordmark:hover .brand-mark .hand-l,
+  .footer-brand:hover .brand-mark .hand-l {
+    transform: translate(3.05%, -0.6%) scale(0.5);
+  }
+
+  #wordmark:hover .brand-mark .hand-r,
+  .site-wordmark:hover .brand-mark .hand-r,
+  .footer-brand:hover .brand-mark .hand-r {
+    transform: translate(-3.05%, 0.6%) scale(0.5);
+  }
 }
 
-#wordmark:hover .brand-mark .hand-r,
-.site-wordmark:hover .brand-mark .hand-r,
-.footer-brand:hover .brand-mark .hand-r {
-  transform: translate(-3.05%, 0.6%) scale(0.5);
-}
+/* The tap variant of the same touch: prefs.ts sets is-touched on the mark
+ * for three seconds, or until the first scroll, so the hands close and
+ * release on their own instead of holding a stuck hover. */
+.brand-mark.is-touched .hand-l { transform: translate(3.05%, -0.6%) scale(0.5); }
+.brand-mark.is-touched .hand-r { transform: translate(-3.05%, 0.6%) scale(0.5); }
 
 @media (prefers-reduced-motion: reduce) {
   .brand-mark img { transition: none; }
@@ -1027,6 +1036,13 @@ html[data-boot="site"] #skip {
   text-wrap: balance;
 }
 
+/* On phones, text-wrap: balance evens the heading into short, half-width lines
+ * that read as a squished column; wrap greedily instead so each line fills the
+ * measure. Desktop keeps the balanced look. */
+@media (max-width: 640px) {
+  .section-head .section-title { text-wrap: wrap; }
+}
+
 .section-lede {
   margin: var(--space-5) 0 0;
   font-size: var(--type-body-lg);
@@ -1474,6 +1490,28 @@ html[data-boot="site"] #skip {
   }
 }
 
+/* On a phone the shared tracks turn cramped and labels wrap mid-phrase, so
+ * the columns stack under the brand instead, one per row and flush left.
+ * The hover arrow slot leaves with no hover to serve, and the pills and the
+ * rights line close the run on the same left edge. */
+@media (max-width: 640px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-10);
+  }
+  .footer-col { align-items: flex-start; }
+  .footer-col a { flex-direction: row; }
+  .footer-arrow { display: none; }
+  .footer-prefs { grid-column: 1; justify-self: start; }
+  .footer-copy {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+    /* Tight under the pills, on the smaller stacked row gap. */
+    margin-top: calc(-1 * var(--space-6));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .footer-arrow { transition: none; }
 }
@@ -1738,6 +1776,20 @@ html.static .caption {
   #site-header.nav-open .header-nav {
     max-height: 520px;
   }
+
+  /* On the landing the collapsed sheet's hairline would strike through the
+   * trailer's black box, so the film header keeps it clear at rest; opening
+   * the sheet fades it in and the divider travels with the reveal, and
+   * closing fades it out along the same settle. The site header and the
+   * shell pages keep their hairline untouched. */
+  #chrome .header-nav {
+    border-bottom-color: transparent;
+    transition:
+      max-height var(--speed-settle) var(--ease),
+      border-bottom-color var(--speed-settle) var(--ease);
+  }
+
+  #chrome.nav-open .header-nav { border-bottom-color: var(--line); }
 
   /* The bar's reserved space: the first link clears the header height plus
    * a step, and the panel clips it away while closed. */

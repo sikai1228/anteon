@@ -102,21 +102,32 @@ function frame(): void {
   requestAnimationFrame(frame);
 }
 
+// Each init below stands alone: one throwing must never take down the
+// ones after it (a failed init here once blanked the hero wheel, which
+// needs its JS to set the clip width). Log the failure and carry on.
+function tryInit(name: string, run: () => void): void {
+  try {
+    run();
+  } catch (err) {
+    console.error(`[chrome] ${name} init failed:`, err);
+  }
+}
+
 // The footer preference pills share one wiring with the shell pages, so
 // the footer behaves identically on every page.
-wirePrefs();
+tryInit('prefs', wirePrefs);
 
 // The hero terminal demo: the split-screen race (no-ops off the landing).
-initTerminalDemo();
+tryInit('terminal demo', initTerminalDemo);
 
 // The idle puff game on the two cell grids (no-ops off the landing, off
 // screen, and under reduced motion).
-initCellGame();
+tryInit('cell game', initCellGame);
 
 // The compiler diagram in the #compiler section: AI traffic drawing on the
 // knowledge layer (no-ops off the landing, off screen, and under reduced
 // motion).
-initCompilerDiagram();
+tryInit('compiler diagram', initCompilerDiagram);
 
 // The hero word wheel, ported from EstateInventor's RotatingWord (a
 // Krea-style slot roll): the current and incoming words translate in
@@ -126,8 +137,9 @@ initCompilerDiagram();
 // completes the heading). Under reduced motion the wheel never starts and
 // the markup's own first word stands. Hidden .hw-src spans carry the word
 // list through the i18n catalogs, so the wheel follows locale swaps.
-const wheelEl = document.querySelector<HTMLElement>('.hero-wheel');
-if (wheelEl && !document.documentElement.classList.contains('static')) {
+tryInit('hero wheel', () => {
+  const wheelEl = document.querySelector<HTMLElement>('.hero-wheel');
+  if (!wheelEl || document.documentElement.classList.contains('static')) return;
   const WHEEL_MS = 3400;
   // Must match the CSS roll transition (--speed-settle).
   const ROLL_MS = 300;
@@ -199,21 +211,23 @@ if (wheelEl && !document.documentElement.classList.contains('static')) {
       }, ROLL_MS + 20);
     }, WHEEL_MS);
   }
-}
+});
 
 // Clicking the wordmark, in either header, is a hard cut to the landing
 // page's top, the same ground the skip ride lands on, not back to the
 // film's start. The film runtime answers site-jump with an immediate Lenis
 // jump and re-arms the boundary latch; the static shell scrolls directly.
-for (const w of document.querySelectorAll('#wordmark, .site-wordmark, .footer-brand')) {
-  w.addEventListener('click', () => {
-    if (document.documentElement.classList.contains('static')) {
-      window.scrollTo(0, span() + window.innerHeight);
-    } else {
-      window.dispatchEvent(new CustomEvent('site-jump'));
-    }
-  });
-}
+tryInit('wordmark home', () => {
+  for (const w of document.querySelectorAll('#wordmark, .site-wordmark, .footer-brand')) {
+    w.addEventListener('click', () => {
+      if (document.documentElement.classList.contains('static')) {
+        window.scrollTo(0, span() + window.innerHeight);
+      } else {
+        window.dispatchEvent(new CustomEvent('site-jump'));
+      }
+    });
+  }
+});
 
 if (!document.documentElement.classList.contains('static')) {
   skipEl?.addEventListener('click', () => {
