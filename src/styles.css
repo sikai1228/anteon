@@ -408,10 +408,9 @@ canvas#gl {
    * holds the bottom edge on any short viewport. */
   display: flex;
   flex-direction: column;
-  /* Enters at the width the sections themselves use, then grows to full bleed
-   * as it rises; chrome.ts drives the vars from the entry progress. The start
-   * width is --width-page, so the box's edges begin exactly on the section
-   * container's and the content inside never moves: only the edges travel. */
+  /* Enters as a box with the film box's side breathing and rises at that
+   * length, widening to full bleed only over the climb's last stretch;
+   * chrome.ts drives the vars from the entry progress. */
   margin: 0 var(--site-inset, var(--chrome-inset));
   border-radius: var(--site-radius, var(--radius-frame)) var(--site-radius, var(--radius-frame)) 0 0;
 }

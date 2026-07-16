@@ -29,21 +29,12 @@ function tokenNum(name: string, fallback: number): number {
 const BOX_TOP = tokenNum('--chrome-header', 84);
 const BOX_INSET = tokenNum('--chrome-inset', 17);
 const BOX_RADIUS = tokenNum('--radius-frame', 10);
-const PAGE_W = tokenNum('--width-page', 1200);
 const RIDE_MS = tokenNum('--speed-ride', 1.5) * 1000;
-
-/** The page's inset at rest: the section width, so the box starts on the very
- * edges its sections use and grows out to full bleed from there. Never tighter
- * than the film box's own breathing, which is all a narrow viewport has room
- * for once the page is wider than the screen. */
-function siteRestInset(): number {
-  return Math.max(BOX_INSET, (window.innerWidth - PAGE_W) / 2);
-}
 
 /** Where in a box's climb it starts to widen. Before this it holds its length
  * and only rises; after it, it rises and widens together. Two moves read as
  * two moves; widening from the first pixel reads as a smear. */
-const EXPAND_AT = 0.7;
+const EXPAND_AT = 0.8;
 
 /** A box's width, 0 at its resting length, 1 at full bleed, across the climb. */
 function widen(r: number): number {
@@ -135,7 +126,7 @@ function frame(): void {
   if (re !== lastE) {
     lastE = re;
     const closed = 1 - widen(er);
-    rootStyle.setProperty('--site-inset', (siteRestInset() * closed).toFixed(1) + 'px');
+    rootStyle.setProperty('--site-inset', (BOX_INSET * closed).toFixed(1) + 'px');
     rootStyle.setProperty('--site-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
     rootStyle.setProperty('--site-line', ease((er - 0.85) / 0.15).toFixed(3));
     // The introduction's words hold still while the page's box climbs over
