@@ -54,15 +54,18 @@ const DRAW_SPEED: readonly [number, number] = [80, 120];
 const PACKET_SPEED: readonly [number, number] = [110, 170];
 const HOLD_S: readonly [number, number] = [4, 8];
 const RESPAWN_S: readonly [number, number] = [0.8, 2.4];
-const GREEN_ASK_S: readonly [number, number] = [2.6, 4.2];
 const FADE_S = 1.2;
 const LINK_DRAW_S = 0.55;
 const LINK_FADE_S = 0.7;
 const DOWN_HOLD_S = 1.3;
 const UP_HOLD_S = 1.7;
 const LINK_GAP_S = 0.9;
-const MAX_LINKS = 4;
-const MAX_BRANCHES = 4;
+const MAX_LINKS = 5;
+const MAX_BRANCHES = 5;
+/* Lanes held open so splitoffs always have somewhere to fork; without this the
+ * lines refill every freed lane and no branch can ever spawn. Too high starves
+ * the field of the young green lines splitoffs fork from, so keep it modest. */
+const BRANCH_RESERVE = 3;
 const DT_CAP = 0.064;
 
 type Tone = 'green' | 'red';
@@ -129,6 +132,10 @@ interface Link {
 interface Scene {
   host: HTMLElement;
   box: SVGRectElement;
+  /** The box's horizontal span in viewBox units; layoutBox keeps it current so
+   * connectors only ever drop within the box, never out at the field edges. */
+  boxL: number;
+  boxR: number;
   linesG: SVGGElement;
   linksG: SVGGElement;
   lines: Line[];
@@ -137,7 +144,10 @@ interface Scene {
   laneFreeAt: number[];
   t: number;
   lastLinkAt: number;
-  nextGreenAskAt: number;
+  /** A beat is a pair: one connector drops in, then one rises right after. The
+   * down picks the line the up will answer, so every down is paired. */
+  pendingUp: Line | null;
+  pendingUpAt: number;
   drawTone: () => Tone;
   drawFate: () => Fate;
 }
@@ -265,6 +275,8 @@ function buildScene(host: HTMLElement): Scene {
   return {
     host,
     box,
+    boxL: BOX_LEFT,
+    boxR: BOX_RIGHT,
     linesG,
     linksG,
     lines: [],
@@ -273,7 +285,8 @@ function buildScene(host: HTMLElement): Scene {
     laneFreeAt: new Array<number>(LANE_COUNT).fill(0),
     t: 0,
     lastLinkAt: -LINK_GAP_S,
-    nextGreenAskAt: rand(GREEN_ASK_S),
+    pendingUp: null,
+    pendingUpAt: 0,
     drawTone: bag<Tone>([
       'green', 'green', 'green', 'green', 'green', 'green',
       'red', 'red', 'red', 'red',
@@ -300,6 +313,8 @@ function layoutBox(scene: Scene): void {
   const inset = Math.max(0, ((fieldW - contentW) / 2) * (VIEW_W / fieldW));
   const left = r1(inset);
   const right = r1(VIEW_W - inset);
+  scene.boxL = left;
+  scene.boxR = right;
   scene.box.setAttribute('x', String(left));
   scene.box.setAttribute('width', String(r1(right - left)));
 }
@@ -320,7 +335,12 @@ function addLine(scene: Scene, lane: number, tone: Tone, fate: Fate, headX: numb
   group.append(redEl, greenEl);
   scene.linesG.append(group);
 
-  const fixX = fate === 'fix' ? 200 + Math.random() * 550 : Infinity;
+  // A fix lands within the box span, so the red turns green above the library
+  // rather than out at an edge.
+  const fixX =
+    fate === 'fix'
+      ? scene.boxL + 60 + Math.random() * Math.max(1, scene.boxR - scene.boxL - 120)
+      : Infinity;
   const line: Line = {
     group,
     redEl,
@@ -337,7 +357,7 @@ function addLine(scene: Scene, lane: number, tone: Tone, fate: Fate, headX: numb
     askedAt: 0,
     fixSent: false,
     fixed: false,
-    branchAtX: Math.random() < 0.72 ? 260 + Math.random() * 560 : Infinity,
+    branchAtX: Math.random() < 0.9 ? 220 + Math.random() * 600 : Infinity,
     headX,
     speed: rand(DRAW_SPEED),
     holdLeft: rand(HOLD_S),
@@ -466,17 +486,20 @@ function seed(scene: Scene, settled: boolean): void {
     line.holdLeft = 2 + i * 0.9 + Math.random() * 1.5;
   });
 
-  // The settled frame shows the interaction mid beat, a red line asking, the
-  // library answering another, and a green line drawing on it for reference.
+  // The settled frame freezes one paired beat: a line dropping into the library
+  // and the library answering a red just above the box, both within its span.
   if (settled) {
-    const fixedReds = roots.filter((l) => l.fate === 'fix');
-    const greens = roots.filter((l) => l.tone === 'green');
-    const down = fixedReds[0];
-    const up = fixedReds[1];
-    const green = greens[Math.floor(Math.random() * greens.length)];
-    if (down) holdLink(spawnLink(scene, down, down.askX, false));
-    if (up) holdLink(spawnLink(scene, up, up.fixX, true));
-    if (green) holdLink(spawnLink(scene, green, 300 + Math.random() * 600, false));
+    const boxL = scene.boxL + 60;
+    const boxR = scene.boxR - 60;
+    const span = (): number => boxL + Math.random() * Math.max(1, boxR - boxL);
+    const down = roots.find((l) => l.tone === 'green') ?? roots[0];
+    const up = roots.find((l) => l.fate === 'fix');
+    if (down) holdLink(spawnLink(scene, down, span(), false));
+    if (up) {
+      up.fixX = Math.max(boxL, Math.min(span(), up.headX - 20));
+      up.fixed = true;
+      holdLink(spawnLink(scene, up, up.fixX, true));
+    }
   }
 }
 
@@ -492,12 +515,19 @@ function holdLink(link: Link): void {
 function step(scene: Scene, dt: number): void {
   scene.t += dt;
 
-  // Respawn freed lanes so new traffic keeps entering on the left.
+  // Respawn freed lanes so new traffic keeps entering on the left, but stop a
+  // few lanes short of full: the held-open lanes are where splitoffs fork.
+  let freeLanes = scene.laneUsed.reduce((n, u) => n + (u === null ? 1 : 0), 0);
   for (let lane = 0; lane < LANE_COUNT; lane += 1) {
-    if (scene.laneUsed[lane] === null && scene.t >= scene.laneFreeAt[lane]) {
+    if (
+      scene.laneUsed[lane] === null &&
+      scene.t >= scene.laneFreeAt[lane] &&
+      freeLanes > BRANCH_RESERVE
+    ) {
       const tone = scene.drawTone();
       const fate: Fate = tone === 'red' ? scene.drawFate() : 'green';
       addLine(scene, lane, tone, fate, LEFT);
+      freeLanes -= 1;
     }
   }
 
@@ -511,6 +541,7 @@ function step(scene: Scene, dt: number): void {
     renderLine(line);
   }
 
+  maintainBranches(scene);
   control(scene);
 
   for (let i = scene.links.length - 1; i >= 0; i -= 1) {
@@ -534,8 +565,15 @@ function advanceLine(scene: Scene, line: Line, dt: number): void {
   if (line.headX < RIGHT) {
     line.headX = Math.min(line.headX + line.speed * dt, RIGHT);
   } else if (!line.fading) {
-    line.holdLeft -= dt;
-    if (line.holdLeft <= 0) line.fading = true;
+    // A parent carrying a splitoff waits for it to reach the edge before
+    // retiring, so the branch is never cut off mid-run and the field keeps its
+    // two or three live splitoffs instead of losing them early.
+    if (line.branch && line.branch.headX < line.branch.maxX) {
+      line.holdLeft = Math.max(line.holdLeft, 0.4);
+    } else {
+      line.holdLeft -= dt;
+      if (line.holdLeft <= 0) line.fading = true;
+    }
   }
 
   if (line.fading) {
@@ -579,78 +617,124 @@ function retire(scene: Scene, line: Line): void {
   }
 }
 
-/** Forks a splitoff when a line crosses its planned fork point, but only
- * from a stroke that is green there, into a free adjacent lane, and only
- * while few branches are alive. Every miss is forfeited, which keeps the
- * braiding occasional rather than constant. */
+/** Forks a splitoff when a line crosses its planned fork point, but only from a
+ * stroke that is green there, into a free adjacent lane, and only while fewer
+ * than the cap are alive. If no lane is free at the fork it retries a little
+ * further along rather than forfeiting, so two or three splitoffs stay live. */
 function maybeBranch(scene: Scene, line: Line): void {
   const forkX = line.branchAtX;
   if (line.branch !== null || line.fading || line.headX < forkX) return;
-  line.branchAtX = Infinity;
   if (!Number.isFinite(forkX)) return;
   const alive = scene.lines.reduce((n, l) => n + (l.branch ? 1 : 0), 0);
-  if (alive >= MAX_BRANCHES || toneAt(line, forkX) !== 'green') return;
+  if (alive >= MAX_BRANCHES || toneAt(line, forkX) !== 'green') {
+    line.branchAtX = Infinity;
+    return;
+  }
   const open = [line.lane - 1, line.lane + 1].filter(
     (n) => n >= 0 && n < LANE_COUNT && scene.laneUsed[n] === null,
   );
-  if (open.length === 0) return;
+  if (open.length === 0) {
+    // No adjacent lane free at the fork; try again a little further along
+    // instead of forfeiting, so splitoffs keep appearing as lanes open up.
+    line.branchAtX = line.headX + 30 + Math.random() * 70;
+    return;
+  }
+  line.branchAtX = Infinity;
   const lane = open[Math.floor(Math.random() * open.length)];
+  // Bias toward running to the edge rather than rejoining, so a splitoff stays
+  // on screen and two or three are usually visible at once instead of blinking
+  // in and out.
   const rejoinX =
-    Math.random() < 0.5
+    Math.random() < 0.3
       ? Math.min(forkX + 120 + Math.random() * 260, RIGHT - 120)
       : Infinity;
   addBranch(scene, line, lane, forkX, rejoinX);
 }
 
-/** The interaction director. One connector at a time, on a minimum gap. A due
- * answer is served before the next ask, so every red that asks gets fixed
- * rather than left hanging while fresh reds keep asking; the reddest waiting
- * line goes first, and green lines draw on the library between beats. */
-function control(scene: Scene): void {
-  if (scene.t - scene.lastLinkAt < LINK_GAP_S) return;
-  if (scene.links.length >= MAX_LINKS) return;
-
-  // The library answers first: a red that already asked and is now due gets
-  // its rising connector before any new red is allowed to ask. Ordering the
-  // ask ahead of this starved the answers, so reds never turned green.
-  const eligible = scene.lines.filter(
-    (l) =>
-      l.fate === 'fix' &&
-      l.asked &&
-      !l.fixSent &&
-      !l.fading &&
-      scene.t - l.askedAt >= 1.1 &&
-      l.headX >= l.fixX + 70,
-  );
-  if (eligible.length > 0) {
-    // The reddest line is the one with the longest red run behind its head.
-    eligible.sort((a, b) => b.headX - a.headX);
-    const target = eligible[0];
-    target.fixSent = true;
-    spawnLink(scene, target, target.fixX, true);
-    return;
-  }
-
-  const asker = scene.lines.find(
-    (l) => l.fate === 'fix' && !l.asked && !l.fading && l.headX >= l.askX + 20,
-  );
-  if (asker) {
-    asker.asked = true;
-    asker.askedAt = scene.t;
-    spawnLink(scene, asker, asker.askX, false);
-    return;
-  }
-
-  if (scene.t >= scene.nextGreenAskAt) {
-    scene.nextGreenAskAt = scene.t + rand(GREEN_ASK_S);
-    const greens = scene.lines.filter(
-      (l) => l.tone === 'green' && !l.fading && l.headX >= 420,
+/** Tops the field up to a floor of live splitoffs. maybeBranch alone lets the
+ * count sag as parents retire faster than fresh lines reach their fork points,
+ * so when fewer than two are running this forks one straight off a green line
+ * near its head, into a free adjacent lane, out to the edge where it persists. */
+function maintainBranches(scene: Scene): void {
+  const alive = scene.lines.reduce((n, l) => n + (l.branch ? 1 : 0), 0);
+  if (alive >= 2) return;
+  // Fork off a young green line, its head still short of the box, so the
+  // splitoff runs a long way before its parent retires and it lingers on
+  // screen. Older lines would make short-lived spurs and the count would sag.
+  for (const line of scene.lines) {
+    if (line.branch || line.fading || line.gone) continue;
+    if (line.headX < 180 || line.headX > 620) continue;
+    if (toneAt(line, line.headX - 40) !== 'green') continue;
+    const open = [line.lane - 1, line.lane + 1].filter(
+      (n) => n >= 0 && n < LANE_COUNT && scene.laneUsed[n] === null,
     );
-    if (greens.length > 0) {
-      const g = greens[Math.floor(Math.random() * greens.length)];
-      spawnLink(scene, g, 80 + Math.random() * (g.headX - 160), false);
-    }
+    if (open.length === 0) continue;
+    const lane = open[Math.floor(Math.random() * open.length)];
+    const forkX = Math.max(scene.boxL, line.headX - 40);
+    line.branchAtX = Infinity;
+    addBranch(scene, line, lane, forkX, Infinity);
+    break;
   }
+}
+
+/** The interaction director, in paired beats on a minimum gap. One line drops a
+ * connector into the library, then the library answers right after with one
+ * connector back up, either fixing a red line (green from the connector out) or
+ * reinforcing a green one. Both feet land within the box span, above the
+ * knowledge layer, never out at the field edges. */
+function control(scene: Scene): void {
+  const pad = 60;
+  const boxL = scene.boxL + pad;
+  const boxR = scene.boxR - pad;
+  const span = (): number => boxL + Math.random() * Math.max(1, boxR - boxL);
+  // Only lines drawn clear across the box can carry a connector foot.
+  const past = (): Line[] =>
+    scene.lines.filter((l) => !l.fading && !l.gone && l.headX >= scene.boxR);
+
+  // The answer half of the beat: the target was chosen when the down was drawn,
+  // so every down is answered. A fixable red turns green from the connector out;
+  // anything else takes a reinforcing connector.
+  if (scene.pendingUp) {
+    if (scene.t < scene.pendingUpAt) return;
+    let target = scene.pendingUp;
+    scene.pendingUp = null;
+    // If the chosen line retired in the beat's short window, answer another so
+    // the down is still paired with an up.
+    if (target.fading || target.gone) {
+      const here = past();
+      if (here.length === 0) return;
+      target = here[Math.floor(Math.random() * here.length)];
+    }
+    if (target.tone === 'red' && !target.fixed) {
+      target.fixX = Math.max(boxL, Math.min(span(), target.headX - 20));
+      target.fixSent = true;
+      spawnLink(scene, target, target.fixX, true);
+    } else {
+      spawnLink(scene, target, span(), true);
+    }
+    return;
+  }
+
+  // The down half of the next beat, once the gap has passed and there is room.
+  if (scene.t - scene.lastLinkAt < LINK_GAP_S) return;
+  if (scene.links.length >= MAX_LINKS - 1) return;
+  const here = past();
+  if (here.length === 0) return;
+  const down = here[Math.floor(Math.random() * here.length)];
+  spawnLink(scene, down, span(), false);
+  // Choose now who the library answers: a fixable red if one waits, else a
+  // green to reinforce, falling back to the line that just dropped in.
+  const reds = here.filter(
+    (l) => l.tone === 'red' && l.fate === 'fix' && !l.fixed && !l.fixSent,
+  );
+  const greens = here.filter((l) => l.tone === 'green' || l.fixed);
+  scene.pendingUp =
+    reds.length > 0
+      ? reds[Math.floor(Math.random() * reds.length)]
+      : greens.length > 0
+        ? greens[Math.floor(Math.random() * greens.length)]
+        : down;
+  scene.pendingUpAt = scene.t + 0.42;
 }
 
 /* ------------------------------------------------------------ rendering */
