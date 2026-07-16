@@ -413,6 +413,12 @@ canvas#gl {
    * chrome.ts drives the vars from the entry progress. */
   margin: 0 var(--site-inset, var(--chrome-inset));
   border-radius: var(--site-radius, var(--radius-rise)) var(--site-radius, var(--radius-rise)) 0 0;
+  /* The hairline that makes the corner legible. White on chalk is four percent
+   * of contrast, and across a box this wide a bare corner reads as a straight
+   * line however round it measures: the eye needs a line to follow around the
+   * curve. The film box has always done this. A shadow, not a border, so it
+   * traces the radius exactly and costs no layout. It goes with the corner. */
+  box-shadow: 0 0 0 var(--border-hair) var(--site-border, var(--line));
 }
 
 /* The introduction: one screen of its own between the film and the page, on the
@@ -431,6 +437,10 @@ canvas#gl {
   font-family: var(--sans);
   margin: 0 var(--intro-inset, var(--chrome-inset));
   border-radius: var(--intro-radius, var(--radius-rise)) var(--intro-radius, var(--radius-rise)) 0 0;
+  /* The same hairline the page carries, for the same reason: one language for
+   * both boxes. On the black film the chalk edge already reads, so this is
+   * only ever belt and braces here. */
+  box-shadow: 0 0 0 var(--border-hair) var(--intro-border, var(--line));
   text-align: center;
   padding-inline: var(--space-gutter);
 }
