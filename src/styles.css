@@ -1096,6 +1096,11 @@ html[data-boot="site"] #skip {
  * measure. Desktop keeps the balanced look. */
 @media (max-width: 640px) {
   .section-head .section-title { text-wrap: wrap; }
+  /* The heading's two halves are composed to break at the desktop measure. On a
+   * phone each half wraps again and strands a word on its own line ("and the",
+   * "index"). Run the halves together as one sentence so the heading breaks
+   * where the phone's measure actually runs out. */
+  .section-head .section-title .title-line { display: inline; }
 }
 
 .section-lede {
@@ -1557,11 +1562,13 @@ html[data-boot="site"] #skip {
   .footer-col { align-items: flex-start; }
   .footer-col a { flex-direction: row; }
   .footer-arrow { display: none; }
-  .footer-prefs { grid-column: 1; justify-self: start; }
+  /* The pills and the rights line close the run on the right edge; the stacked
+   * columns above keep their left edge. */
+  .footer-prefs { grid-column: 1; justify-self: end; }
   .footer-copy {
     grid-column: 1;
-    justify-self: start;
-    text-align: left;
+    justify-self: end;
+    text-align: right;
     /* Tight under the pills, on the smaller stacked row gap. */
     margin-top: calc(-1 * var(--space-6));
   }

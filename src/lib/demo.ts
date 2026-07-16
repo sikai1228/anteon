@@ -187,7 +187,7 @@ function makeLine(pane: PaneId, kind: EventKind, text: string): { line: HTMLElem
     case 'tool':
       // A tool call: the agent dot, then the engine's name.
       line.className = 'term-line term-tool';
-      line.append(glyph('term-glyph term-dot', '⏺'));
+      line.append(glyph('term-glyph term-dot', '●'));
       textEl.textContent = text;
       break;
     case 'out': {
@@ -202,7 +202,7 @@ function makeLine(pane: PaneId, kind: EventKind, text: string): { line: HTMLElem
     case 'say':
       // Plain assistant prose behind the same dot, unfilled.
       line.className = 'term-line term-say';
-      line.append(glyph('term-glyph term-dot-soft', '⏺'));
+      line.append(glyph('term-glyph term-dot-soft', '●'));
       textEl.textContent = text;
       break;
     case 'work':
