@@ -42,12 +42,14 @@ function ease(t: number): number {
 
 const rootStyle = document.documentElement.style;
 const filmEl = document.getElementById('film');
+const siteEl = document.getElementById('site');
 const skipEl = document.getElementById('skip');
 
 let lastE = -1;
 
 let lastK = -1;
 let atStart = true;
+let pinned = false;
 let skipTimer = 0;
 
 function span(): number {
@@ -84,6 +86,18 @@ function frame(): void {
     rootStyle.setProperty('--site-inset', (BOX_INSET * closed).toFixed(1) + 'px');
     rootStyle.setProperty('--site-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
     rootStyle.setProperty('--site-line', ease((er - 0.85) / 0.15).toFixed(3));
+  }
+
+  // The climb over, the header stops being sticky and pins. A sticky bar
+  // re-seats against the viewport on every scroll step, and a phone's URL bar
+  // sliding in and out turns that into visible jitter; a fixed bar at a pixel
+  // top never reflows. The pin can only land at the top of the climb, since
+  // until then the header has to ride the rising box. At er 1 the site's top is
+  // exactly at the viewport's, so the swap costs no jump.
+  const wantPin = er >= 1;
+  if (wantPin !== pinned) {
+    pinned = wantPin;
+    siteEl?.classList.toggle('pinned', wantPin);
   }
 
   // The skip control belongs to the landing: it leaves 0.3 seconds after

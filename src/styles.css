@@ -435,6 +435,24 @@ canvas#gl {
  * box finishes rising; chrome.ts feeds --site-line from the scroll. */
 #site-header::after { display: none; }
 
+/* Once the site has finished its climb, chrome.ts adds .pinned and the bar
+ * stops being sticky. A sticky bar re-seats itself against the viewport on
+ * every scroll step, and on a phone the URL bar's show and hide makes that
+ * re-seating read as a few-pixel jitter; a pixel-top fixed bar never reflows.
+ * The pin waits for the top of the climb because until then the header has to
+ * ride the rising box. The padding holds the bar's lane, so the sections do
+ * not jump up by its height the moment it leaves the flow. */
+#site.pinned {
+  padding-top: var(--chrome-header);
+}
+
+#site.pinned #site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
 /* The opening of the site: the EstateInventor composition, left-aligned in the
  * page container under generous top padding. The headline sits top-left, the
  * subhead and its one quiet call below, the team band full-bleed beneath. */
