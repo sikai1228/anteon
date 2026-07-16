@@ -69,6 +69,10 @@ const MAX_BRANCHES = 5;
  * lines refill every freed lane and no branch can ever spawn. Too high starves
  * the field of the young green lines splitoffs fork from, so keep it modest. */
 const BRANCH_RESERVE = 3;
+/* The field keeps more than this many lanes drawn fully across at all times, so
+ * retirement never empties the traffic in one wave; about half cycle out while
+ * the rest stay spanning. */
+const MIN_SPAN = 4;
 const DT_CAP = 0.064;
 
 type Tone = 'green' | 'red';
@@ -575,7 +579,18 @@ function advanceLine(scene: Scene, line: Line, dt: number): void {
       line.holdLeft = Math.max(line.holdLeft, 0.4);
     } else {
       line.holdLeft -= dt;
-      if (line.holdLeft <= 0) line.fading = true;
+      if (line.holdLeft <= 0) {
+        // Never empty the field in one wave: a line retires only while more than
+        // MIN_SPAN lanes still carry a full line, so about half cycle out at a
+        // time and the rest stay drawn across. The randomised re-check spreads
+        // the retirements instead of releasing them together.
+        const full = scene.lines.reduce(
+          (n, l) => n + (!l.fading && l.headX >= RIGHT ? 1 : 0),
+          0,
+        );
+        if (full > MIN_SPAN) line.fading = true;
+        else line.holdLeft = 0.3 + Math.random() * 0.6;
+      }
     }
   }
 
