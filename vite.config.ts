@@ -14,6 +14,7 @@ export default defineConfig({
         engine: new URL('engine.html', import.meta.url).pathname,
         api: new URL('api.html', import.meta.url).pathname,
         personal: new URL('personal.html', import.meta.url).pathname,
+        apiKey: new URL('api-key.html', import.meta.url).pathname,
         about: new URL('about.html', import.meta.url).pathname,
         blog: new URL('blog.html', import.meta.url).pathname,
         contact: new URL('contact.html', import.meta.url).pathname,
