@@ -36,9 +36,20 @@ const RIDE_MS = tokenNum('--speed-ride', 1.5) * 1000;
  * two moves; widening from the first pixel reads as a smear. */
 const EXPAND_AT = 0.8;
 
+/** Where the corners start to square off. Later than the widening: a box that
+ * loses its corners the moment it starts growing never reads as a box at all.
+ * It stays visibly round through the widening and goes square only as it
+ * lands, so the deround is the landing rather than a slow leak out of it. */
+const SQUARE_AT = 0.95;
+
 /** A box's width, 0 at its resting length, 1 at full bleed, across the climb. */
 function widen(r: number): number {
   return ease((r - EXPAND_AT) / (1 - EXPAND_AT));
+}
+
+/** A box's corners, 0 fully round, 1 square, across the climb. */
+function square(r: number): number {
+  return ease((r - SQUARE_AT) / (1 - SQUARE_AT));
 }
 
 function clamp01(x: number): number {
@@ -97,9 +108,8 @@ function frame(): void {
   const ri = Math.round(ir * 1000) / 1000;
   if (ri !== lastI) {
     lastI = ri;
-    const closed = 1 - widen(ir);
-    rootStyle.setProperty('--intro-inset', (BOX_INSET * closed).toFixed(1) + 'px');
-    rootStyle.setProperty('--intro-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
+    rootStyle.setProperty('--intro-inset', (BOX_INSET * (1 - widen(ir))).toFixed(1) + 'px');
+    rootStyle.setProperty('--intro-radius', (BOX_RADIUS * (1 - square(ir))).toFixed(1) + 'px');
   }
 
   // The chalk bed lands the instant the introduction fills the viewport, and
@@ -125,9 +135,8 @@ function frame(): void {
   const re = Math.round(er * 1000) / 1000;
   if (re !== lastE) {
     lastE = re;
-    const closed = 1 - widen(er);
-    rootStyle.setProperty('--site-inset', (BOX_INSET * closed).toFixed(1) + 'px');
-    rootStyle.setProperty('--site-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
+    rootStyle.setProperty('--site-inset', (BOX_INSET * (1 - widen(er))).toFixed(1) + 'px');
+    rootStyle.setProperty('--site-radius', (BOX_RADIUS * (1 - square(er))).toFixed(1) + 'px');
     rootStyle.setProperty('--site-line', ease((er - 0.85) / 0.15).toFixed(3));
     // The introduction's words hold still while the page's box climbs over
     // them: nothing fades, nothing slides away, the box simply covers it. The
