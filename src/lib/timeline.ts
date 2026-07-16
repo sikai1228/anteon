@@ -124,6 +124,12 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   function boundary(): number {
     return spanPx + window.innerHeight;
   }
+  /** The page's own top. The introduction box rests at the boundary and holds a
+   * screen of its own, so home is one screen further down; the wordmarks and a
+   * resume-to-site land here, not on the introduction. */
+  function home(): number {
+    return boundary() + window.innerHeight;
+  }
   function currentY(): number {
     return lenis ? lenis.scroll : window.scrollY;
   }
@@ -276,7 +282,7 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   function onSiteJump(): void {
     measure();
     slacken();
-    holdAt(boundary());
+    holdAt(home());
     armed = true;
     sm = 1;
   }
@@ -342,7 +348,7 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
       measure();
       // The sentinel's target re-measures per frame: the boundary can shift
       // while early layout settles.
-      const targetPx = seedSite ? boundary() : (seedPx as number);
+      const targetPx = seedSite ? home() : (seedPx as number);
       holdAt(targetPx);
       sm = 1;
       armed = true;

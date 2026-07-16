@@ -31,6 +31,8 @@ export interface Catalog {
   bookCall: string;
   /* The film's skip control. */
   skipFilm: string;
+  introTitle: string;
+  introSub: string;
   /* The opening quote, folded from src/copy.ts. */
   quoteText: string;
   quoteAttribution: string;
@@ -220,6 +222,8 @@ const CHROME: Record<Locale, ChromeStrings> = {
     support: 'Support',
     bookCall: 'Book a call',
     skipFilm: 'Skip the film',
+    introTitle: 'Introducing Anteon',
+    introSub: 'The determinism layer your AI stands on',
     heroLead: 'Stop wasting',
     heroTail: 'on solved problems',
     heroWheel1: 'tokens',
@@ -370,6 +374,8 @@ const CHROME: Record<Locale, ChromeStrings> = {
     support: 'Soporte',
     bookCall: 'Reserva una llamada',
     skipFilm: 'Salta la película',
+    introTitle: 'Te presentamos Anteon',
+    introSub: 'La capa de determinismo sobre la que se apoya tu IA',
     heroLead: 'Deja de gastar',
     heroTail: 'en problemas resueltos',
     heroWheel1: 'tokens',

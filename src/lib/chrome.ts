@@ -46,6 +46,7 @@ const siteEl = document.getElementById('site');
 const skipEl = document.getElementById('skip');
 
 let lastE = -1;
+let lastI = -1;
 
 let lastK = -1;
 let atStart = true;
@@ -71,14 +72,29 @@ function frame(): void {
     rootStyle.setProperty('--box-border', open > 0.02 ? '#dedcd5' : 'transparent');
   }
 
+  // Two boxes climb out of the film, one screen apart, on the same rise. The
+  // introduction goes first, across the screen right after the film: 0 when its
+  // top touches the viewport's bottom, 1 when it reaches the top. Its corners
+  // start round like the film box's and square off as it lands.
+  const ir = clamp01((window.scrollY - span()) / window.innerHeight);
+  const ri = Math.round(ir * 1000) / 1000;
+  if (ri !== lastI) {
+    lastI = ri;
+    const closed = 1 - ease(ir);
+    rootStyle.setProperty('--intro-inset', (BOX_INSET * closed).toFixed(1) + 'px');
+    rootStyle.setProperty('--intro-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
+  }
+
   // The exit mirrors the entrance: the white site block enters as a box with
   // the film box's side breathing and grows to full width as it rises across
-  // the final viewport of scroll.
+  // its own viewport of scroll, a screen after the introduction's.
   // 0 when the site's top touches the viewport bottom, 1 when it reaches the
   // top: the box's breathing eases out across exactly that climb, and the
   // header's divider draws itself across the climb's last stretch, finishing
   // the instant the page is full.
-  const er = clamp01((window.scrollY - span()) / window.innerHeight);
+  const er = clamp01(
+    (window.scrollY - span() - window.innerHeight) / window.innerHeight,
+  );
   const re = Math.round(er * 1000) / 1000;
   if (re !== lastE) {
     lastE = re;
