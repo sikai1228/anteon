@@ -25,7 +25,10 @@ const NS = 'http://www.w3.org/2000/svg';
 /* Field geometry, in viewBox units. Ten traffic lanes cross the top and the
  * library slab spans the width below them. */
 const VIEW_W = 1200;
-const VIEW_H = 300;
+/* Cropped to just below the box (its bottom sits at 292) so the box reads as the
+ * figure's last element. The old 300 left empty space under it, which pushed the
+ * explore link's gap wider than every other section's. */
+const VIEW_H = 293;
 /* Draw bounds sit flush with the viewBox edges, so the strokes fill the whole
  * SVG element. The wrapper's width is the header and footer content span (the
  * chrome padding in from each viewport edge), so the traffic ends exactly
