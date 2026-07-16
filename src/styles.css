@@ -425,7 +425,7 @@ canvas#gl {
    * height alone, a tall narrow phone keeps them at full size while the space
    * they reach across collapses, and they close over the words instead of
    * framing them. */
-  --intro-hand-h: clamp(90px, min(26vh, 30vw), 300px);
+  --intro-hand-h: clamp(120px, min(42vh, 33vw), 540px);
   /* The space the two hands leave between their fingertips, less a margin.
    * Each fingertip sits 44% along its own hand, so the two together take 88% of
    * one hand's width out of the box, and a hand is 1.703 times as wide as it is
