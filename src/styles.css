@@ -956,6 +956,10 @@ html[data-boot="site"] #skip {
  * evens the optical size across the row. */
 .media-strip .mark-tall { height: var(--space-10); }
 
+/* The white reverse Wharton mark rides alongside the paper one but shows only
+ * in dark mode; hidden by default so light mode is untouched. */
+.media-strip .mark-dark { display: none; }
+
 /* The reference's thin divider between marks: hairline wide, shorter than
  * the marks, centered in the gap. */
 .media-strip-divider {
@@ -1882,13 +1886,20 @@ html.static .caption {
  * so it inverts with the hands rather than against them. */
 :root[data-theme="dark"] .brand-mark img { filter: invert(1); }
 
-/* The team marks are baked muted grey, but the Wharton mark carries a shaded
- * shield: brightness(0) invert(1) would flatten its crest into a solid pale
- * blob. Lift both with brightness instead, so the shield keeps its crest detail
- * and the row stays the quiet light texture it is on paper. */
+/* Duke's wordmark is baked muted grey, so brightness lifts it. Wharton's mark
+ * carries a shaded shield no filter reverses cleanly, so in dark it swaps to a
+ * white reverse asset (shield knocked out, wordmark white); that asset is
+ * already white, so it takes no brightening, only a muting opacity matched to
+ * Duke's weight. */
 :root[data-theme="dark"] .media-strip img {
   filter: brightness(1.7);
   opacity: 0.85;
+}
+:root[data-theme="dark"] .media-strip .mark-light { display: none; }
+:root[data-theme="dark"] .media-strip .mark-dark {
+  display: inline;
+  filter: none;
+  opacity: 0.72;
 }
 
 /* The theme pill's chosen and hovered circle cannot lift on a shadow alone
@@ -1911,6 +1922,14 @@ html.static .caption {
   :root:not([data-theme]) .media-strip img {
     filter: brightness(1.7);
     opacity: 0.85;
+  }
+  :root[data-theme="system"] .media-strip .mark-light,
+  :root:not([data-theme]) .media-strip .mark-light { display: none; }
+  :root[data-theme="system"] .media-strip .mark-dark,
+  :root:not([data-theme]) .media-strip .mark-dark {
+    display: inline;
+    filter: none;
+    opacity: 0.72;
   }
 
   :root[data-theme="system"] .theme-opt:hover,
