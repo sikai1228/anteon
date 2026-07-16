@@ -421,6 +421,17 @@ canvas#gl {
  * chrome here, just the name and the line, centred on the film's own chalk: the
  * one step between the board it leaves and the paper it hands off to. */
 #intro {
+  /* The hands are capped by the width as well as the height. Sized off the
+   * height alone, a tall narrow phone keeps them at full size while the space
+   * they reach across collapses, and they close over the words instead of
+   * framing them. */
+  --intro-hand-h: clamp(90px, min(26vh, 30vw), 300px);
+  /* The space the two hands leave between their fingertips, less a margin.
+   * Each fingertip sits 44% along its own hand, so the two together take 88% of
+   * one hand's width out of the box, and a hand is 1.703 times as wide as it is
+   * tall. The words are held to what is left, so they can never run into the
+   * ink: on a phone the line simply wraps instead. */
+  --intro-words-w: calc(100vw - 1.5 * var(--intro-hand-h) - var(--space-10));
   position: relative;
   z-index: var(--z-site);
   height: 100vh;
@@ -461,15 +472,79 @@ canvas#gl {
 
 html.bedded #intro::after { opacity: 1; }
 
-/* The words hold their centre while the page's box rises over them; chrome.ts
- * feeds the counter-scroll. They never fade and never slide: the box covering
- * them is the whole exit. */
+/* The words hold their centre while the page's box rises over them. They never
+ * fade and never slide: the box covering them is the whole exit.
+ *
+ * The hold is the compositor's, not a per-frame transform. Cancelling the
+ * scroll from script cannot be still: this file's frame loop and the smooth
+ * scroll run on two clocks, so the words were always posted against the scroll
+ * the box had a frame ago and shivered by exactly one frame of travel. Fixed,
+ * they are simply not scrolled at all. The switch lands on .bedded, the frame
+ * the box first fills the viewport, which is the one frame where the flowed and
+ * the fixed positions are the same, so it cannot be seen. */
 .intro-inner {
-  transform: translateY(var(--intro-hold, 0px));
+  position: relative;
+}
+
+html.bedded .intro-inner {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding-inline: var(--space-gutter);
+}
+
+/* The hands reach in from the two edges and the name sits in the space they
+ * leave: the mark's own gesture, opened out to the width of the screen.
+ *
+ * They come in from the box's edges rather than the gutter's, so they read as
+ * arriving from outside the frame rather than floating inside it. Each hand
+ * owns half of a shared canvas and leaves the other half transparent, which is
+ * the gap itself: the ink runs to 44.7% on the left and from 55.3% on the
+ * right, so the images may overlap the middle without ever touching the words.
+ *
+ * The vertical offsets are the fingertips, measured off the art: 46.1% down the
+ * left hand, 35.9% down the right. Subtracting them from the halfway line lands
+ * both fingertips on the name's own centre line, so the two hands point at the
+ * word rather than past it. They ride the same hold the words do, so the whole
+ * composition sits still together while the page climbs over it. */
+.intro-hand {
+  position: absolute;
+  top: 50%;
+  height: var(--intro-hand-h);
+  width: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.intro-hand-l {
+  left: 0;
+  transform: translateY(-46.1%);
+}
+
+.intro-hand-r {
+  right: 0;
+  transform: translateY(-35.9%);
+}
+
+/* The art is a black silhouette, cut for chalk. On the dark ground it inverts
+ * to the same silhouette in white rather than disappearing into it. */
+/* Pinned with the words, and for the same reason. Once the box fills the
+ * viewport its own edges are the viewport's, so left/right 0 mean the same
+ * thing before and after the switch. */
+html.bedded .intro-hand { position: fixed; }
+
+:root[data-theme="dark"] .intro-hand { filter: invert(1); }
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .intro-hand,
+  :root:not([data-theme]) .intro-hand { filter: invert(1); }
 }
 
 .intro-title {
   margin: 0;
+  max-width: var(--intro-words-w);
   font-size: var(--type-display);
   line-height: var(--leading-display);
   letter-spacing: var(--tracking-tight);
@@ -480,6 +555,7 @@ html.bedded #intro::after { opacity: 1; }
 
 .intro-sub {
   margin: var(--space-5) 0 0;
+  max-width: var(--intro-words-w);
   font-size: var(--type-body-lg);
   line-height: var(--leading-body);
   color: var(--ink-muted);

@@ -141,14 +141,6 @@ function frame(): void {
     rootStyle.setProperty('--site-inset', (BOX_INSET * (1 - widen(er))).toFixed(1) + 'px');
     rootStyle.setProperty('--site-radius', (RISE_RADIUS * (1 - square(er))).toFixed(1) + 'px');
     rootStyle.setProperty('--site-line', ease((er - 0.85) / 0.15).toFixed(3));
-    // The introduction's words hold still while the page's box climbs over
-    // them: nothing fades, nothing slides away, the box simply covers it. The
-    // introduction scrolls up by exactly this much once it has landed, so
-    // pushing the words back down by the same amount pins them to the centre
-    // they poured onto. Linear, not eased: it has to cancel the raw scroll,
-    // which is what moves the box. Past a full screen the page covers them
-    // completely, so the hold stops there.
-    rootStyle.setProperty('--intro-hold', (er * window.innerHeight).toFixed(1) + 'px');
   }
 
   // The climb over, the header stops being sticky and pins. A sticky bar
