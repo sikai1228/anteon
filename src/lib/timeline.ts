@@ -95,13 +95,16 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   }
 
   /* The site holds its ground with a rubber band, not a wall. Once the
-   * viewer is on the landing page, pulling up at the film boundary drags the
+   * viewer is on the landing page, pulling up at the page's own top drags the
    * page visibly down with parabolic resistance (displacement grows with the
    * square root of the pull, so every further pixel costs more). Let go and
    * the band springs back home. Pull past the critical mass and it breaks:
-   * the page releases upward into the trailer. Scrolling down is never
-   * resisted. The boundary is the skip ride's own landing, the film
-   * element's full height. */
+   * the page releases upward into the introduction, and the trailer beyond it
+   * is then a plain scroll away. Scrolling down is never resisted.
+   *
+   * The band sits at the page's top, not the film's end: the introduction is
+   * the trailer's last card rather than part of the page, so the band belongs
+   * on the seam between the introduction and the page. */
   /** Critical mass: upward input, in px, that breaks the band. Drags in
    * quick succession pool their charge across the window below even while
    * the visible stretch springs back between them. */
@@ -125,10 +128,14 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     return spanPx + window.innerHeight;
   }
   /** The page's own top. The introduction box rests at the boundary and holds a
-   * screen of its own, so home is one screen further down; the wordmarks and a
-   * resume-to-site land here, not on the introduction. */
+   * screen of its own, so home is one screen further down; the wordmarks, the
+   * skip ride, and a resume-to-site all land here, not on the introduction. */
   function home(): number {
     return boundary() + window.innerHeight;
+  }
+  /** Where the band anchors: the page's own top. */
+  function band(): number {
+    return home();
   }
   function currentY(): number {
     return lenis ? lenis.scroll : window.scrollY;
@@ -174,11 +181,11 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
       pull *= Math.exp(-SPRING_K * dt);
       if (pull < 1) {
         pull = 0;
-        holdAt(boundary());
+        holdAt(band());
         return;
       }
     }
-    holdAt(boundary() - (reduced ? 0 : dispOf(pull)));
+    holdAt(band() - (reduced ? 0 : dispOf(pull)));
     springRaf = requestAnimationFrame(springFrame);
   }
   function ensureSpring(): void {
@@ -217,7 +224,7 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   // the window natively, so one native scroll listener covers both modes.
   function onScrollTick(): void {
     const y = currentY();
-    const B = boundary();
+    const B = band();
     if (armed && springRaf === 0 && y < B - SLACK) {
       // Coasting momentum cannot slip past the boundary; only the band's
       // own loop may place the page above it.
@@ -231,7 +238,7 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   }
 
   function onWheel(e: WheelEvent): void {
-    if (!armed || currentY() > boundary() + SLACK) return;
+    if (!armed || currentY() > band() + SLACK) return;
     const dy =
       e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
     if (dy >= 0) {
@@ -255,7 +262,7 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     if (!t || touchY === null) return;
     const dy = t.clientY - touchY;
     touchY = t.clientY;
-    if (!armed || currentY() > boundary() + SLACK) return;
+    if (!armed || currentY() > band() + SLACK) return;
     // A finger moving down the screen scrolls up, toward the trailer.
     if (dy <= 0) {
       if (pull > 0) slacken();

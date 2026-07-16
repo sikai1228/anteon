@@ -56,7 +56,7 @@ export const FILM = {
     { key: 'nasa', tIn: 0.515, tOut: 0.575, anchor: [0.05, 0.45], screen: true, align: 'left', maxCh: 18 },
     { key: 'armstrong', tIn: 0.585, tOut: 0.66, anchor: [0.6, 0.14], align: 'left', maxCh: 25 },
     { key: 'card1', tIn: 0.885, tOut: 0.935, card: true },
-    { key: 'card2', tIn: 0.945, tOut: 0.998, card: true },
+    { key: 'card2', tIn: 0.945, tOut: 1, card: true, hold: true },
   ] as CaptionBeat[],
 
   /**

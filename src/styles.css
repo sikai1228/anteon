@@ -408,8 +408,10 @@ canvas#gl {
    * holds the bottom edge on any short viewport. */
   display: flex;
   flex-direction: column;
-  /* Enters as a box with the film box's side breathing, then grows to full
-   * width as it rises; chrome.ts drives the vars from the entry progress. */
+  /* Enters at the width the sections themselves use, then grows to full bleed
+   * as it rises; chrome.ts drives the vars from the entry progress. The start
+   * width is --width-page, so the box's edges begin exactly on the section
+   * container's and the content inside never moves: only the edges travel. */
   margin: 0 var(--site-inset, var(--chrome-inset));
   border-radius: var(--site-radius, var(--radius-frame)) var(--site-radius, var(--radius-frame)) 0 0;
 }
@@ -417,20 +419,54 @@ canvas#gl {
 /* The introduction: one screen of its own between the film and the page, on the
  * same climb the page makes. It carries its own inset and radius vars so it can
  * rise a screen ahead of the site's; chrome.ts drives both from the scroll. No
- * chrome here, just the name and the line, centred on the board's own white. */
+ * chrome here, just the name and the line, centred on the film's own chalk: the
+ * one step between the board it leaves and the paper it hands off to. */
 #intro {
   position: relative;
   z-index: var(--z-site);
   height: 100vh;
   display: grid;
   place-items: center;
-  background: var(--paper);
+  background: var(--intro-bg);
   color: var(--ink);
   font-family: var(--sans);
   margin: 0 var(--intro-inset, var(--chrome-inset));
   border-radius: var(--intro-radius, var(--radius-frame)) var(--intro-radius, var(--radius-frame)) 0 0;
   text-align: center;
   padding-inline: var(--space-gutter);
+}
+
+/* The bed: the introduction's chalk, pinned to the viewport and painted behind
+ * everything from the moment the introduction lands. The page climbs inset from
+ * the edges, and without this the fixed film shows through that gutter as two
+ * black lines running down the page's sides. The bed puts chalk there instead,
+ * so the page grows out of the introduction rather than out of the film.
+ *
+ * It switches on at the exact frame the introduction fills the viewport
+ * (chrome.ts adds .bedded at entry 1), so the film is never covered and the
+ * switch itself is unseeable: the introduction's own box is over every pixel of
+ * it. Fixed children are positioned, not grid items, so the centring above
+ * leaves this alone; z-index -1 keeps it behind the introduction's own ground
+ * while the whole element still stacks under the page. */
+#intro::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--intro-bg);
+  opacity: 0;
+  /* It covers the viewport from the film's first frame, invisible but present,
+   * so without this it eats every click meant for the skip button under it. */
+  pointer-events: none;
+}
+
+html.bedded #intro::after { opacity: 1; }
+
+/* The words hold their centre while the page's box rises over them; chrome.ts
+ * feeds the counter-scroll. They never fade and never slide: the box covering
+ * them is the whole exit. */
+.intro-inner {
+  transform: translateY(var(--intro-hold, 0px));
 }
 
 .intro-title {

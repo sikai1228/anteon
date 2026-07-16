@@ -26,6 +26,10 @@ export interface CaptionBeat {
   el?: string;
   /** Large closing card style. */
   card?: boolean;
+  /** The film's last word: it never leaves. The beat pours in as usual, then
+   * holds at full opacity, perfectly still, with no exit ramp and no float.
+   * What ends it is the introduction's box climbing over it. */
+  hold?: boolean;
   /** Small footnote style (the Lilienthal line). */
   small?: boolean;
   /** Beats can ship disabled; the runtime skips them. */

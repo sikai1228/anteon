@@ -53,6 +53,8 @@ interface Beat {
   isQuote: boolean;
   isAnchored: boolean;
   isCard: boolean;
+  /** No exit and no float: the beat holds where it poured. */
+  holds: boolean;
   small: boolean;
   /** Anchor fractions are of the viewport, hugging the physical frame. */
   screen: boolean;
@@ -120,6 +122,7 @@ export function createCaptions(): CaptionsApi {
       isQuote,
       isAnchored: anchor !== null,
       isCard: c.card === true,
+      holds: c.hold === true,
       small: c.small === true,
       screen: c.screen === true,
       anchor,
@@ -266,11 +269,15 @@ export function createCaptions(): CaptionsApi {
    * and out in reverse. The min of the two eased ramps gives the plateau.
    */
   function wordAlpha(b: Beat, r: number, p: number): number {
-    if (p <= b.tIn || p >= b.tOut) return 0;
+    if (p <= b.tIn) return 0;
+    // A holding beat has an entrance and no exit: once poured it stays lit for
+    // the rest of the film, including past its own window.
+    if (p >= b.tOut) return b.holds ? 1 : 0;
     const dd = b.wordDur > 0 ? b.wordDur : b.edge;
     if (dd <= 0) return 1;
     const si = r * b.spread;
     const aIn = easeCubic((p - b.tIn - si) / dd);
+    if (b.holds) return aIn;
     const aOut = easeCubic((b.tOut - p - si) / dd);
     return aIn < aOut ? aIn : aOut;
   }
@@ -279,7 +286,9 @@ export function createCaptions(): CaptionsApi {
     const el = b.el;
     if (!el) return;
     // Whole-caption float, linear across the window, on the positioned element.
-    const floatEm = -FLOAT_EM * clamp01((p - b.tIn) / (b.tOut - b.tIn));
+    // A holding beat sits still instead: the box that rises over it is the only
+    // thing that should move.
+    const floatEm = b.holds ? 0 : -FLOAT_EM * clamp01((p - b.tIn) / (b.tOut - b.tIn));
     const rf = round2(floatEm);
     if (rf !== b.lastFloat) {
       if (b.isAnchored) {

@@ -29,7 +29,26 @@ function tokenNum(name: string, fallback: number): number {
 const BOX_TOP = tokenNum('--chrome-header', 84);
 const BOX_INSET = tokenNum('--chrome-inset', 17);
 const BOX_RADIUS = tokenNum('--radius-frame', 10);
+const PAGE_W = tokenNum('--width-page', 1200);
 const RIDE_MS = tokenNum('--speed-ride', 1.5) * 1000;
+
+/** The page's inset at rest: the section width, so the box starts on the very
+ * edges its sections use and grows out to full bleed from there. Never tighter
+ * than the film box's own breathing, which is all a narrow viewport has room
+ * for once the page is wider than the screen. */
+function siteRestInset(): number {
+  return Math.max(BOX_INSET, (window.innerWidth - PAGE_W) / 2);
+}
+
+/** Where in a box's climb it starts to widen. Before this it holds its length
+ * and only rises; after it, it rises and widens together. Two moves read as
+ * two moves; widening from the first pixel reads as a smear. */
+const EXPAND_AT = 0.7;
+
+/** A box's width, 0 at its resting length, 1 at full bleed, across the climb. */
+function widen(r: number): number {
+  return ease((r - EXPAND_AT) / (1 - EXPAND_AT));
+}
 
 function clamp01(x: number): number {
   return x < 0 ? 0 : x > 1 ? 1 : x;
@@ -51,10 +70,17 @@ let lastI = -1;
 let lastK = -1;
 let atStart = true;
 let pinned = false;
+let bedded = false;
 let skipTimer = 0;
 
 function span(): number {
   return Math.max(1, (filmEl ? filmEl.offsetHeight : 1) - window.innerHeight);
+}
+
+/** The page's own top: the introduction rests at the film's end and holds a
+ * screen of its own, so the page begins one screen further down. */
+function home(): number {
+  return span() + window.innerHeight * 2;
 }
 
 function frame(): void {
@@ -80,9 +106,19 @@ function frame(): void {
   const ri = Math.round(ir * 1000) / 1000;
   if (ri !== lastI) {
     lastI = ri;
-    const closed = 1 - ease(ir);
+    const closed = 1 - widen(ir);
     rootStyle.setProperty('--intro-inset', (BOX_INSET * closed).toFixed(1) + 'px');
     rootStyle.setProperty('--intro-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
+  }
+
+  // The chalk bed lands the instant the introduction fills the viewport, and
+  // stays for everything below. Switched here rather than in CSS because the
+  // frame that hides the switch is the one where ir reaches 1: the
+  // introduction covers every pixel the bed would repaint.
+  const wantBed = ir >= 1;
+  if (wantBed !== bedded) {
+    bedded = wantBed;
+    document.documentElement.classList.toggle('bedded', wantBed);
   }
 
   // The exit mirrors the entrance: the white site block enters as a box with
@@ -98,10 +134,18 @@ function frame(): void {
   const re = Math.round(er * 1000) / 1000;
   if (re !== lastE) {
     lastE = re;
-    const closed = 1 - ease(er);
-    rootStyle.setProperty('--site-inset', (BOX_INSET * closed).toFixed(1) + 'px');
+    const closed = 1 - widen(er);
+    rootStyle.setProperty('--site-inset', (siteRestInset() * closed).toFixed(1) + 'px');
     rootStyle.setProperty('--site-radius', (BOX_RADIUS * closed).toFixed(1) + 'px');
     rootStyle.setProperty('--site-line', ease((er - 0.85) / 0.15).toFixed(3));
+    // The introduction's words hold still while the page's box climbs over
+    // them: nothing fades, nothing slides away, the box simply covers it. The
+    // introduction scrolls up by exactly this much once it has landed, so
+    // pushing the words back down by the same amount pins them to the centre
+    // they poured onto. Linear, not eased: it has to cancel the raw scroll,
+    // which is what moves the box. Past a full screen the page covers them
+    // completely, so the hold stops there.
+    rootStyle.setProperty('--intro-hold', (er * window.innerHeight).toFixed(1) + 'px');
   }
 
   // The climb over, the header stops being sticky and pins. A sticky bar
@@ -251,7 +295,7 @@ tryInit('wordmark home', () => {
   for (const w of document.querySelectorAll('#wordmark, .site-wordmark, .footer-brand')) {
     w.addEventListener('click', () => {
       if (document.documentElement.classList.contains('static')) {
-        window.scrollTo(0, span() + window.innerHeight);
+        window.scrollTo(0, home());
       } else {
         window.dispatchEvent(new CustomEvent('site-jump'));
       }
@@ -262,10 +306,11 @@ tryInit('wordmark home', () => {
 if (!document.documentElement.classList.contains('static')) {
   skipEl?.addEventListener('click', () => {
     // No teleport: race through the whole film in about 1.5 seconds, fast
-    // enough to skip, slow enough that every frame flashes past, landing on
-    // the site's hero, fully risen. Any manual scroll cancels the ride.
+    // enough to skip, slow enough that every frame flashes past. Skipping the
+    // film means skipping its title card too, so the ride lands on the page
+    // itself, fully risen, not on the introduction. Any manual scroll cancels.
     const from = window.scrollY;
-    const to = span() + window.innerHeight;
+    const to = home();
     const T = RIDE_MS;
     let cancelled = false;
     const cancel = () => {
