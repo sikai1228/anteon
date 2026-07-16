@@ -128,7 +128,7 @@ initCompilerDiagram();
 // list through the i18n catalogs, so the wheel follows locale swaps.
 const wheelEl = document.querySelector<HTMLElement>('.hero-wheel');
 if (wheelEl && !document.documentElement.classList.contains('static')) {
-  const WHEEL_MS = 2200;
+  const WHEEL_MS = 3400;
   // Must match the CSS roll transition (--speed-settle).
   const ROLL_MS = 300;
   const reducedMq = window.matchMedia('(prefers-reduced-motion: reduce)');
