@@ -25,6 +25,16 @@
       }
     } catch (e) {}
   </script>
+  <script>
+    /* Theme before first paint, so the shell never flashes the wrong ground:
+       a stored light or dark wins, and anything else follows the OS. */
+    try {
+      var t = localStorage.getItem('antaeon-theme');
+      document.documentElement.setAttribute('data-theme', t === 'light' || t === 'dark' ? t : 'system');
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'system');
+    }
+  </script>
   <link rel="stylesheet" href="/src/tokens.css" />
   <link rel="stylesheet" href="/src/styles.css" />
 </head>

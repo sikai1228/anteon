@@ -2,9 +2,9 @@
  * The footer preference controls, one wiring for every page: the language
  * pill (a native details menu with the expected dismissals; choosing hands
  * the locale to setLocale, which swaps every data-i18n string live) and the
- * theme pill (selection state only for now; no theme engine sits behind it
- * yet). The landing page and every shell page call this, so the footer
- * behaves identically no matter where it renders.
+ * theme pill (three modes, light, dark, and system, set on the root as
+ * data-theme and remembered in storage). The landing page and every shell
+ * page call this, so the footer behaves identically no matter where it renders.
  */
 
 import { setLocale } from '../i18n/i18n';
@@ -31,17 +31,46 @@ export function wirePrefs(): void {
     }
   }
 
+  // The theme pill: three modes remembered across pages and visits. The
+  // head's pre-paint script has already set data-theme from storage before
+  // first paint; this wires the pill to change it and reflects the stored
+  // choice on load. The three options are System, Light, Dark in DOM order, so
+  // the index maps to the mode and the shared footer needs no per-page marker.
   const themeSwitch = document.querySelector<HTMLElement>('.theme-switch');
   if (themeSwitch) {
     const opts = [...themeSwitch.querySelectorAll<HTMLButtonElement>('.theme-opt')];
-    for (const opt of opts) {
-      opt.addEventListener('click', () => {
-        for (const o of opts) {
-          o.setAttribute('aria-checked', o === opt ? 'true' : 'false');
-          o.classList.toggle('is-active', o === opt);
-        }
+    const MODES = ['system', 'light', 'dark'] as const;
+    type Mode = (typeof MODES)[number];
+    const reflect = (mode: Mode): void => {
+      opts.forEach((o, i) => {
+        const on = MODES[i] === mode;
+        o.setAttribute('aria-checked', on ? 'true' : 'false');
+        o.classList.toggle('is-active', on);
       });
-    }
+    };
+    const stored = (): Mode => {
+      try {
+        const v = localStorage.getItem('antaeon-theme');
+        if (v === 'light' || v === 'dark') return v;
+      } catch {
+        // Private mode can throw on read; fall through to system.
+      }
+      return 'system';
+    };
+    const apply = (mode: Mode): void => {
+      document.documentElement.setAttribute('data-theme', mode);
+      try {
+        localStorage.setItem('antaeon-theme', mode);
+      } catch {
+        // Private mode can throw on write; the choice holds for this page only.
+      }
+      reflect(mode);
+    };
+    opts.forEach((opt, i) => {
+      opt.addEventListener('click', () => apply(MODES[i]));
+    });
+    // Match the pill to what the pre-paint script already applied.
+    reflect(stored());
   }
 
   // The Product mega menu: hovering the trigger drops the platform panel,

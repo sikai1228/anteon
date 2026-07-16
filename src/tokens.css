@@ -205,3 +205,66 @@ html[data-look="vinci"] {
   --glow-caption: 0 0 0 rgba(61, 47, 31, 0);
   --glow-card: 0 0 0 rgba(61, 47, 31, 0);
 }
+
+/* Dark theme: the paper-side inks inverted onto a near-black ground. The base
+ * :root above stays the light palette, untouched, so light renders byte for
+ * byte as before; only these selectors repaint. data-theme="dark" is the
+ * explicit choice; data-theme="system" (and no attribute at all, for a page
+ * with JS off) follows the OS through prefers-color-scheme below. The board,
+ * the chalk, the ash, and the flag pair are the film's own palette and hold
+ * in every mode, so the trailer looks identical light or dark. The two blocks
+ * carry the same values: one for the explicit choice, one for system-follow.
+ * The flag red clears AA on this ground at 5.2:1, so it needs no nudge. */
+:root[data-theme="dark"] {
+  --paper: #0e0e10;
+  --ink: #ececee;
+  --ink-muted: rgba(236, 236, 238, 0.72);
+  --ink-soft: rgba(236, 236, 238, 0.62);
+  --ink-faint: rgba(236, 236, 238, 0.5);
+  --line: rgba(255, 255, 255, 0.12);
+
+  /* Both status inks lifted to clear AA text contrast on the dark ground. */
+  --status-success: #4cc38a;
+  --status-error: #ff6b5a;
+
+  /* Ink-tinted shadows vanish on black; deepen to black-based elevation. */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 1px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 4px 12px rgba(0, 0, 0, 0.55), 0 24px 64px rgba(0, 0, 0, 0.6);
+
+  /* Frosted chrome tinted to the dark ground; the blur radius is unchanged. */
+  --frost: rgba(14, 14, 16, 0.72);
+
+  /* The trailer/landing box hairline must read light on the black page. This
+   * default holds in static mode and before the film's first frame; chrome.ts's
+   * inline value (light grey while the box breathes, transparent at full bleed)
+   * overrides it the moment the film runs. */
+  --box-border: #dedcd5;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"],
+  :root:not([data-theme]) {
+    --paper: #0e0e10;
+    --ink: #ececee;
+    --ink-muted: rgba(236, 236, 238, 0.72);
+    --ink-soft: rgba(236, 236, 238, 0.62);
+    --ink-faint: rgba(236, 236, 238, 0.5);
+    --line: rgba(255, 255, 255, 0.12);
+
+    --status-success: #4cc38a;
+    --status-error: #ff6b5a;
+
+    --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 1px rgba(0, 0, 0, 0.4);
+    --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45);
+    --shadow-3: 0 4px 12px rgba(0, 0, 0, 0.55), 0 24px 64px rgba(0, 0, 0, 0.6);
+
+    --frost: rgba(14, 14, 16, 0.72);
+
+    --box-border: #dedcd5;
+
+    color-scheme: dark;
+  }
+}

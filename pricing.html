@@ -9,6 +9,16 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/logo/favicon-16.png" />
   <link rel="apple-touch-icon" href="/logo/apple-touch.png" />
   <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/hanken-grotesk-latin.woff2" />
+  <script>
+    /* Theme before first paint, so the shell never flashes the wrong ground:
+       a stored light or dark wins, and anything else follows the OS. */
+    try {
+      var t = localStorage.getItem('antaeon-theme');
+      document.documentElement.setAttribute('data-theme', t === 'light' || t === 'dark' ? t : 'system');
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'system');
+    }
+  </script>
   <link rel="stylesheet" href="/src/tokens.css" />
   <link rel="stylesheet" href="/src/page.css" />
 </head>

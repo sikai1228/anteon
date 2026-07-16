@@ -1034,3 +1034,27 @@ a.footer-brand:hover .brand-mark .hand-r {
 
   .page-header .header-nav .book-call:hover::after { transform: scaleX(1); }
 }
+
+/* --- Dark theme: what a token flip cannot reach ---------------------------
+ * The palette flips in tokens.css; the shells only carry two things a token
+ * cannot: the raster wordmark hands, which are black ink and must invert, and
+ * the theme pill's chosen circle, which needs a faint raised surface to read
+ * on the black ground. Written twice so "computer decide" mode follows the OS. */
+:root[data-theme="dark"] .brand-mark img { filter: invert(1); }
+
+:root[data-theme="dark"] .theme-opt:hover,
+:root[data-theme="dark"] .theme-opt.is-active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] .brand-mark img,
+  :root:not([data-theme]) .brand-mark img { filter: invert(1); }
+
+  :root[data-theme="system"] .theme-opt:hover,
+  :root[data-theme="system"] .theme-opt.is-active,
+  :root:not([data-theme]) .theme-opt:hover,
+  :root:not([data-theme]) .theme-opt.is-active {
+    background: rgba(255, 255, 255, 0.06);
+  }
+}
