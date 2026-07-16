@@ -84,7 +84,7 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
   // Two coordinates saved: film progress (beat-accurate, survives resize)
   // and raw pixels, which carry positions BEYOND the film where progress
   // clamps to 1 (the site pages under the film).
-  const SCROLL_KEY = 'antaeon-scroll';
+  const SCROLL_KEY = 'anteon-scroll';
   function saveScroll(): void {
     try {
       const pos = lenis ? lenis.scroll : window.scrollY;

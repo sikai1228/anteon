@@ -1,6 +1,6 @@
 # Hatching and chalk style decision brief
 
-Context: Layer2 film, chalk white #eceae4 strokes on board #0b0b0d, wide landscape, converting multi-directional scribble to parallel directional hatching. Our marks are light and bare board is shadow, so classical ink logic inverts.
+Context: Anteon film, chalk white #eceae4 strokes on board #0b0b0d, wide landscape, converting multi-directional scribble to parallel directional hatching. Our marks are light and bare board is shadow, so classical ink logic inverts.
 
 ## 1. Default hatch angle
 

@@ -1,5 +1,5 @@
 /*
- * Antaeon design tokens: one name for every value the shell uses.
+ * Anteon design tokens: one name for every value the shell uses.
  *
  * The film's chalk look (stroke widths, boil, hatch angle, bloom) keeps its
  * own source as LOOK in src/lib/types.ts; the four shared colors below

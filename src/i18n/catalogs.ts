@@ -229,12 +229,12 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel5: 'effort',
     siteNote: 'The site begins here.',
     heroSub:
-      "Your AI rebuilds solved algorithms, uses them once, and trashes them. Antaeon preloads 1,000+ and grows your firm's own proprietary library.",
+      "Your AI rebuilds solved algorithms, uses them once, and trashes them. Anteon preloads 1,000+ and grows your firm's own proprietary library.",
     mediaStripLabel: 'Team from',
     libraryTitle: '1,000+ preloaded engines and the',
     libraryTitle2: 'framework to call them',
     libraryBody:
-      'There are thousands of tasks that are deterministic and should invoke a pre-written algorithm. Yet modern AI systems continue to reinvent them from scratch, often inaccurately, and discard the result immediately after one use. Antaeon preloads 1,000+ engines and trains your AI to call them intelligently, so every request runs faster, breaks less, and costs less.',
+      'There are thousands of tasks that are deterministic and should invoke a pre-written algorithm. Yet modern AI systems continue to reinvent them from scratch, often inaccurately, and discard the result immediately after one use. Anteon preloads 1,000+ engines and trains your AI to call them intelligently, so every request runs faster, breaks less, and costs less.',
     cell1Name: 'Conversion',
     cell1Desc: 'Any format into any other, whether files, images, code, or encodings.',
     cell1ExA: 'docx → pdf',
@@ -302,7 +302,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiIndexTitle: 'A continuously updated index',
     apiIndexTitle2: 'of the top APIs on the internet',
     apiIndexLede:
-      'Not everything deserves a new engine. Antaeon collates the internet\u2019s best APIs, ranks them with its own quality metrics, and when your AI is about to build something an API already does, recommends the right one.',
+      'Not everything deserves a new engine. Anteon collates the internet\u2019s best APIs, ranks them with its own quality metrics, and when your AI is about to build something an API already does, recommends the right one.',
     apiCell1Name: 'Stripe',
     apiCell1Desc: 'Payments, billing, and invoicing, from checkout to payout.',
     apiCell1ExA: 'invoice → paid',
@@ -337,7 +337,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8ExB: 'ranked, then routed',
     compilerTitle: 'A personal, self-improving library precision-built for your firm',
     compilerBody:
-      'Antaeon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs so you can watch it pay for itself.',
+      'Anteon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs so you can watch it pay for itself.',
     footerTag: 'Your AI shouldn’t stand alone.',
     company: 'Company',
     legal: 'Legal',
@@ -351,7 +351,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     themeSystem: 'System theme',
     themeLight: 'Light theme',
     themeDark: 'Dark theme',
-    rights: '© 2026 Antaeon. All rights reserved.',
+    rights: '© 2026 Anteon. All rights reserved.',
     ariaChangeLanguage: 'Change language',
     ariaMenu: 'Menu',
     metaDescription: 'If I have seen further, it is by standing on the shoulders of Giants.',
@@ -379,12 +379,12 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel5: 'esfuerzo',
     siteNote: 'Aquí empieza el sitio.',
     heroSub:
-      'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Antaeon precarga 1.000+ y cultiva la biblioteca propietaria de tu empresa.',
+      'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Anteon precarga 1.000+ y cultiva la biblioteca propietaria de tu empresa.',
     mediaStripLabel: 'Equipo formado en',
     libraryTitle: 'Más de 1.000 motores precargados y el',
     libraryTitle2: 'marco para llamarlos',
     libraryBody:
-      'Hay miles de tareas que son deterministas y deberían invocar un algoritmo ya escrito. Aun así, los sistemas de IA modernos siguen reinventándolas desde cero, a menudo con errores, y descartan el resultado tras un solo uso. Antaeon precarga más de 1.000 motores y entrena a tu IA para llamarlos con inteligencia, de modo que cada petición es más rápida, falla menos y cuesta menos.',
+      'Hay miles de tareas que son deterministas y deberían invocar un algoritmo ya escrito. Aun así, los sistemas de IA modernos siguen reinventándolas desde cero, a menudo con errores, y descartan el resultado tras un solo uso. Anteon precarga más de 1.000 motores y entrena a tu IA para llamarlos con inteligencia, de modo que cada petición es más rápida, falla menos y cuesta menos.',
     cell1Name: 'Conversión',
     cell1Desc: 'Cualquier formato a cualquier otro, ya sean archivos, imágenes, código o codificaciones.',
     cell1ExA: 'docx → pdf',
@@ -452,7 +452,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiIndexTitle: 'Un índice en continua actualización',
     apiIndexTitle2: 'de las principales API de internet',
     apiIndexLede:
-      'No todo merece un motor nuevo. Antaeon reúne las mejores API de internet, las clasifica con sus propias métricas de calidad y, cuando tu IA está a punto de construir algo que una API ya hace, te recomienda la adecuada.',
+      'No todo merece un motor nuevo. Anteon reúne las mejores API de internet, las clasifica con sus propias métricas de calidad y, cuando tu IA está a punto de construir algo que una API ya hace, te recomienda la adecuada.',
     apiCell1Name: 'Stripe',
     apiCell1Desc: 'Pagos, facturación y cobros, del checkout al abono.',
     apiCell1ExA: 'factura → pagada',
@@ -487,7 +487,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8ExB: 'clasificada y enrutada',
     compilerTitle: 'Una biblioteca personal y autooptimizable, hecha a la medida de tu empresa',
     compilerBody:
-      'Antaeon compila algoritmos únicos a partir del trabajo real de tu empresa y los comparte con todos tus empleados. La biblioteca crece sin parar, y un backend registra el uso y los KPI, para que veas cómo se amortiza sola.',
+      'Anteon compila algoritmos únicos a partir del trabajo real de tu empresa y los comparte con todos tus empleados. La biblioteca crece sin parar, y un backend registra el uso y los KPI, para que veas cómo se amortiza sola.',
     footerTag: 'Tu IA no debería estar sola.',
     company: 'Empresa',
     legal: 'Legal',
@@ -501,7 +501,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     themeSystem: 'Tema del sistema',
     themeLight: 'Tema claro',
     themeDark: 'Tema oscuro',
-    rights: '© 2026 Antaeon. Todos los derechos reservados.',
+    rights: '© 2026 Anteon. Todos los derechos reservados.',
     ariaChangeLanguage: 'Cambiar idioma',
     ariaMenu: 'Menú',
     metaDescription: 'Si he visto más lejos, es porque me he subido a hombros de gigantes.',

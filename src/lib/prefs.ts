@@ -50,7 +50,7 @@ export function wirePrefs(): void {
     };
     const stored = (): Mode => {
       try {
-        const v = localStorage.getItem('antaeon-theme');
+        const v = localStorage.getItem('anteon-theme');
         if (v === 'light' || v === 'dark') return v;
       } catch {
         // Private mode can throw on read; fall through to system.
@@ -60,7 +60,7 @@ export function wirePrefs(): void {
     const apply = (mode: Mode): void => {
       document.documentElement.setAttribute('data-theme', mode);
       try {
-        localStorage.setItem('antaeon-theme', mode);
+        localStorage.setItem('anteon-theme', mode);
       } catch {
         // Private mode can throw on write; the choice holds for this page only.
       }

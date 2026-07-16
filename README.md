@@ -1,4 +1,4 @@
-# Layer2 intro: shoulders of giants
+# Anteon intro: shoulders of giants
 
 A scroll-driven intro film. Chalk on black, one camera, one continuous take,
 scroll is the clock. Newton to the Wright brothers to the Moon, ending on:

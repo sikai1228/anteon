@@ -17,7 +17,7 @@ wirePrefs();
 for (const w of document.querySelectorAll('a.wordmark, a.footer-brand')) {
   w.addEventListener('click', () => {
     try {
-      sessionStorage.setItem('antaeon-scroll', 'site');
+      sessionStorage.setItem('anteon-scroll', 'site');
     } catch {
       // No storage; index will start from the film's top instead.
     }

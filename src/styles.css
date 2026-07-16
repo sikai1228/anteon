@@ -654,7 +654,7 @@ canvas#gl {
  * A LIGHT terminal card in the idiom of a real agent CLI: user prompts as
  * bordered quote blocks, tool calls as dot bullets with elbow results,
  * transient working glyphs, a check on every verified result. Two panes
- * share the body like a tmux split, Antaeon left, the plain assistant
+ * share the body like a tmux split, Anteon left, the plain assistant
  * right. The two status tones below are scoped to this frame only: it
  * depicts a product UI; the page itself keeps its one-accent law. */
 .hero-terminal {
@@ -717,7 +717,7 @@ html[data-boot="site"] #skip {
 
 /* The rival pane overlays the right half of the fixed window, so its
  * longer transcript scrolls up and out of view inside the frame, the way
- * a busy terminal behaves; Antaeon's pane fills the left half. */
+ * a busy terminal behaves; Anteon's pane fills the left half. */
 .terminal-body { position: relative; }
 
 .term-pane {
@@ -874,7 +874,7 @@ html[data-boot="site"] #skip {
   }
 }
 
-/* Stacked on a phone: Antaeon above, the rival below, the same script.
+/* Stacked on a phone: Anteon above, the rival below, the same script.
  * Both panes return to the flow and hug their content, and the card grows
  * with them instead of clipping. */
 @media (max-width: 768px) {

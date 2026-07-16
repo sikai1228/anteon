@@ -1,6 +1,6 @@
 # Assets
 
-Raw scanned models staged for the Layer2 intro film. These are third party
+Raw scanned models staged for the Anteon intro film. These are third party
 scans we downloaded rather than rebuilt by hand. The raw files live in
 public/assets/raw, which is gitignored. Decimated and re-encoded versions get
 committed in a later round. Every file was license checked before staging, and

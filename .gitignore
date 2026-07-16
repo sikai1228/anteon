@@ -4,3 +4,4 @@ dist
 *.local
 public/assets/raw
 /media strip/
+.vercel

@@ -8,8 +8,8 @@
 
 # Auto-resolved
 
-- Antaeon: the brand and operating name in shipped copy (wordmark, footer, page titles, storage keys antaeon-lang and antaeon-scroll, legal pages). Evidence: every shell page already ships it; the Layer2 canonical entry reads as the folder-name placeholder it describes. Supersede formally via /standardize.
-- "services agreement": the legal pages' term for a customer's master agreement with Antaeon, used consistently across terms and privacy. Evidence: no prior term existed; the three legal documents define and share it.
+- Anteon: the brand and operating name in shipped copy (wordmark, footer, page titles, storage keys anteon-lang and anteon-scroll, legal pages). Evidence: every shell page already ships it; the Layer2 canonical entry reads as the folder-name placeholder it describes. Supersede formally via /standardize.
+- "services agreement": the legal pages' term for a customer's master agreement with Anteon, used consistently across terms and privacy. Evidence: no prior term existed; the three legal documents define and share it.
 - Terminal demo register: strings depicted as terminal output (the hero demo's chips, result lines, prompts, filenames) keep terminal casing and glyphs: lowercase tool ids ("engine · convert"), lowercase filename sentence openers, text arrows. Evidence: the library cells already ship mono lowercase examples with text arrows ("docx → pdf"); sentence-case rules govern prose surfaces, not depicted code.
 
 # Pending

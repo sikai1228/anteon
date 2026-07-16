@@ -11,7 +11,7 @@ import { CATALOGS } from './catalogs';
 
 export type { Locale };
 
-const STORAGE_KEY = 'antaeon-lang';
+const STORAGE_KEY = 'anteon-lang';
 
 /** The endonyms shown on the pill and options; names of languages, never translated. */
 const ENDONYM: Record<Locale, string> = { en: 'English', es: 'Español' };

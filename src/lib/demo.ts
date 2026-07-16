@@ -3,13 +3,13 @@
  * idiom of a real agent CLI. User prompts sit in bordered "> " blocks;
  * tool calls are dot-bulleted lines with elbow results beneath; the plain
  * assistant thinks out loud behind a pulsing working glyph that each next
- * step replaces. Antaeon answers in about five seconds with its results
+ * step replaces. Anteon answers in about five seconds with its results
  * check-marked; the other side stalls, fails the file search, receives
  * the user's upload, and limps to the same answer a minute later, its
  * older lines scrolling out of the frame as it grinds on. No clocks and
  * no duration lines anywhere: the speed speaks for itself.
  * Each pane's head carries an API cost ticker at Opus 4.8 prices, ticking
- * once per finished AI message: Antaeon's engines are not model calls, so
+ * once per finished AI message: Anteon's engines are not model calls, so
  * its side stays at zero until the one closing message; the other side
  * ticks up on every message it writes.
  *
@@ -68,7 +68,7 @@ const SCRIPT: readonly DemoEvent[] = [
     text: 'Convert the Q2 supplier datasheet to CSV, give me spend totals by vendor with variance vs Q1, and check if policy requires an audit of the procurement team.',
   },
 
-  // Antaeon: no upload needed, the firm's own library holds the data.
+  // Anteon: no upload needed, the firm's own library holds the data.
   // Each engine call lands with its elbow results in the same breath.
   { pane: 'a', at: 500, kind: 'tool', text: 'engine · database' },
   { pane: 'a', at: 900, kind: 'out', text: 'supplier_q2 pulled from company database' },
@@ -191,7 +191,7 @@ function makeLine(pane: PaneId, kind: EventKind, text: string): { line: HTMLElem
       textEl.textContent = text;
       break;
     case 'out': {
-      // An elbow result under its tool call; Antaeon's results carry the check.
+      // An elbow result under its tool call; Anteon's results carry the check.
       line.className = 'term-line term-out';
       line.append(glyph('term-glyph term-elbow', '⎿'));
       textEl.textContent = text;
@@ -255,7 +255,7 @@ export function initTerminalDemo(): void {
   schedule.sort((x, y) => x.at - y.at);
 
   // Reduced motion: no race. Both panes render their final states, the
-  // story told standing still: Antaeon complete, the other side frozen
+  // story told standing still: Anteon complete, the other side frozen
   // mid-grind on its working line.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     // No race to hurry: the control leaves with the motion.
@@ -306,7 +306,7 @@ export function initTerminalDemo(): void {
     const working = pane.lines.querySelector('.term-work');
     if (working) working.remove();
     const { line, textEl } = makeLine(ev.pane, ev.kind, ev.text);
-    // Only the plain assistant typewrites; Antaeon's pane lands whole,
+    // Only the plain assistant typewrites; Anteon's pane lands whole,
     // instant output being the point of it.
     if (isTyped(ev.kind) && ev.pane === 'b') {
       textEl.textContent = '';

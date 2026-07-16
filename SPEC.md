@@ -1,4 +1,4 @@
-# Layer2 intro: build spec
+# Anteon intro: build spec
 
 Scroll-driven intro film. Chalk on black, one continuous take, scroll is the
 clock. This file is the working agreement between modules. The contracts in
