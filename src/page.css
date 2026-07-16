@@ -495,6 +495,15 @@ a.footer-brand:hover .brand-mark .hand-r {
  * the prose measure. Additive block; nothing above changes. */
 .doc-body {
   max-width: var(--width-prose);
+  margin-inline: auto;
+}
+
+/* On the policy pages (privacy, terms, cookie), narrow the whole main to the
+ * reading measure and let its own margin auto centre it, so the heading and
+ * body both sit centred in the page instead of left-aligned against the wide
+ * page width. Scoped by :has so the other shell pages keep their full width. */
+.page-main:has(.doc-body) {
+  max-width: calc(var(--width-prose) + var(--space-gutter) * 2);
 }
 
 .doc-date {
