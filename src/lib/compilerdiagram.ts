@@ -65,7 +65,12 @@ const BOX_RIGHT = 1148;
 /* Pacing, in viewBox units per second and in seconds. Calm on purpose. */
 const DRAW_SPEED: readonly [number, number] = [80, 120];
 const PACKET_SPEED: readonly [number, number] = [110, 170];
-const HOLD_S: readonly [number, number] = [4, 8];
+/* How long a line rests drawn across before it retires. This has to dominate the
+ * draw-in (a line takes roughly ten to fifteen seconds to cross), or a line
+ * spends most of its life still drawing and the field reads sparse no matter
+ * how the retirements are spaced. Long and wide: most lanes sit drawn, every
+ * line still leaves, and the spread keeps them from leaving together. */
+const HOLD_S: readonly [number, number] = [18, 34];
 const RESPAWN_S: readonly [number, number] = [0.8, 2.4];
 const FADE_S = 1.2;
 const LINK_DRAW_S = 0.55;
@@ -78,11 +83,13 @@ const MAX_BRANCHES = 5;
 /* Lanes held open so splitoffs always have somewhere to fork; without this the
  * lines refill every freed lane and no branch can ever spawn. Too high starves
  * the field of the young green lines splitoffs fork from, so keep it modest. */
-const BRANCH_RESERVE = 3;
-/* The field keeps more than this many lanes drawn fully across at all times, so
- * retirement never empties the traffic in one wave; about half cycle out while
- * the rest stay spanning. */
-const MIN_SPAN = 4;
+const BRANCH_RESERVE = 2;
+/* The shortest gap between two retirements, so a cohort whose holds expire
+ * together still leaves one at a time. This is the only thing gating a
+ * retirement: nothing waits on a count, so the field can never lock up the way
+ * a floor on the drawn lanes did. The long HOLD_S above is what keeps the field
+ * full; the spacing here is only what keeps departures from bunching. */
+const RETIRE_GAP_S = 1.4;
 const DT_CAP = 0.064;
 
 type Tone = 'green' | 'red';
@@ -166,6 +173,8 @@ interface Scene {
   laneFreeAt: number[];
   t: number;
   lastLinkAt: number;
+  /** When the last line began fading, so retirements stay spaced apart. */
+  lastRetireAt: number;
   /** A beat is a pair: one connector drops in, then one rises right after. The
    * down picks the line the up will answer, so every down is paired. */
   pendingUp: Line | null;
@@ -315,6 +324,7 @@ function buildScene(host: HTMLElement): Scene {
     laneFreeAt: new Array<number>(LANE_COUNT).fill(0),
     t: 0,
     lastLinkAt: -LINK_GAP_S,
+    lastRetireAt: -RETIRE_GAP_S,
     pendingUp: null,
     pendingUpAt: 0,
     drawTone: bag<Tone>([
@@ -562,7 +572,10 @@ function seed(scene: Scene, settled: boolean): void {
 
   // Stagger the full lines' remaining hold so they retire one at a time.
   scene.lines.forEach((line, i) => {
-    line.holdLeft = 2 + i * 0.9 + Math.random() * 1.5;
+    // Spread the opening cohort's departures wider than a line takes to draw in
+    // (~12s), or the seeded lines leave faster than their replacements arrive
+    // and the field thins out before it ever reaches its steady state.
+    line.holdLeft = 6 + i * 9 + Math.random() * 5;
   });
 
   // The settled frame freezes one paired beat: a line dropping into the library
@@ -652,16 +665,19 @@ function advanceLine(scene: Scene, line: Line, dt: number): void {
     } else {
       line.holdLeft -= dt;
       if (line.holdLeft <= 0) {
-        // Never empty the field in one wave: a line retires only while more than
-        // MIN_SPAN lanes still carry a full line, so about half cycle out at a
-        // time and the rest stay drawn across. The randomised re-check spreads
-        // the retirements instead of releasing them together.
-        const full = scene.lines.reduce(
-          (n, l) => n + (!l.fading && l.headX >= scene.viewW ? 1 : 0),
-          0,
-        );
-        if (full > MIN_SPAN) line.fading = true;
-        else line.holdLeft = 0.3 + Math.random() * 0.6;
+        // Every line leaves eventually, but never alongside the others: it waits
+        // until few enough lanes are mid-cycle and until a gap has passed since
+        // the last departure, so by the time it goes the lines replacing it have
+        // drawn in and the field still carries traffic. Both conditions clear on
+        // their own, a drawing line always reaching the edge and time always
+        // passing, so the field cannot lock up the way a floor on the drawn
+        // count did.
+        if (scene.t - scene.lastRetireAt >= RETIRE_GAP_S) {
+          line.fading = true;
+          scene.lastRetireAt = scene.t;
+        } else {
+          line.holdLeft = 0.25 + Math.random() * 0.5;
+        }
       }
     }
   }
