@@ -159,6 +159,12 @@
 
   --radius-control: 8px;
   --radius-frame: 10px;
+  /* The two boxes that climb out of the film. Bigger than the frame's on
+   * purpose: the film box is black on white and 10px reads at once, but these
+   * are white on chalk, four percent apart, and a corner that small against
+   * that little contrast reads as square on a wide screen however round it
+   * measures. The curve has to be big enough to see, not just to exist. */
+  --radius-rise: 24px;
   --radius-pill: 999px;
 
   /* Widths */

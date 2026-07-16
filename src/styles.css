@@ -412,7 +412,7 @@ canvas#gl {
    * length, widening to full bleed only over the climb's last stretch;
    * chrome.ts drives the vars from the entry progress. */
   margin: 0 var(--site-inset, var(--chrome-inset));
-  border-radius: var(--site-radius, var(--radius-frame)) var(--site-radius, var(--radius-frame)) 0 0;
+  border-radius: var(--site-radius, var(--radius-rise)) var(--site-radius, var(--radius-rise)) 0 0;
 }
 
 /* The introduction: one screen of its own between the film and the page, on the
@@ -430,7 +430,7 @@ canvas#gl {
   color: var(--ink);
   font-family: var(--sans);
   margin: 0 var(--intro-inset, var(--chrome-inset));
-  border-radius: var(--intro-radius, var(--radius-frame)) var(--intro-radius, var(--radius-frame)) 0 0;
+  border-radius: var(--intro-radius, var(--radius-rise)) var(--intro-radius, var(--radius-rise)) 0 0;
   text-align: center;
   padding-inline: var(--space-gutter);
 }
@@ -500,7 +500,7 @@ html.bedded #intro::after { opacity: 1; }
   text-align: left;
   background: transparent;
   /* Follow the box's top corners while it rises, square at full bleed. */
-  border-radius: var(--site-radius, var(--radius-frame)) var(--site-radius, var(--radius-frame)) 0 0;
+  border-radius: var(--site-radius, var(--radius-rise)) var(--site-radius, var(--radius-rise)) 0 0;
 }
 
 /* The divider between header and body draws itself left to right as the

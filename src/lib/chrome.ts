@@ -29,6 +29,9 @@ function tokenNum(name: string, fallback: number): number {
 const BOX_TOP = tokenNum('--chrome-header', 84);
 const BOX_INSET = tokenNum('--chrome-inset', 17);
 const BOX_RADIUS = tokenNum('--radius-frame', 10);
+/** The climbing boxes' corner: the film box's own radius is too small to read
+ * white on chalk, so these carry their own, larger one. */
+const RISE_RADIUS = tokenNum('--radius-rise', 24);
 const RIDE_MS = tokenNum('--speed-ride', 1.5) * 1000;
 
 /** Where in a box's climb it starts to widen. Before this it holds its length
@@ -109,7 +112,7 @@ function frame(): void {
   if (ri !== lastI) {
     lastI = ri;
     rootStyle.setProperty('--intro-inset', (BOX_INSET * (1 - widen(ir))).toFixed(1) + 'px');
-    rootStyle.setProperty('--intro-radius', (BOX_RADIUS * (1 - square(ir))).toFixed(1) + 'px');
+    rootStyle.setProperty('--intro-radius', (RISE_RADIUS * (1 - square(ir))).toFixed(1) + 'px');
   }
 
   // The chalk bed lands the instant the introduction fills the viewport, and
@@ -136,7 +139,7 @@ function frame(): void {
   if (re !== lastE) {
     lastE = re;
     rootStyle.setProperty('--site-inset', (BOX_INSET * (1 - widen(er))).toFixed(1) + 'px');
-    rootStyle.setProperty('--site-radius', (BOX_RADIUS * (1 - square(er))).toFixed(1) + 'px');
+    rootStyle.setProperty('--site-radius', (RISE_RADIUS * (1 - square(er))).toFixed(1) + 'px');
     rootStyle.setProperty('--site-line', ease((er - 0.85) / 0.15).toFixed(3));
     // The introduction's words hold still while the page's box climbs over
     // them: nothing fades, nothing slides away, the box simply covers it. The
