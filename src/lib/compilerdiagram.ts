@@ -91,8 +91,10 @@ const BRANCH_RESERVE = 2;
  * full; the spacing here is only what keeps departures from bunching. */
 const RETIRE_GAP_S = 1.4;
 const DT_CAP = 0.064;
-/** How many capped substeps one frame may run to catch the wall clock. */
-const CATCHUP_STEPS = 4;
+/** How many capped substeps one frame may run to catch the wall clock: full
+ * speed down to about two frames a second, which covers a machine that is
+ * genuinely struggling, not just busy. */
+const CATCHUP_STEPS = 8;
 
 type Tone = 'green' | 'red';
 
