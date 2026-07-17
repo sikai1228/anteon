@@ -17,6 +17,8 @@
  * stops the frame loop, so the field only moves while it is on screen.
  */
 
+import { msg } from '../i18n/i18n';
+
 /** The diagram must be at least this visible before its motion runs. */
 const IN_VIEW = 0.2;
 
@@ -320,7 +322,11 @@ function buildScene(host: HTMLElement): Scene {
     'text-anchor': 'middle',
     'dominant-baseline': 'central',
   });
-  label.textContent = 'Firm knowledge library';
+  // The one word on the figure. It carries data-i18n so applyDom re-translates
+  // it live on a locale swap; only x re-centres on resize, never textContent,
+  // so nothing there contends with the swap.
+  label.setAttribute('data-i18n', 'diagramLabel');
+  label.textContent = msg().diagramLabel;
   svg.append(linksG, linesG, box, label);
   host.append(svg);
 

@@ -19,10 +19,15 @@
  * the token check, so re-entry can never double the clock. The fast
  * forward control multiplies the race clock; at the finish it becomes the
  * reset, and a click replays from the top at real time. Reduced motion
- * renders both final states standing still. The
- * terminal speaks static English on purpose: a depicted demo, outside
- * the page's i18n.
+ * renders both final states standing still. Every scripted line reads from
+ * the string catalog: each rendered element carries its key in data-i18n so
+ * applyDom re-translates the already-printed transcript on a locale swap, and
+ * a locale-change listener re-resolves the cost ticker, the in-flight typers,
+ * and the fast forward control's title, all without reload.
  */
+
+import { msg } from '../i18n/i18n';
+import type { Catalog } from '../i18n/catalogs';
 
 type PaneId = 'a' | 'b';
 
@@ -33,7 +38,9 @@ interface DemoEvent {
   /** ms from cycle start */
   at: number;
   kind: EventKind;
-  text: string;
+  /** The catalog key this line's text resolves from; absent on the empty
+   * resting prompt, which shows no words. */
+  key?: keyof Catalog;
   /** Cumulative API spend in USD once this message is done, at Opus 4.8
    * prices ($5/M input, $25/M output). Only AI-written messages carry one;
    * engine calls are not model calls and never move the ticker. */
@@ -44,7 +51,7 @@ interface PaneEvent {
   pane: PaneId;
   at: number;
   kind: EventKind;
-  text: string;
+  key?: keyof Catalog;
   cost?: number;
 }
 
@@ -61,59 +68,42 @@ const FF_SPEED = 8;
 const LAST_MS = 66000;
 
 const SCRIPT: readonly DemoEvent[] = [
-  {
-    pane: 'both',
-    at: 0,
-    kind: 'user',
-    text: 'Convert the Q2 supplier datasheet to CSV, give me spend totals by vendor with variance vs Q1, and check if policy requires an audit of the procurement team.',
-  },
+  { pane: 'both', at: 0, kind: 'user', key: 'demoPrompt' },
 
   // Anteon: no upload needed, the firm's own library holds the data.
   // Each engine call lands with its elbow results in the same breath.
-  { pane: 'a', at: 500, kind: 'tool', text: 'engine · database' },
-  { pane: 'a', at: 900, kind: 'out', text: 'supplier_q2 pulled from company database' },
-  { pane: 'a', at: 1400, kind: 'tool', text: 'engine · convert' },
-  { pane: 'a', at: 1700, kind: 'out', text: 'converted → supplier_q2.csv' },
-  { pane: 'a', at: 2200, kind: 'tool', text: 'engine · tabular ops' },
-  { pane: 'a', at: 2500, kind: 'out', text: 'totals: 14 vendors · $2,418,644' },
-  { pane: 'a', at: 2700, kind: 'out', text: 'variance vs Q1: +4.2%' },
-  { pane: 'a', at: 3300, kind: 'tool', text: 'engine · policy database scan' },
-  { pane: 'a', at: 3600, kind: 'out', text: 'audit required → yes, §7.2(b), Vendor Audit Policy' },
-  {
-    pane: 'a',
-    at: 4300,
-    kind: 'say',
-    text: 'Done, supplier_q2 is converted. An audit is required under §7.2(b), Vendor Audit Policy.',
-    cost: 0.02,
-  },
-  { pane: 'a', at: 5300, kind: 'prompt', text: '' },
+  { pane: 'a', at: 500, kind: 'tool', key: 'demoATool1' },
+  { pane: 'a', at: 900, kind: 'out', key: 'demoAOut1' },
+  { pane: 'a', at: 1400, kind: 'tool', key: 'demoATool2' },
+  { pane: 'a', at: 1700, kind: 'out', key: 'demoAOut2' },
+  { pane: 'a', at: 2200, kind: 'tool', key: 'demoATool3' },
+  { pane: 'a', at: 2500, kind: 'out', key: 'demoAOut3' },
+  { pane: 'a', at: 2700, kind: 'out', key: 'demoAOut4' },
+  { pane: 'a', at: 3300, kind: 'tool', key: 'demoATool4' },
+  { pane: 'a', at: 3600, kind: 'out', key: 'demoAOut5' },
+  { pane: 'a', at: 4300, kind: 'say', key: 'demoASay1', cost: 0.02 },
+  { pane: 'a', at: 5300, kind: 'prompt' },
 
   // The plain assistant: announcements, a pulsing working glyph that each
   // next step replaces, a failed search, the user's upload, and the same
   // answer as the other pane, a minute late.
-  { pane: 'b', at: 1200, kind: 'say', text: 'Let me look for the Q2 datasheet first…', cost: 0.01 },
-  { pane: 'b', at: 2600, kind: 'work', text: 'Searching files' },
-  { pane: 'b', at: 10500, kind: 'say', text: 'Found it. Converting the file format now…', cost: 0.11 },
-  { pane: 'b', at: 12200, kind: 'work', text: 'Converting' },
-  { pane: 'b', at: 19500, kind: 'say', text: 'Now let me group the data and run the math…', cost: 0.29 },
-  { pane: 'b', at: 21200, kind: 'work', text: 'Computing' },
-  { pane: 'b', at: 28500, kind: 'say', text: 'Searching your desktop for the company guidelines…', cost: 0.47 },
-  { pane: 'b', at: 30200, kind: 'work', text: 'Searching' },
-  { pane: 'b', at: 37500, kind: 'fail', text: 'I could not find the policy document.', cost: 0.63 },
-  { pane: 'b', at: 39000, kind: 'say', text: 'Could you upload the guideline file?', cost: 0.68 },
-  { pane: 'b', at: 43000, kind: 'user', text: 'vendor_audit_guideline.pdf attached' },
-  { pane: 'b', at: 45500, kind: 'say', text: 'Reading vendor_audit_guideline.pdf…', cost: 1.02 },
-  { pane: 'b', at: 47200, kind: 'work', text: 'Reading' },
-  { pane: 'b', at: 52000, kind: 'say', text: 'Checking which sections apply to procurement…', cost: 1.31 },
-  { pane: 'b', at: 53700, kind: 'work', text: 'Checking' },
-  {
-    pane: 'b',
-    at: 60000,
-    kind: 'say',
-    text: 'All done. supplier_q2.csv is ready, the spend totals and variance are computed, and an audit of the procurement team is required under §7.2(b), Vendor Audit Policy.',
-    cost: 1.58,
-  },
-  { pane: 'b', at: 65600, kind: 'prompt', text: '' },
+  { pane: 'b', at: 1200, kind: 'say', key: 'demoBSay1', cost: 0.01 },
+  { pane: 'b', at: 2600, kind: 'work', key: 'demoBWork1' },
+  { pane: 'b', at: 10500, kind: 'say', key: 'demoBSay2', cost: 0.11 },
+  { pane: 'b', at: 12200, kind: 'work', key: 'demoBWork2' },
+  { pane: 'b', at: 19500, kind: 'say', key: 'demoBSay3', cost: 0.29 },
+  { pane: 'b', at: 21200, kind: 'work', key: 'demoBWork3' },
+  { pane: 'b', at: 28500, kind: 'say', key: 'demoBSay4', cost: 0.47 },
+  { pane: 'b', at: 30200, kind: 'work', key: 'demoBWork4' },
+  { pane: 'b', at: 37500, kind: 'fail', key: 'demoBFail1', cost: 0.63 },
+  { pane: 'b', at: 39000, kind: 'say', key: 'demoBSay5', cost: 0.68 },
+  { pane: 'b', at: 43000, kind: 'user', key: 'demoBUser1' },
+  { pane: 'b', at: 45500, kind: 'say', key: 'demoBSay6', cost: 1.02 },
+  { pane: 'b', at: 47200, kind: 'work', key: 'demoBWork5' },
+  { pane: 'b', at: 52000, kind: 'say', key: 'demoBSay7', cost: 1.31 },
+  { pane: 'b', at: 53700, kind: 'work', key: 'demoBWork6' },
+  { pane: 'b', at: 60000, kind: 'say', key: 'demoBSay8', cost: 1.58 },
+  { pane: 'b', at: 65600, kind: 'prompt' },
 ];
 
 interface Pane {
@@ -121,11 +111,17 @@ interface Pane {
   lines: HTMLElement;
   cursor: HTMLElement;
   costEl: HTMLElement | null;
+  /** The pane's current spend, so the ticker can re-render in the active
+   * locale on a swap without replaying the race. */
+  cost: number;
 }
 
 interface Typer {
   pane: Pane;
   el: HTMLElement;
+  /** The line's catalog key, so a locale swap can re-resolve the text the
+   * typer is still writing. */
+  key: keyof Catalog;
   text: string;
   from: number;
   shown: number;
@@ -133,9 +129,16 @@ interface Typer {
   cost?: number;
 }
 
+/** Paint the ticker at the pane's current spend, prefix from the active
+ * locale. Split from setCost so a locale swap can re-render without a new tick. */
+function renderCost(pane: Pane): void {
+  if (pane.costEl) pane.costEl.textContent = msg().apiCost + pane.cost.toFixed(2);
+}
+
 /** The ticker moves in discrete steps, one per finished AI message. */
 function setCost(pane: Pane, usd: number): void {
-  if (pane.costEl) pane.costEl.textContent = 'API cost: $' + usd.toFixed(2);
+  pane.cost = usd;
+  renderCost(pane);
 }
 
 /** Follow the newest line, but land the scroll on a whole line boundary:
@@ -166,11 +169,18 @@ function isTyped(kind: EventKind): boolean {
   return kind === 'say' || kind === 'fail';
 }
 
-/** Build one transcript line in the CLI idiom of its kind. */
-function makeLine(pane: PaneId, kind: EventKind, text: string): { line: HTMLElement; textEl: HTMLElement } {
+/** Build one transcript line in the CLI idiom of its kind. The key rides the
+ * text span in data-i18n, so applyDom re-translates the line on a locale swap. */
+function makeLine(
+  pane: PaneId,
+  kind: EventKind,
+  text: string,
+  key?: keyof Catalog,
+): { line: HTMLElement; textEl: HTMLElement } {
   const line = document.createElement('div');
   const textEl = document.createElement('span');
   textEl.className = 'term-text';
+  if (key) textEl.dataset.i18n = key;
   const glyph = (cls: string, g: string): HTMLElement => {
     const s = document.createElement('span');
     s.className = cls;
@@ -206,10 +216,11 @@ function makeLine(pane: PaneId, kind: EventKind, text: string): { line: HTMLElem
       textEl.textContent = text;
       break;
     case 'work':
-      // The transient working glyph; the next step replaces it.
+      // The transient working glyph; the next step replaces it. The trailing
+      // ellipsis lives in the catalog string, so applyDom keeps it on a swap.
       line.className = 'term-line term-work';
       line.append(glyph('term-glyph term-spin', '✳'));
-      textEl.textContent = text + '…';
+      textEl.textContent = text;
       break;
     case 'fail':
       line.className = 'term-line term-fail';
@@ -238,18 +249,32 @@ export function initTerminalDemo(): void {
     if (!lines) return;
     const cursor = document.createElement('span');
     cursor.className = 'term-cursor';
-    panes.push({ id, lines, cursor, costEl: root?.querySelector<HTMLElement>('.term-cost') ?? null });
+    panes.push({
+      id,
+      lines,
+      cursor,
+      costEl: root?.querySelector<HTMLElement>('.term-cost') ?? null,
+      cost: 0,
+    });
   }
   const byId = (id: PaneId): Pane => (id === 'a' ? panes[0] : panes[1]);
+
+  // The cost ticker is a prefix plus a live number, so applyDom's plain
+  // textContent swap would wipe the number back to the seed. Re-render it from
+  // each pane's stored spend on every locale change, in both the live race and
+  // the reduced-motion still, where the later listeners never register.
+  window.addEventListener('locale-change', () => {
+    for (const p of panes) renderCost(p);
+  });
 
   // A 'both' event fires the same line in the two panes at the same instant.
   const schedule: PaneEvent[] = [];
   for (const ev of SCRIPT) {
     if (ev.pane === 'both') {
-      schedule.push({ pane: 'a', at: ev.at, kind: ev.kind, text: ev.text });
-      schedule.push({ pane: 'b', at: ev.at, kind: ev.kind, text: ev.text });
+      schedule.push({ pane: 'a', at: ev.at, kind: ev.kind, key: ev.key });
+      schedule.push({ pane: 'b', at: ev.at, kind: ev.kind, key: ev.key });
     } else {
-      schedule.push({ pane: ev.pane, at: ev.at, kind: ev.kind, text: ev.text, cost: ev.cost });
+      schedule.push({ pane: ev.pane, at: ev.at, kind: ev.kind, key: ev.key, cost: ev.cost });
     }
   }
   schedule.sort((x, y) => x.at - y.at);
@@ -268,7 +293,8 @@ export function initTerminalDemo(): void {
       }
       const kept = pane.lines.querySelector('.term-work');
       if (ev.kind === 'work' && kept) kept.remove();
-      pane.lines.append(makeLine(ev.pane, ev.kind, ev.text).line);
+      const text = ev.key ? msg()[ev.key] : '';
+      pane.lines.append(makeLine(ev.pane, ev.kind, text, ev.key).line);
       if (ev.cost !== undefined) setCost(pane, ev.cost);
     }
     for (const p of panes) snapScroll(p);
@@ -293,11 +319,24 @@ export function initTerminalDemo(): void {
       finished = false;
       resetPanes();
       ffBtn.classList.remove('is-reset');
-      ffBtn.title = 'Fast forward';
+      ffBtn.title = msg().demoFastForward;
       return;
     }
     speed = speed === 1 ? FF_SPEED : 1;
     ffBtn.classList.toggle('is-on', speed !== 1);
+  });
+
+  // The rest of what the race writes imperatively, past applyDom's text swap
+  // and the cost listener above: a line still being typed (finish it in the new
+  // language so the typer does not revert it to the old), and the control's
+  // title, whose wording depends on whether the race has ended.
+  window.addEventListener('locale-change', () => {
+    for (const t of typers) {
+      t.text = msg()[t.key];
+      t.el.textContent = t.text;
+      t.shown = t.text.length;
+    }
+    if (ffBtn) ffBtn.title = finished ? msg().demoPlayAgain : msg().demoFastForward;
   });
 
   function fire(ev: PaneEvent): void {
@@ -305,12 +344,13 @@ export function initTerminalDemo(): void {
     // Each new step retires the pane's transient working line.
     const working = pane.lines.querySelector('.term-work');
     if (working) working.remove();
-    const { line, textEl } = makeLine(ev.pane, ev.kind, ev.text);
+    const text = ev.key ? msg()[ev.key] : '';
+    const { line, textEl } = makeLine(ev.pane, ev.kind, text, ev.key);
     // Only the plain assistant typewrites; Anteon's pane lands whole,
     // instant output being the point of it.
-    if (isTyped(ev.kind) && ev.pane === 'b') {
+    if (isTyped(ev.kind) && ev.pane === 'b' && ev.key) {
       textEl.textContent = '';
-      typers.push({ pane, el: textEl, text: ev.text, from: ev.at, shown: 0, cost: ev.cost });
+      typers.push({ pane, el: textEl, key: ev.key, text, from: ev.at, shown: 0, cost: ev.cost });
     } else if (ev.cost !== undefined) {
       // An instant message is done the moment it lands; its tick fires now.
       setCost(pane, ev.cost);
@@ -377,7 +417,7 @@ export function initTerminalDemo(): void {
       if (ffBtn) {
         ffBtn.classList.remove('is-on');
         ffBtn.classList.add('is-reset');
-        ffBtn.title = 'Play again';
+        ffBtn.title = msg().demoPlayAgain;
       }
     }
 

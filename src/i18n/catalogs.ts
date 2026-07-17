@@ -190,6 +190,47 @@ export interface Catalog {
   ariaChangeLanguage: string;
   ariaMenu: string;
   metaDescription: string;
+  /* The compiler diagram's one label, riding the library slab. */
+  diagramLabel: string;
+  /* The hero terminal demo. The two pane heads (name and the API cost seed),
+     the cost ticker's prefix, the fast forward control's two titles, and every
+     scripted line of the race: the shared prompt, then Anteon's tool calls and
+     elbow results and close, then the rival's prose, working glyphs, failed
+     search, upload, and late answer. File names, §7.2(b), and prices stay put
+     inside the otherwise-translated sentences. */
+  withAnteon: string;
+  withoutAnteon: string;
+  apiCost: string;
+  apiCostSeed: string;
+  demoFastForward: string;
+  demoPlayAgain: string;
+  demoPrompt: string;
+  demoATool1: string;
+  demoAOut1: string;
+  demoATool2: string;
+  demoAOut2: string;
+  demoATool3: string;
+  demoAOut3: string;
+  demoAOut4: string;
+  demoATool4: string;
+  demoAOut5: string;
+  demoASay1: string;
+  demoBSay1: string;
+  demoBWork1: string;
+  demoBSay2: string;
+  demoBWork2: string;
+  demoBSay3: string;
+  demoBWork3: string;
+  demoBSay4: string;
+  demoBWork4: string;
+  demoBFail1: string;
+  demoBSay5: string;
+  demoBUser1: string;
+  demoBSay6: string;
+  demoBWork5: string;
+  demoBSay7: string;
+  demoBWork6: string;
+  demoBSay8: string;
 }
 
 /** The strings this file owns; the rest of a Catalog is folded from the film copy. */
@@ -359,6 +400,42 @@ const CHROME: Record<Locale, ChromeStrings> = {
     ariaChangeLanguage: 'Change language',
     ariaMenu: 'Menu',
     metaDescription: 'If I have seen further, it is by standing on the shoulders of Giants.',
+    diagramLabel: 'Firm knowledge library',
+    withAnteon: 'With Anteon',
+    withoutAnteon: 'Without Anteon',
+    apiCost: 'API cost: $',
+    apiCostSeed: 'API cost: $0.00',
+    demoFastForward: 'Fast forward',
+    demoPlayAgain: 'Play again',
+    demoPrompt:
+      'Convert the Q2 supplier datasheet to CSV, give me spend totals by vendor with variance vs Q1, and check if policy requires an audit of the procurement team.',
+    demoATool1: 'engine · database',
+    demoAOut1: 'supplier_q2 pulled from company database',
+    demoATool2: 'engine · convert',
+    demoAOut2: 'converted → supplier_q2.csv',
+    demoATool3: 'engine · tabular ops',
+    demoAOut3: 'totals: 14 vendors · $2,418,644',
+    demoAOut4: 'variance vs Q1: +4.2%',
+    demoATool4: 'engine · policy database scan',
+    demoAOut5: 'audit required → yes, §7.2(b), Vendor Audit Policy',
+    demoASay1: 'Done, supplier_q2 is converted. An audit is required under §7.2(b), Vendor Audit Policy.',
+    demoBSay1: 'Let me look for the Q2 datasheet first…',
+    demoBWork1: 'Searching files…',
+    demoBSay2: 'Found it. Converting the file format now…',
+    demoBWork2: 'Converting…',
+    demoBSay3: 'Now let me group the data and run the math…',
+    demoBWork3: 'Computing…',
+    demoBSay4: 'Searching your desktop for the company guidelines…',
+    demoBWork4: 'Searching…',
+    demoBFail1: 'I could not find the policy document.',
+    demoBSay5: 'Could you upload the guideline file?',
+    demoBUser1: 'vendor_audit_guideline.pdf attached',
+    demoBSay6: 'Reading vendor_audit_guideline.pdf…',
+    demoBWork5: 'Reading…',
+    demoBSay7: 'Checking which sections apply to procurement…',
+    demoBWork6: 'Checking…',
+    demoBSay8:
+      'All done. supplier_q2.csv is ready, the spend totals and variance are computed, and an audit of the procurement team is required under §7.2(b), Vendor Audit Policy.',
   },
   es: {
     product: 'Producto',
@@ -487,7 +564,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell7Desc: 'Mensajes, canales y alertas de flujo de trabajo.',
     apiCell7ExA: 'alerta → #ops',
     apiCell7ExB: 'resumen → #general',
-    apiCell8Name: 'More APIs',
+    apiCell8Name: 'Más APIs',
     apiCell8Desc: 'El índice va mucho más allá de esta página, clasificado con métricas siempre al día.',
     apiCell8ExA: 'pide cualquier api',
     apiCell8ExB: 'clasificada y enrutada',
@@ -511,6 +588,43 @@ const CHROME: Record<Locale, ChromeStrings> = {
     ariaChangeLanguage: 'Cambiar idioma',
     ariaMenu: 'Menú',
     metaDescription: 'Si he visto más lejos, es porque me he subido a hombros de gigantes.',
+    diagramLabel: 'Biblioteca de conocimiento de la firma',
+    withAnteon: 'Con Anteon',
+    withoutAnteon: 'Sin Anteon',
+    apiCost: 'Costo de API: $',
+    apiCostSeed: 'Costo de API: $0.00',
+    demoFastForward: 'Avance rápido',
+    demoPlayAgain: 'Reproducir de nuevo',
+    demoPrompt:
+      'Convierte la hoja de datos de proveedores del Q2 a CSV, dame los totales de gasto por proveedor con la variación frente al Q1, y comprueba si la política exige una auditoría del equipo de compras.',
+    demoATool1: 'motor · base de datos',
+    demoAOut1: 'supplier_q2 obtenido de la base de datos de la empresa',
+    demoATool2: 'motor · convertir',
+    demoAOut2: 'convertido → supplier_q2.csv',
+    demoATool3: 'motor · operaciones tabulares',
+    demoAOut3: 'totales: 14 proveedores · $2,418,644',
+    demoAOut4: 'variación frente al Q1: +4.2%',
+    demoATool4: 'motor · escaneo de base de datos de políticas',
+    demoAOut5: 'auditoría requerida → sí, §7.2(b), Política de Auditoría de Proveedores',
+    demoASay1:
+      'Listo, supplier_q2 está convertido. Se requiere una auditoría según §7.2(b), Política de Auditoría de Proveedores.',
+    demoBSay1: 'Primero déjame buscar la hoja de datos del Q2…',
+    demoBWork1: 'Buscando archivos…',
+    demoBSay2: 'La encontré. Ahora convierto el formato del archivo…',
+    demoBWork2: 'Convirtiendo…',
+    demoBSay3: 'Ahora déjame agrupar los datos y hacer los cálculos…',
+    demoBWork3: 'Calculando…',
+    demoBSay4: 'Buscando en tu escritorio las directrices de la empresa…',
+    demoBWork4: 'Buscando…',
+    demoBFail1: 'No pude encontrar el documento de la política.',
+    demoBSay5: '¿Podrías subir el archivo de directrices?',
+    demoBUser1: 'vendor_audit_guideline.pdf adjuntado',
+    demoBSay6: 'Leyendo vendor_audit_guideline.pdf…',
+    demoBWork5: 'Leyendo…',
+    demoBSay7: 'Comprobando qué secciones aplican a compras…',
+    demoBWork6: 'Comprobando…',
+    demoBSay8:
+      'Todo terminado. supplier_q2.csv está listo, los totales de gasto y la variación ya están calculados, y se requiere una auditoría del equipo de compras según §7.2(b), Política de Auditoría de Proveedores.',
   },
 };
 
