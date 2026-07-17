@@ -1110,7 +1110,8 @@ html[data-boot="site"] #skip {
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  row-gap: var(--space-6);
+  /* The same air above the label (the strip's padding) and below it. */
+  row-gap: var(--space-10);
   /* The marks' air scales with the screen, so the row never overflows. */
   column-gap: clamp(10px, 2.6vw, 64px);
 }

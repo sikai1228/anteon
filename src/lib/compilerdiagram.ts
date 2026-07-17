@@ -91,6 +91,8 @@ const BRANCH_RESERVE = 2;
  * full; the spacing here is only what keeps departures from bunching. */
 const RETIRE_GAP_S = 1.4;
 const DT_CAP = 0.064;
+/** How many capped substeps one frame may run to catch the wall clock. */
+const CATCHUP_STEPS = 4;
 
 type Tone = 'green' | 'red';
 
@@ -257,9 +259,20 @@ export function initCompilerDiagram(): void {
 
   const frame = (now: number): void => {
     if (!running) return;
-    const dt = Math.min((now - last) / 1000, DT_CAP);
+    // The sim advances on wall time, not frame count. A slow frame runs
+    // several fixed substeps to catch up, each small enough for the motion
+    // logic, so a struggling machine sees the same field as a fast one: it
+    // was the film's renderer dragging the page's frame rate down that made
+    // every hold read as forever, the clock crawling with the frames. The
+    // budget bounds the catch-up so a stall can't buy a burst of work; past
+    // it, time is simply dropped, which only an occluded tab ever hits.
+    let owed = Math.min((now - last) / 1000, DT_CAP * CATCHUP_STEPS);
     last = now;
-    step(scene, dt);
+    while (owed > 0) {
+      const d = Math.min(owed, DT_CAP);
+      step(scene, d);
+      owed -= d;
+    }
     rafId = window.requestAnimationFrame(frame);
   };
 
