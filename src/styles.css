@@ -1102,35 +1102,39 @@ html[data-boot="site"] #skip {
 }
 
 .media-strip-row {
-  position: relative;
   width: 100%;
   max-width: var(--width-page);
   margin-inline: auto;
   padding-inline: var(--space-gutter);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  /* The label holds the left edge; the marks close the run on the right. */
-  justify-content: flex-end;
-  gap: var(--space-16);
+  justify-content: center;
+  row-gap: var(--space-6);
+  /* The marks' air scales with the screen, so the row never overflows. */
+  column-gap: clamp(10px, 2.6vw, 64px);
 }
 
+/* The label sits centred on its own line, the marks in one row beneath. */
 .media-strip-label {
-  position: absolute;
-  left: var(--space-gutter);
-  top: 50%;
-  transform: translateY(-50%);
+  flex-basis: 100%;
+  text-align: center;
   font-size: var(--type-nav);
   color: var(--ink-soft);
 }
 
+/* The marks scale with the viewport instead of holding a fixed height, so
+ * all four stay on one row at every width: a fixed row just walked its
+ * leftmost mark off the edge as the screen narrowed. The floors keep them
+ * legible on the smallest phones, where the sizing still fits inside 320. */
 .media-strip img {
-  height: var(--space-8);
+  height: clamp(15px, 5.1vw, var(--space-8));
   width: auto;
 }
 
 /* Wide lockups underweigh square ones at equal height; the tall class
  * evens the optical size across the row. */
-.media-strip .mark-tall { height: var(--space-10); }
+.media-strip .mark-tall { height: clamp(19px, 6.4vw, var(--space-10)); }
 
 /* The white reverse Wharton mark rides alongside the paper one but shows only
  * in dark mode; hidden by default so light mode is untouched. */
@@ -1144,18 +1148,10 @@ html[data-boot="site"] #skip {
   background: var(--line);
 }
 
-/* Narrow: the label stacks above the centered marks, as the reference does;
- * the divider makes no sense in a column and leaves. */
-@media (max-width: 640px) {
-  .media-strip-row { flex-wrap: wrap; justify-content: center; gap: var(--space-4) var(--space-8); }
-  .media-strip-label {
-    position: static;
-    transform: none;
-    flex-basis: 100%;
-    text-align: center;
-  }
-  /* Wrapped, a divider can land at a row's end and dangle there; the marks
-   * separate themselves once they stack. */
+/* Narrow: the dividers leave. Each one costs two column gaps plus its own
+ * hairline, and under about 700px that spend is what pushes the fourth mark
+ * off the row; the marks separate themselves at this size. */
+@media (max-width: 700px) {
   .media-strip-divider { display: none; }
 }
 
