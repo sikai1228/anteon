@@ -1,0 +1,283 @@
+# Anteon design tokens
+
+One name for every value the shell uses, all served from `src/tokens.css`.
+The film keeps its chalk look in `LOOK` (`src/lib/types.ts`); everything
+outside the board reads from here. This file is generated from the sheet
+by `scripts/tokens-md.mjs` on every build.
+
+## Ground: one white, one black, nothing between
+
+| Token | Value |
+| --- | --- |
+| `--paper` | `#ffffff` |
+| `--board` | `#0b0b0d` |
+
+## The introduction's own ground, the one step between the board and the paper: the film's chalk, carried into the title card the page rises out of
+
+It also beds the page's climb, so the page grows against chalk rather than against the film.
+
+| Token | Value |
+| --- | --- |
+| `--intro-bg` | `#eceae4` |
+
+## Ink on paper
+
+| Token | Value |
+| --- | --- |
+| `--ink` | `#17171a` |
+| `--ink-muted` | `rgba(23, 23, 26, 0.72)` |
+| `--ink-soft` | `rgba(23, 23, 26, 0.62)` |
+| `--ink-faint` | `rgba(23, 23, 26, 0.5)` |
+| `--line` | `#dedcd5` |
+
+## Chalk on board
+
+| Token | Value |
+| --- | --- |
+| `--chalk` | `#eceae4` |
+| `--ash` | `#b9b7b0` |
+| `--line-board` | `#26262b` |
+| `--slate` | `#2a2a2e` |
+
+## The flag pair, the film's single color moment
+
+The red doubles as the shell's accent, the blue as its focus ring. Accent is earned: links, focus, and small marks only, never grounds.
+
+| Token | Value |
+| --- | --- |
+| `--flag-red` | `#e8503f` |
+| `--flag-blue` | `#5f7fd6` |
+| `--accent` | `var(--flag-red)` |
+| `--focus` | `var(--flag-blue)` |
+
+## Status inks for form feedback
+
+Success and error both read AA on paper, and appear only in the validation bars, never as a ground.
+
+| Token | Value |
+| --- | --- |
+| `--status-success` | `#157a4d` |
+| `--status-error` | `#c33a29` |
+
+## Muting steps, applied as element opacity so a control's text and hairline dim identically (the header's hover trick)
+
+| Token | Value |
+| --- | --- |
+| `--o-rest` | `0.88` |
+| `--o-muted` | `0.72` |
+| `--o-soft` | `0.62` |
+| `--o-faint` | `0.5` |
+
+## Faces
+
+| Token | Value |
+| --- | --- |
+| `--serif` | `"IM Fell English", Georgia, "Times New Roman", serif` |
+| `--sans` | `"Hanken Grotesk", system-ui, -apple-system, sans-serif` |
+| `--mono` | `ui-monospace, SFMono-Regular, Menlo, monospace` |
+
+## Type scale: fixed steps for chrome, fluid steps for the stage and site
+
+| Token | Value |
+| --- | --- |
+| `--type-micro` | `12px` |
+| `--type-nav` | `15px` |
+| `--type-label` | `16px` |
+| `--type-body` | `17px` |
+| `--type-body-lg` | `19px` |
+| `--type-wordmark` | `21px` |
+| `--type-note` | `clamp(13px, 1.4vw, 16px)` |
+| `--type-small` | `clamp(14px, 1.6vw, 18px)` |
+| `--type-stage` | `clamp(20px, 3vw, 34px)` |
+| `--type-caption` | `clamp(21px, 2.6vw, 31px)` |
+| `--type-quote` | `clamp(22px, 3.4vw, 40px)` |
+| `--type-card` | `clamp(26px, 4.2vw, 46px)` |
+| `--type-title` | `clamp(28px, 3.2vw, 44px)` |
+| `--type-display` | `clamp(34px, 5vw, 64px)` |
+
+## Weights: 350 is the optical match for light text on the board
+
+| Token | Value |
+| --- | --- |
+| `--weight-light` | `350` |
+| `--weight-regular` | `400` |
+| `--weight-medium` | `500` |
+| `--weight-display` | `560` |
+| `--weight-semibold` | `600` |
+| `--leading-display` | `1.05` |
+| `--leading-tight` | `1.1` |
+| `--leading-heading` | `1.25` |
+| `--leading-caption` | `1.38` |
+| `--leading-stage` | `1.45` |
+| `--leading-quote` | `1.5` |
+| `--leading-body` | `1.6` |
+| `--tracking-tight` | `-0.015em` |
+| `--tracking-wide` | `0.01em` |
+| `--tracking-wider` | `0.02em` |
+| `--tracking-widest` | `0.03em` |
+| `--tracking-display` | `0.04em` |
+| `--tracking-caps` | `0.08em` |
+
+## Spacing: a 4px scale, named by quarter, so space-4 is 16px
+
+| Token | Value |
+| --- | --- |
+| `--space-1` | `4px` |
+| `--space-2` | `8px` |
+| `--space-3` | `12px` |
+| `--space-4` | `16px` |
+| `--space-5` | `20px` |
+| `--space-6` | `24px` |
+| `--space-8` | `32px` |
+| `--space-10` | `40px` |
+| `--space-12` | `48px` |
+| `--space-16` | `64px` |
+| `--space-20` | `80px` |
+| `--space-24` | `96px` |
+| `--space-32` | `128px` |
+| `--space-40` | `160px` |
+
+## Section rhythm for the site's pages: one flat 80px above and below every section boundary, identical at every viewport
+
+| Token | Value |
+| --- | --- |
+| `--space-section` | `60px` |
+| `--space-section-sm` | `clamp(40px, 5vw, 64px)` |
+| `--space-gutter` | `clamp(20px, 3vw, 40px)` |
+
+## Chrome geometry: the shell the film box and the site box share
+
+| Token | Value |
+| --- | --- |
+| `--chrome-header` | `84px` |
+| `--chrome-inset` | `17px` |
+| `--chrome-pad-x` | `22px` |
+| `--chrome-nav-gap` | `26px` |
+| `--stage-pad` | `6vw` |
+
+## Controls
+
+| Token | Value |
+| --- | --- |
+| `--control-key` | `36px` |
+| `--control-pad-y` | `9px` |
+| `--control-pad-x` | `17px` |
+| `--control-gap` | `14px` |
+| `--border-hair` | `1px` |
+| `--border-control` | `1.5px` |
+| `--radius-control` | `8px` |
+| `--radius-frame` | `10px` |
+
+## The two boxes that climb out of the film
+
+Bigger than the frame's on purpose: the film box is black on white and 10px reads at once, but these are white on chalk, four percent apart, and a corner that small against that little contrast reads as square on a wide screen however round it measures. The curve has to be big enough to see, not just to exist.
+
+| Token | Value |
+| --- | --- |
+| `--radius-rise` | `24px` |
+| `--radius-pill` | `999px` |
+
+## Widths
+
+| Token | Value |
+| --- | --- |
+| `--width-page` | `1200px` |
+| `--width-narrow` | `880px` |
+| `--width-prose` | `65ch` |
+| `--width-quote` | `26ch` |
+
+## Breakpoints, for JS reads and media query reference
+
+| Token | Value |
+| --- | --- |
+| `--bp-sm` | `640px` |
+| `--bp-md` | `768px` |
+| `--bp-lg` | `1024px` |
+| `--bp-xl` | `1280px` |
+
+## Elevation: ink-tinted and soft on paper, chalk dust on the board
+
+| Token | Value |
+| --- | --- |
+| `--shadow-1` | `0 1px 2px rgba(23, 23, 26, 0.06), 0 1px 1px rgba(23, 23, 26, 0.04)` |
+| `--shadow-2` | `0 2px 6px rgba(23, 23, 26, 0.07), 0 8px 24px rgba(23, 23, 26, 0.06)` |
+| `--shadow-3` | `0 4px 12px rgba(23, 23, 26, 0.08), 0 24px 64px rgba(23, 23, 26, 0.1)` |
+| `--glow-caption` | `0 0 16px rgba(236, 234, 228, 0.22)` |
+| `--glow-card` | `0 0 22px rgba(236, 234, 228, 0.26)` |
+
+## Frosted chrome: the fixed site header over scrolling content
+
+| Token | Value |
+| --- | --- |
+| `--frost` | `rgba(255, 255, 255, 0.72)` |
+| `--frost-blur` | `12px` |
+
+## Motion: five speeds, one easing
+
+The ride is the skip button's full pass through the film; chrome.ts reads it in seconds.
+
+| Token | Value |
+| --- | --- |
+| `--speed-quick` | `0.2s` |
+| `--speed-move` | `0.25s` |
+| `--speed-settle` | `0.3s` |
+| `--speed-spin` | `0.55s` |
+| `--speed-ride` | `1.5s` |
+| `--ease` | `ease` |
+
+## Layers
+
+| Token | Value |
+| --- | --- |
+| `--z-header` | `5` |
+| `--z-stage` | `6` |
+| `--z-site` | `7` |
+| `--z-overlay` | `10` |
+
+# Dark theme
+
+The paper-side inks inverted onto a near-black ground; the board, the
+chalk, and the flag pair are the film’s own palette and hold in every
+mode. `data-theme="dark"` is the explicit choice; `system` (and no
+attribute at all) follows the OS.
+
+## Overrides
+
+| Token | Value |
+| --- | --- |
+| `--paper` | `#0e0e10` |
+| `--intro-bg` | `#1b1b1f` |
+| `--ink` | `#ececee` |
+| `--ink-muted` | `rgba(236, 236, 238, 0.72)` |
+| `--ink-soft` | `rgba(236, 236, 238, 0.62)` |
+| `--ink-faint` | `rgba(236, 236, 238, 0.5)` |
+| `--line` | `rgba(255, 255, 255, 0.12)` |
+
+## Both status inks lifted to clear AA text contrast on the dark ground
+
+| Token | Value |
+| --- | --- |
+| `--status-success` | `#4cc38a` |
+| `--status-error` | `#ff6b5a` |
+
+## Ink-tinted shadows vanish on black; deepen to black-based elevation
+
+| Token | Value |
+| --- | --- |
+| `--shadow-1` | `0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 1px rgba(0, 0, 0, 0.4)` |
+| `--shadow-2` | `0 2px 6px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.45)` |
+| `--shadow-3` | `0 4px 12px rgba(0, 0, 0, 0.55), 0 24px 64px rgba(0, 0, 0, 0.6)` |
+
+## Frosted chrome tinted to the dark ground; the blur radius is unchanged
+
+| Token | Value |
+| --- | --- |
+| `--frost` | `rgba(14, 14, 16, 0.72)` |
+
+## The trailer/landing box hairline must read light on the black page
+
+This default holds in static mode and before the film's first frame; chrome.ts's inline value (light grey while the box breathes, transparent at full bleed) overrides it the moment the film runs.
+
+| Token | Value |
+| --- | --- |
+| `--box-border` | `#dedcd5` |

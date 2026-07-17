@@ -650,9 +650,10 @@ body {
   color: var(--ink-soft);
 }
 
-/* The alternate contact points at the same staged book a call the header
- * carries, so a click does nothing yet. It sits inline in the sentence as a
- * plain underlined word, not a boxed control. */
+/* The alternate contact is one control: the whole sentence is the click
+ * target, not a single word inside it. It reads as a line of text, not a
+ * boxed button. Like every book-a-call control it is staged: there is no
+ * scheduling link yet, so a click does nothing until one is wired. */
 .contact-here {
   font: inherit;
   color: var(--ink-muted);

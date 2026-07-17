@@ -73,6 +73,26 @@
       color: var(--ink-muted);
     }
 
+    /* The whole sheet, in one file: the same tokens this page documents,
+     * generated from tokens.css on every build. */
+    .bar .dl {
+      margin-left: var(--space-5);
+      padding: var(--control-pad-y) var(--control-pad-x);
+      border: var(--border-control) solid var(--ink);
+      border-radius: var(--radius-control);
+      font-size: var(--type-nav);
+      color: var(--ink);
+      text-decoration: none;
+      transition: opacity var(--speed-quick) var(--ease);
+    }
+
+    .bar .dl:hover { opacity: var(--o-muted); }
+
+    .bar .dl:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
     main {
       max-width: var(--width-page);
       margin: 0 auto;
@@ -414,6 +434,7 @@
   <header class="bar">
     <a class="wordmark" href="./index.html">Anteon</a>
     <span class="crumb">Design tokens</span>
+    <a class="dl" href="/tokens.md" download="anteon-tokens.md">Download .md</a>
   </header>
 
   <main>
