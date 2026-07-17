@@ -1109,7 +1109,8 @@ html[data-boot="site"] #skip {
   padding-inline: var(--space-gutter);
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* The label holds the left edge; the marks close the run on the right. */
+  justify-content: flex-end;
   gap: var(--space-16);
 }
 
@@ -1146,7 +1147,7 @@ html[data-boot="site"] #skip {
 /* Narrow: the label stacks above the centered marks, as the reference does;
  * the divider makes no sense in a column and leaves. */
 @media (max-width: 640px) {
-  .media-strip-row { flex-wrap: wrap; gap: var(--space-4) var(--space-8); }
+  .media-strip-row { flex-wrap: wrap; justify-content: center; gap: var(--space-4) var(--space-8); }
   .media-strip-label {
     position: static;
     transform: none;
