@@ -1153,6 +1153,9 @@ html[data-boot="site"] #skip {
     flex-basis: 100%;
     text-align: center;
   }
+  /* Wrapped, a divider can land at a row's end and dangle there; the marks
+   * separate themselves once they stack. */
+  .media-strip-divider { display: none; }
 }
 
 /* ---- The site's content sections: library, index, compiler, closing ----
