@@ -38,6 +38,10 @@ body {
   background: var(--paper);
   z-index: var(--z-header);
   pointer-events: none;
+  /* The menu lift (see #chrome.mega-open) drops back to this rest layer only
+   * after the panel has collapsed, so on close the sheet rides up over the
+   * film instead of popping away behind the stage. */
+  transition: z-index 0s linear var(--speed-settle);
 }
 
 #wordmark {
@@ -813,6 +817,11 @@ html.bedded .intro-hand { position: fixed; }
   border-radius: var(--radius-pill);
   background: var(--ash);
 }
+
+/* The real window traffic lights: close / minimize / zoom, left to right. */
+.terminal-bar .terminal-dot:nth-child(1) { background: #ff5f57; }
+.terminal-bar .terminal-dot:nth-child(2) { background: #febc2e; }
+.terminal-bar .terminal-dot:nth-child(3) { background: #28c840; }
 
 .terminal-body {
   /* A fixed window, like a real terminal, sized so the whole race fits:
@@ -1828,7 +1837,14 @@ html.static .caption {
 
 /* The film header has no divider on the trailer: its panel border stays
  * clear. The sticky site header keeps its line. */
-#chrome .nav-mega-panel { border-bottom-color: transparent; }
+#chrome .nav-mega-panel {
+  border-bottom-color: transparent;
+  /* Over the black trailer the frosted (translucent) panel reads through to
+   * the film beneath it. Paint the film header's panel on the header's own
+   * solid ground so an open menu covers the trailer. The sticky site header
+   * keeps its frost, which reads solid over the paper page. */
+  background: var(--paper);
+}
 
 /* In the page's header the panel sits over the box's own top corners: it is
  * pinned to the header's box, is the header's full width, and is a solid sheet
@@ -1838,6 +1854,19 @@ html.static .caption {
  * to stay sticky, so the panel follows the same corner the box does. */
 #site-header .nav-mega-panel {
   border-radius: var(--site-radius, var(--radius-rise)) var(--site-radius, var(--radius-rise)) 0 0;
+}
+
+/* At rest the film header sits below the stage (--z-header < --z-stage) so the
+ * rising box can cover it. Its mega panel is z-index:-1 inside that low context,
+ * so an open panel would drop behind the stage and vanish over the trailer.
+ * When the menu opens, lift the whole header above the stage (and the site
+ * layer) so the panel drops over the film and its cards stay clickable. The
+ * raise is immediate on open; the base #chrome transition delays the drop on
+ * close until the panel has finished collapsing. The site header is unaffected;
+ * it already sits above the stage. */
+#chrome.mega-open {
+  z-index: var(--z-overlay);
+  transition: z-index 0s linear 0s;
 }
 
 #chrome.mega-open .nav-mega-panel,

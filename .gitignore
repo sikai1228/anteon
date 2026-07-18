@@ -3,5 +3,5 @@ dist
 .DS_Store
 *.local
 public/assets/raw
-/media strip/
+/assets/source/universities/
 .vercel
