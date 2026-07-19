@@ -250,7 +250,7 @@ type ChromeStrings = Omit<
 
 const CHROME: Record<Locale, ChromeStrings> = {
   en: {
-    product: 'Product',
+    product: 'Solutions',
     megaEnginesTitle: 'Engine database',
     megaEnginesSub: '1,000+ deterministic engines and the intelligence layer that guides your AI to call them',
     megaApisTitle: 'API database',
@@ -258,7 +258,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     megaLibraryTitle: 'Personal database',
     megaLibrarySub: 'Unique engines, compiled from your firm\u2019s unique work and shared across your team',
     explore: 'Explore further',
-    apiKey: 'API key',
+    apiKey: 'API / MCP',
     pricing: 'Pricing',
     support: 'Support',
     bookCall: 'Book a call',
@@ -438,7 +438,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
       'All done. supplier_q2.csv is ready, the spend totals and variance are computed, and an audit of the procurement team is required under §7.2(b), Vendor Audit Policy.',
   },
   es: {
-    product: 'Producto',
+    product: 'Solutions',
     megaEnginesTitle: 'Base de datos de motores',
     megaEnginesSub: 'Más de 1.000 motores deterministas y la capa de inteligencia que guía a tu IA para llamarlos',
     megaApisTitle: 'Base de datos de API',
@@ -446,7 +446,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     megaLibraryTitle: 'Base de datos personal',
     megaLibrarySub: 'Motores únicos, compilados desde el trabajo único de tu empresa y compartidos con tu equipo',
     explore: 'Explorar más',
-    apiKey: 'Clave de API',
+    apiKey: 'API / MCP',
     pricing: 'Precios',
     support: 'Soporte',
     bookCall: 'Reserva una llamada',

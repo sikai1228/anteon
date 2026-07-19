@@ -1112,3 +1112,777 @@ body {
     background: rgba(255, 255, 255, 0.06);
   }
 }
+
+/* ---- API / MCP page ----
+ * The developer surface: a hero, the connect docs with copyable code blocks,
+ * and a pre-launch console (account, key, billing). Paper and ink like every
+ * shell; the code blocks and the console cards are the only tinted components,
+ * so the page keeps the one ground. The console controls are staged the same
+ * way the contact form is: no backend is wired, so they present the shape of
+ * the console honestly, validate lightly, and store nothing.
+ */
+
+/* The hero lede rides the prose measure so it never runs long on a wide
+ * screen; the pre-launch note and the base URL stack just beneath it. */
+.api-lede {
+  max-width: var(--width-prose);
+  margin: 0;
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+.api-hero-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.api-note {
+  margin: 0;
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
+}
+
+/* The base URL: a label and a mono address in a hairline pill, the one place
+ * an endpoint sits outside a full code block. */
+.api-base {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 100%;
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--ink) 3%, var(--paper));
+}
+
+.api-base-label {
+  flex: none;
+  font-size: var(--type-micro);
+  color: var(--ink-soft);
+}
+
+.api-base code {
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  color: var(--ink);
+  overflow-x: auto;
+}
+
+/* Each section opens on the site's section rhythm. */
+.api-section { margin-top: var(--space-section); }
+
+.api-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.api-section-head h2 {
+  margin: 0;
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+
+.api-section-lede {
+  max-width: var(--width-prose);
+  margin: 0 0 var(--space-8);
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The "launching soon" and "preview" chips: a mono micro pill beside a
+ * heading, never an eyebrow above it. Ink on a faint tint, no accent. The 2px
+ * inset is the chip's own geometry; no token sits that tight. */
+.api-soon {
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-soft);
+  padding: 2px var(--space-2);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+/* Doc cards: one bordered card per surface, stacked. */
+.api-docs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.api-doc,
+.api-panel {
+  padding: var(--space-6);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-frame);
+  background: color-mix(in srgb, var(--ink) 2%, var(--paper));
+}
+
+.api-doc-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.api-doc-head h3 {
+  margin: 0;
+  font-size: var(--type-body-lg);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+}
+
+.api-doc-desc {
+  margin: 0;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* Gaps between a desc, a code block, and a following desc or tools list. */
+.api-doc-desc + .api-codewrap,
+.api-doc-desc + .api-tools { margin-top: var(--space-4); }
+.api-codewrap + .api-doc-desc,
+.api-tools + .api-doc-desc { margin-top: var(--space-5); }
+
+/* The method chip: the verb, then the path, mono, allowed to wrap. */
+.api-method {
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.api-verb {
+  margin-right: var(--space-2);
+  color: var(--ink-soft);
+}
+
+/* Code blocks: mono on a tint, a hairline, and their own horizontal scroll so
+ * a long line never widens the page. The block is focusable, so it scrolls by
+ * keyboard; the right lane is kept clear for the copy control. */
+.api-codewrap {
+  position: relative;
+}
+
+.api-code {
+  margin: 0;
+  overflow-x: auto;
+  padding: var(--space-4);
+  padding-right: var(--space-16);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  -webkit-overflow-scrolling: touch;
+}
+
+.api-code code {
+  font: inherit;
+  color: inherit;
+  white-space: pre;
+}
+
+.api-code:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Copy control: a small mono pill in the block's top-right corner, resting
+ * muted and lifting to full ink on hover, like the chrome links. It floats on
+ * the wrap, so the code scrolls beneath it. */
+.api-copy {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  color: var(--ink-muted);
+  background: var(--paper);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  opacity: var(--o-muted);
+  transition:
+    opacity var(--speed-quick) var(--ease),
+    color var(--speed-quick) var(--ease),
+    border-color var(--speed-quick) var(--ease);
+}
+
+.api-copy:hover {
+  opacity: 1;
+  color: var(--ink);
+  border-color: var(--ink-faint);
+}
+
+.api-copy:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+/* 13px matches the pill's mono cap height; no token sits there. */
+.api-copy svg { width: 13px; height: 13px; }
+
+.api-copy-check { display: none; }
+
+.api-copy.is-copied {
+  opacity: 1;
+  color: var(--status-success);
+  border-color: color-mix(in srgb, var(--status-success) 35%, transparent);
+}
+
+.api-copy.is-copied .api-copy-icon { display: none; }
+.api-copy.is-copied .api-copy-check { display: inline; }
+
+/* The MCP tools list: a mono name and a plain line each. */
+.api-tools {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.api-tool {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+}
+
+.api-tool-name {
+  flex: none;
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  color: var(--ink);
+}
+
+.api-tool-desc {
+  font-size: var(--type-nav);
+  color: var(--ink-muted);
+}
+
+/* The console: three staged cards. The account card leads the row full width;
+ * the key and billing cards share the second row. */
+.api-console {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+}
+
+.api-panel:first-child { grid-column: 1 / -1; }
+
+.api-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.api-panel-head h3 {
+  margin: 0;
+  font-size: var(--type-body-lg);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+}
+
+.api-panel-desc {
+  margin: 0 0 var(--space-5);
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The account form: a labelled field and the staged submit. */
+.api-account-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: flex-start;
+}
+
+.api-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: var(--width-quote);
+}
+
+.api-field label {
+  font-size: var(--type-nav);
+  font-weight: var(--weight-medium);
+  color: var(--ink-muted);
+}
+
+.api-field input {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-3) var(--space-4);
+  outline: none;
+  transition: border-color var(--speed-quick) var(--ease);
+}
+
+.api-field input:focus { border-color: var(--focus); }
+.api-field input[aria-invalid="true"] { border-color: var(--status-error); }
+
+/* The staged buttons share the header's book-a-call idiom: outlined, muted at
+ * rest, full ink on hover, with an arrow that arrives from the left. */
+.api-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--sans);
+  font-size: var(--type-nav);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border-control) solid var(--ink);
+  border-radius: var(--radius-control);
+  padding: var(--control-pad-y) var(--control-pad-x);
+  cursor: pointer;
+  opacity: var(--o-muted);
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.api-btn:hover { opacity: 1; }
+
+.api-btn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+/* The arrow rests collapsed, nudged 5px left, matching the book-a-call
+ * control; no token sits at 5px or at the glyph's 15px width. */
+.api-btn-arrow {
+  display: grid;
+  place-items: center;
+  width: 0;
+  margin-left: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-5px);
+  transition:
+    width var(--speed-move) var(--ease),
+    margin-left var(--speed-move) var(--ease),
+    opacity var(--speed-quick) var(--ease),
+    transform var(--speed-move) var(--ease);
+}
+
+.api-btn:hover .api-btn-arrow,
+.api-btn:focus-visible .api-btn-arrow {
+  width: 15px;
+  margin-left: var(--control-pad-y);
+  opacity: 1;
+  transform: none;
+}
+
+.api-btn-arrow svg { width: 15px; height: 15px; }
+
+/* The key row: the sample key in mono with its own scroll, the preview copy
+ * control pinned beside it so it never scrolls away. */
+.api-key-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
+}
+
+.api-key {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.api-key-row .api-copy {
+  position: static;
+  flex: none;
+  opacity: var(--o-muted);
+}
+
+.api-key-hint {
+  margin: var(--space-3) 0 0;
+  font-size: var(--type-nav);
+  line-height: var(--leading-body);
+  color: var(--ink-soft);
+}
+
+/* The balance readout: a label and a mono, tabular figure. */
+.api-balance {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.api-balance-label {
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
+}
+
+.api-balance-amount {
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--type-body-lg);
+  color: var(--ink);
+}
+
+.api-billing-foot {
+  margin: var(--space-4) 0 0;
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
+}
+
+.api-billing-foot a { color: var(--ink); }
+
+/* The staged status note: neutral and calm, a hairline box that appears when a
+ * staged control explains itself. Not the contact form's success or error
+ * ink, since nothing succeeded or failed here; this is plain information. */
+.api-status {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--type-nav);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--ink) 3%, var(--paper));
+}
+
+.api-status[hidden] { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .api-copy,
+  .api-btn-arrow { transition: none; }
+}
+
+/* The console folds to one column below the shell's mid breakpoint, and the
+ * account card rejoins the single track. */
+@media (max-width: 768px) {
+  .api-console { grid-template-columns: 1fr; }
+  .api-panel:first-child { grid-column: auto; }
+}
+
+/* On a phone the cards tighten their padding; the code keeps its own scroll. */
+@media (max-width: 640px) {
+  .api-doc,
+  .api-panel { padding: var(--space-5); }
+}
+
+/* ---- API / MCP: connect showcase + ask an AI (round two) ----
+ * A motion-style connect section (a display heading, agent chips, and a
+ * terminal that types each agent's setup) and an ask-an-AI section (three
+ * links that open a chat assistant with the question pre-filled). Both hold
+ * our tokens and the one ground: monochrome marks, pills fully round, the
+ * terminal a component surface like the landing one. */
+
+/* Shared display heading and its subheading, centered, Hanken not serif. */
+.api-display-h {
+  max-width: var(--width-narrow);
+  margin: 0 auto var(--space-4);
+  font-family: var(--sans);
+  font-size: var(--type-display);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-weight: var(--weight-display);
+  color: var(--ink);
+}
+
+.api-display-sub {
+  max-width: var(--width-prose);
+  margin: 0 auto;
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+.api-connect,
+.api-ask {
+  margin-top: var(--space-section);
+  text-align: center;
+}
+
+/* The agent chips: a centered, wrapping row of fully-round pills, each a
+ * monochrome mark and a name. The active one inverts to solid ink, the same
+ * move the landing terminal's fast-forward control makes. */
+.api-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-8);
+}
+
+.api-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-family: var(--sans);
+  font-size: var(--type-nav);
+  color: var(--ink-muted);
+  background: var(--paper);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    color var(--speed-quick) var(--ease),
+    border-color var(--speed-quick) var(--ease),
+    background var(--speed-quick) var(--ease);
+}
+
+.api-chip svg { width: 16px; height: 16px; flex: none; }
+
+.api-chip:hover { color: var(--ink); border-color: var(--ink-faint); }
+
+.api-chip:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  color: var(--ink);
+}
+
+.api-chip.is-active {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+/* The terminal window: the landing terminal's look, one pane, left-aligned
+ * inside the centered section. */
+.api-connect-term {
+  max-width: var(--width-narrow);
+  margin: var(--space-10) auto 0;
+  text-align: left;
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-frame);
+  overflow: hidden;
+  box-shadow: var(--shadow-2);
+}
+
+.api-term-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--space-10);
+  padding-inline: var(--space-4);
+  background: var(--paper);
+  border-bottom: var(--border-hair) solid var(--line);
+}
+
+/* 10px: the window dots' own size, as on the landing terminal. */
+.api-term-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--ash);
+}
+
+.api-term-bar .api-term-dot:nth-child(1) { background: #ff5f57; }
+.api-term-bar .api-term-dot:nth-child(2) { background: #febc2e; }
+.api-term-bar .api-term-dot:nth-child(3) { background: #28c840; }
+
+.api-term-title {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  color: var(--ink-faint);
+}
+
+.api-term-body {
+  position: relative;
+  background: var(--paper);
+}
+
+/* A fixed-ish window that holds the tallest script; taller content scrolls
+ * inside so it never widens or grows the page. */
+.api-term-lines {
+  height: clamp(300px, 44vh, 440px);
+  overflow-y: auto;
+  padding: var(--space-5);
+  padding-right: var(--space-16);
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  line-height: var(--leading-body);
+  color: var(--ink);
+  -webkit-overflow-scrolling: touch;
+}
+
+.api-term-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.api-term-line:first-child { margin-top: 0; }
+
+/* Glyph column, one and a half mono cells so numbers, the hash, and the
+ * prompt all rule to the same left edge. */
+.api-term-glyph {
+  flex: none;
+  width: 1.5em;
+  color: var(--ink-faint);
+}
+
+/* The text keeps its own whitespace, so the config's indentation survives, and
+ * breaks long tokens like the URL rather than pushing a scrollbar. */
+.api-term-text {
+  min-width: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.api-tl-comment { color: var(--ink-faint); }
+.api-tl-note { color: var(--ink-muted); }
+.api-tl-code .api-term-text,
+.api-tl-step .api-term-text { color: var(--ink); }
+.api-tl-done,
+.api-tl-done .api-term-glyph { color: var(--ink); }
+
+/* The block cursor rides the line being typed; 1s is the classic blink. */
+.api-term-cursor {
+  display: inline-block;
+  flex: none;
+  width: 0.6em;
+  height: 1em;
+  align-self: center;
+  background: var(--ink);
+  animation: api-term-blink 1s step-end infinite;
+}
+
+@keyframes api-term-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.api-term-body .api-copy { top: var(--space-3); right: var(--space-3); }
+
+.api-connect-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-8);
+}
+
+/* The staged note under either centered section sits back on the left, held
+ * to the same measure as the content above it. */
+.api-connect .api-status,
+.api-ask .api-status {
+  max-width: var(--width-narrow);
+  margin-inline: auto;
+  text-align: left;
+}
+
+/* Ask an AI: three link cards, one monochrome mark, a label, and the arrow
+ * that lifts up and out on hover to read as an outbound link. */
+.api-ask-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  max-width: var(--width-narrow);
+  margin: var(--space-10) auto 0;
+  text-align: left;
+}
+
+.api-ask-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-frame);
+  background: color-mix(in srgb, var(--ink) 2%, var(--paper));
+  color: var(--ink);
+  text-decoration: none;
+  transition:
+    border-color var(--speed-quick) var(--ease),
+    background var(--speed-quick) var(--ease);
+}
+
+.api-ask-card:hover { border-color: var(--ink-faint); }
+
+.api-ask-card:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.api-ask-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: var(--ink-muted);
+}
+
+.api-ask-icon svg { width: 20px; height: 20px; }
+
+.api-ask-label {
+  font-size: var(--type-body-lg);
+  font-weight: var(--weight-medium);
+}
+
+.api-ask-arrow {
+  display: grid;
+  place-items: center;
+  margin-left: auto;
+  color: var(--ink-faint);
+  transition:
+    color var(--speed-quick) var(--ease),
+    transform var(--speed-move) var(--ease);
+}
+
+.api-ask-arrow svg { width: 18px; height: 18px; }
+
+.api-ask-card:hover .api-ask-arrow {
+  color: var(--ink);
+  transform: translate(2px, -2px);
+}
+
+.api-ask-note {
+  margin: var(--space-6) 0 0;
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .api-term-cursor { animation: none; }
+  .api-ask-arrow { transition: color var(--speed-quick) var(--ease); }
+  .api-ask-card:hover .api-ask-arrow { transform: none; }
+}
+
+/* Phone: the terminal shortens and drops to the micro type; the ask cards
+ * stack to one column. Chips already wrap and stay centered. */
+@media (max-width: 640px) {
+  .api-term-lines { height: clamp(260px, 60vh, 380px); font-size: var(--type-micro); }
+  .api-ask-grid { grid-template-columns: 1fr; }
+}
