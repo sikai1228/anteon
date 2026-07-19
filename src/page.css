@@ -1887,3 +1887,122 @@ body {
   .api-term-lines { height: clamp(260px, 60vh, 380px); font-size: var(--type-micro); }
   .api-ask-grid { grid-template-columns: 1fr; }
 }
+
+/* ---- Pricing: the unit first, two offers, questions after. Research-shaped
+ * (clarity above the fold, value metric explained before it is sold, FAQ as
+ * progressive disclosure); the site's neutral system carries the look. ---- */
+.pricing-lede {
+  margin: 0 0 var(--space-10);
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-soft);
+  max-width: var(--width-prose);
+}
+
+.pricing-unit {
+  padding: var(--space-6) 0;
+  border-top: var(--border-hair) solid var(--line);
+  border-bottom: var(--border-hair) solid var(--line);
+  margin-bottom: var(--space-16);
+}
+
+.pricing-unit p {
+  margin: 0 0 var(--space-3);
+  max-width: var(--width-prose);
+  color: var(--ink-muted);
+}
+
+.pricing-unit-ex {
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  color: var(--ink-faint);
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+  align-items: stretch;
+}
+
+.pricing-card {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-frame);
+  padding: var(--space-8);
+}
+
+.pricing-card-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.pricing-card-head h2 { margin: 0; }
+
+.pricing-price {
+  margin: 0;
+  font-size: var(--type-title);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-display);
+  letter-spacing: var(--tracking-tight);
+}
+
+.pricing-price-sub {
+  margin: var(--space-2) 0 var(--space-6);
+  color: var(--ink-soft);
+}
+
+.pricing-list {
+  list-style: none;
+  margin: 0 0 var(--space-8);
+  padding: 0;
+  flex: 1;
+}
+
+.pricing-list li {
+  padding: var(--space-3) 0;
+  border-bottom: var(--border-hair) solid var(--line);
+  color: var(--ink-muted);
+}
+
+.pricing-list li:last-child { border-bottom: 0; }
+
+/* The recommended action inverts to solid ink, the active-chip move. */
+.api-btn-solid {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.api-btn-solid:hover { opacity: var(--o-rest); }
+
+.pricing-faq { margin-top: var(--space-section); }
+
+.pricing-faq h2 { margin: 0 0 var(--space-6); }
+
+.pricing-faq-item {
+  border-bottom: var(--border-hair) solid var(--line);
+}
+
+.pricing-faq-item summary {
+  padding: var(--space-4) 0;
+  cursor: pointer;
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+  list-style: none;
+}
+
+.pricing-faq-item summary::-webkit-details-marker { display: none; }
+
+.pricing-faq-item p {
+  margin: 0 0 var(--space-4);
+  max-width: var(--width-prose);
+  color: var(--ink-muted);
+}
+
+@media (max-width: 640px) {
+  .pricing-grid { grid-template-columns: 1fr; }
+}

@@ -48,7 +48,75 @@
   </header>
   <main class="page-main">
     <h1>Pricing</h1>
-    <p class="page-empty">Nothing here yet.</p>
+    <p class="pricing-lede">Pay for what you run. Nothing to license, nothing per seat.</p>
+
+    <!-- The unit, first: usage pricing only works when the unit is obvious. -->
+    <div class="pricing-unit">
+      <p>The unit is a run. One engine, called once. A quick lookup draws a little from your balance; a heavy conversion draws more. Cached repeats return from memory and draw less.</p>
+      <code class="pricing-unit-ex">date.business_days &rarr; "2026-07-07" &middot; one run</code>
+    </div>
+
+    <div class="pricing-grid">
+      <article class="pricing-card">
+        <div class="pricing-card-head">
+          <h2>API / MCP</h2>
+          <span class="api-soon">Self serve</span>
+        </div>
+        <p class="pricing-price">Pay per run</p>
+        <p class="pricing-price-sub">Rates publish at launch. A free allowance from day one.</p>
+        <ul class="pricing-list">
+          <li>Metered by the run, to the exact call</li>
+          <li>One key for the API and the MCP server, one rate</li>
+          <li>Load a balance when you need to; no subscription</li>
+          <li>Cached repeats cost less and return in milliseconds</li>
+          <li>Sign-ups open the day the API does</li>
+        </ul>
+        <a class="api-btn" href="./api-key.html">
+          <span class="api-btn-label">See how to connect</span>
+          <span class="api-btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+        </a>
+      </article>
+
+      <article class="pricing-card">
+        <div class="pricing-card-head">
+          <h2>Enterprise</h2>
+          <span class="api-soon">For firms</span>
+        </div>
+        <p class="pricing-price">Custom</p>
+        <p class="pricing-price-sub">Volume rates, invoiced on your terms.</p>
+        <ul class="pricing-list">
+          <li>Run Anteon inside your own cloud</li>
+          <li>Private engines, compiled from your firm&rsquo;s own work</li>
+          <li>Tenant isolation and a security review</li>
+          <li>Priority support and an SLA</li>
+          <li>Volume rates and invoicing</li>
+        </ul>
+        <a class="api-btn api-btn-solid" href="./contact.html">
+          <span class="api-btn-label">Book a call</span>
+          <span class="api-btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+        </a>
+      </article>
+    </div>
+
+    <section class="pricing-faq" aria-labelledby="pricing-faq-h">
+      <h2 id="pricing-faq-h">Questions, answered</h2>
+      <details class="pricing-faq-item">
+        <summary>What counts as a run?</summary>
+        <p>One engine, called once. Convert a file, run one; extract a table, run one. A repeat of the same call returns from cache and draws less.</p>
+      </details>
+      <details class="pricing-faq-item">
+        <summary>When do the rates publish?</summary>
+        <p>With the API launch. The numbers land on this page before sign-ups open, and the free allowance is there from day one.</p>
+      </details>
+      <details class="pricing-faq-item">
+        <summary>Is MCP priced differently from the API?</summary>
+        <p>No. They are two doors to the same engines. One key, one balance, one rate.</p>
+      </details>
+      <details class="pricing-faq-item">
+        <summary>What does Enterprise add?</summary>
+        <p>Anteon in your own cloud, private engines from your firm&rsquo;s own work, a security review, an SLA, and volume rates. Book a call and we will scope it with you.</p>
+      </details>
+    </section>
   </main>
   <footer class="site-footer">
     <div class="footer-inner">
