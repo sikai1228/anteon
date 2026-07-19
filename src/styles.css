@@ -114,6 +114,12 @@ body {
   transition: opacity var(--speed-quick) var(--ease);
 }
 
+/* The header CTA is a link now (it goes to the API / MCP page). As an anchor
+ * inside the nav it keeps the control look: no muting, no drawn underline. */
+a.book-call { text-decoration: none; }
+.header-nav a.book-call { opacity: 1; }
+.header-nav a.book-call::after { content: none; }
+
 .book-call:hover { opacity: 1; }
 
 .book-call .bc-arrow {

@@ -47,19 +47,12 @@
     <button type="button" class="nav-toggle" aria-expanded="false" aria-label="Menu" data-i18n-attr="aria-label:ariaMenu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg></button>
   </header>
   <main class="page-main">
-    <h1>Run 1,000+ deterministic engines from one endpoint</h1>
-    <p class="api-lede">The API and the MCP server are two doors to the same place. Your code calls a REST endpoint, your AI calls a tool, and both run the same engine and get the same exact answer back. Same key for both.</p>
-    <div class="api-hero-meta">
-      <p class="api-note">The API opens soon. The console below is a preview until then.</p>
-      <div class="api-base"><span class="api-base-label">Base URL</span><code>https://api.anteon.dev</code></div>
-    </div>
-
     <!-- A. Connect: a motion-style showcase. The chips switch the terminal,
          which types out that agent's setup line by line. Every line is depicted
          and pre-launch: the real MCP URL and a Bearer key, framed as how it
          works. The window is a component surface, like the landing terminal. -->
     <section class="api-connect" aria-labelledby="api-connect-h">
-      <h2 id="api-connect-h" class="api-display-h">Plug Anteon into your existing agents</h2>
+      <h1 id="api-connect-h" class="api-display-h">Plug Anteon into your existing agents</h1>
       <p class="api-display-sub">Call Anteon from Claude, ChatGPT, Cursor, or any agent over MCP. It finds the right engine and returns the exact answer.</p>
 
       <div class="api-chips" role="group" aria-label="Choose an agent">
@@ -115,71 +108,7 @@
       <p class="api-status" id="api-connect-status" role="status" aria-live="polite" hidden></p>
     </section>
 
-    <!-- 3-5. The console: account, key, billing. Staged, pre-launch, honest. -->
-    <section class="api-section" aria-labelledby="api-console-h">
-      <div class="api-section-head">
-        <h2 id="api-console-h">Your console</h2>
-        <span class="api-soon">Preview</span>
-      </div>
-      <p class="api-section-lede">Here&rsquo;s where you&rsquo;ll manage your account, your key, and your balance. It&rsquo;s a preview until the API opens, so nothing here is stored yet.</p>
-      <div class="api-console">
-
-        <!-- Account -->
-        <article class="api-panel">
-          <div class="api-panel-head">
-            <h3>Create your account</h3>
-            <span class="api-soon">Launching soon</span>
-          </div>
-          <p class="api-panel-desc">One account holds your keys, your balance, and your usage. Sign-ups open the day the API does.</p>
-          <form class="api-account-form" novalidate>
-            <div class="api-field">
-              <label for="api-email">Work email</label>
-              <input id="api-email" name="email" type="email" autocomplete="email" placeholder="you@company.com" />
-            </div>
-            <button type="submit" class="api-btn">
-              <span class="api-btn-label">Create account</span>
-              <span class="api-btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-            </button>
-          </form>
-          <p class="api-status" id="api-account-status" role="status" aria-live="polite" hidden></p>
-        </article>
-
-        <!-- Your API key -->
-        <article class="api-panel">
-          <div class="api-panel-head"><h3>Your API key</h3></div>
-          <p class="api-panel-desc">Your key authenticates every call, plain API or MCP. You&rsquo;ll see it once, when you create it.</p>
-          <div class="api-key-row">
-            <code class="api-key">ak_live_a1b2c3d4&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;</code>
-            <button class="api-copy is-preview" type="button" data-note-target="#api-key-status" data-note="This is a sample. Your real key appears here at launch, shown once." aria-label="Copy your API key">
-              <svg class="api-copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-              <span class="api-copy-label">Copy</span>
-            </button>
-          </div>
-          <p class="api-key-hint">This is a sample. Your real key appears here at launch, shown once. Keep it secret, like a password.</p>
-          <p class="api-status" id="api-key-status" role="status" aria-live="polite" hidden></p>
-        </article>
-
-        <!-- Billing -->
-        <article class="api-panel">
-          <div class="api-panel-head">
-            <h3>Billing</h3>
-            <span class="api-soon">Launching soon</span>
-          </div>
-          <p class="api-panel-desc">Anteon meters by the run. You load a balance, and each call draws a small amount from it, less for a quick lookup, more for a heavy conversion. The plain API and the MCP server bill the same way.</p>
-          <div class="api-balance">
-            <span class="api-balance-label">Balance</span>
-            <span class="api-balance-amount">$0.00</span>
-          </div>
-          <button class="api-btn" type="button" data-note-target="#api-billing-status" data-note="Checkout opens at launch and runs on Stripe. No card details are collected on this page.">
-            <span class="api-btn-label">Add funds</span>
-            <span class="api-btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-          </button>
-          <p class="api-billing-foot">Full rates land on the <a href="./pricing.html">pricing page</a> before the API opens.</p>
-          <p class="api-status" id="api-billing-status" role="status" aria-live="polite" hidden></p>
-        </article>
-
-      </div>
-    </section>
+    
 
     <!-- B. Ask an AI: three outbound links that open a chat assistant with the
          question already typed in. No backend and no tracking, just links. -->
@@ -287,6 +216,221 @@
             if (email) email.setAttribute('aria-invalid', 'false');
             showNote('#api-account-status', "The API isn't open yet, so no account is created and nothing is stored. Sign-ups turn on here the day it launches.");
           });
+        }
+
+        // ===== Connect terminal: chips switch the agent, and each agent's
+        // setup types out line by line behind a blinking caret. A run token
+        // guards a half-typed script when the visitor clicks the chips quickly.
+        var termLines = document.getElementById('api-term-lines');
+        var termTitle = document.querySelector('[data-term-title]');
+        var chips = document.querySelectorAll('.api-chip');
+        if (termLines && chips.length) {
+          var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          var CHAR_MS = 6;
+          var LINE_MS = 55;
+          var runToken = 0;
+          var current = 'claude';
+
+          // Each agent: the window title, the single-line payload the copy
+          // control hands over, and the lines the typer prints. The displayed
+          // curl and config wrap for reading; the copy payload stays one line
+          // so it pastes clean.
+          var SCRIPTS = {
+            claude: {
+              title: 'anteon · claude',
+              copy: 'https://api.anteon.dev/mcp',
+              lines: [
+                { cls: 'api-tl-comment', g: '#', t: 'Add Anteon to Claude' },
+                { cls: 'api-tl-step', g: '1', t: 'Open claude.ai, then Settings, then Connectors' },
+                { cls: 'api-tl-step', g: '2', t: 'Choose "Add custom connector"' },
+                { cls: 'api-tl-step', g: '3', t: 'Name it Anteon and paste the server URL' },
+                { cls: 'api-tl-code', g: '', t: 'https://api.anteon.dev/mcp' },
+                { cls: 'api-tl-step', g: '4', t: 'Add your key when asked' },
+                { cls: 'api-tl-code', g: '', t: 'ak_live_...' },
+                { cls: 'api-tl-done', g: '✓', t: 'Connected. Claude can run every Anteon engine.' }
+              ]
+            },
+            cursor: {
+              title: 'anteon · cursor',
+              copy: '{ "mcpServers": { "anteon": { "url": "https://api.anteon.dev/mcp", "headers": { "Authorization": "Bearer ak_live_..." } } } }',
+              lines: [
+                { cls: 'api-tl-comment', g: '#', t: 'Add Anteon to Cursor' },
+                { cls: 'api-tl-step', g: '1', t: 'Open Cursor, then Settings, then MCP' },
+                { cls: 'api-tl-step', g: '2', t: 'Choose "Add server" and paste this' },
+                { cls: 'api-tl-code', g: '', t: '{' },
+                { cls: 'api-tl-code', g: '', t: '  "mcpServers": {' },
+                { cls: 'api-tl-code', g: '', t: '    "anteon": {' },
+                { cls: 'api-tl-code', g: '', t: '      "url": "https://api.anteon.dev/mcp",' },
+                { cls: 'api-tl-code', g: '', t: '      "headers": { "Authorization": "Bearer ak_live_..." }' },
+                { cls: 'api-tl-code', g: '', t: '    }' },
+                { cls: 'api-tl-code', g: '', t: '  }' },
+                { cls: 'api-tl-code', g: '', t: '}' },
+                { cls: 'api-tl-done', g: '✓', t: 'Save. Cursor lists Anteon tools right away.' }
+              ]
+            },
+            chatgpt: {
+              title: 'anteon · chatgpt',
+              copy: 'https://api.anteon.dev/mcp',
+              lines: [
+                { cls: 'api-tl-comment', g: '#', t: 'Add Anteon to ChatGPT' },
+                { cls: 'api-tl-step', g: '1', t: 'Open ChatGPT, then Settings, then Connectors' },
+                { cls: 'api-tl-step', g: '2', t: 'Add a custom connector' },
+                { cls: 'api-tl-step', g: '3', t: 'Paste the Anteon server URL' },
+                { cls: 'api-tl-code', g: '', t: 'https://api.anteon.dev/mcp' },
+                { cls: 'api-tl-step', g: '4', t: 'Add your key when asked' },
+                { cls: 'api-tl-code', g: '', t: 'ak_live_...' },
+                { cls: 'api-tl-done', g: '✓', t: 'Connected. ChatGPT reaches every Anteon engine.' }
+              ]
+            },
+            perplexity: {
+              title: 'anteon · perplexity',
+              copy: 'https://api.anteon.dev/mcp',
+              lines: [
+                { cls: 'api-tl-comment', g: '#', t: 'Add Anteon to Perplexity' },
+                { cls: 'api-tl-step', g: '1', t: 'Open Perplexity, then Settings, then Connectors' },
+                { cls: 'api-tl-step', g: '2', t: 'Add a custom MCP connector' },
+                { cls: 'api-tl-step', g: '3', t: 'Paste the Anteon server URL' },
+                { cls: 'api-tl-code', g: '', t: 'https://api.anteon.dev/mcp' },
+                { cls: 'api-tl-step', g: '4', t: 'Add your key when asked' },
+                { cls: 'api-tl-code', g: '', t: 'ak_live_...' },
+                { cls: 'api-tl-done', g: '✓', t: 'Connected. Perplexity runs Anteon on demand.' }
+              ]
+            },
+            any: {
+              title: 'anteon · any client',
+              copy: 'https://api.anteon.dev/mcp',
+              lines: [
+                { cls: 'api-tl-comment', g: '#', t: 'Any MCP client' },
+                { cls: 'api-tl-note', g: '', t: 'Point your client at the Anteon MCP server.' },
+                { cls: 'api-tl-code', g: '', t: 'url      https://api.anteon.dev/mcp' },
+                { cls: 'api-tl-code', g: '', t: 'header   Authorization: Bearer ak_live_...' },
+                { cls: 'api-tl-note', g: '', t: 'It exposes three tools, search, run, and describe.' },
+                { cls: 'api-tl-done', g: '✓', t: 'Any MCP-capable agent can now call Anteon.' }
+              ]
+            },
+            api: {
+              title: 'anteon · api',
+              copy: "curl -X POST https://api.anteon.dev/v1/run/date.business_days -H \"Authorization: Bearer ak_live_...\" -d '{\"start\":\"2026-03-03\",\"n\":90}'",
+              lines: [
+                { cls: 'api-tl-comment', g: '#', t: 'Call an engine directly over HTTP' },
+                { cls: 'api-tl-code', g: '$', t: 'curl -X POST https://api.anteon.dev/v1/run/date.business_days \\' },
+                { cls: 'api-tl-code', g: '', t: '  -H "Authorization: Bearer ak_live_..." \\' },
+                { cls: 'api-tl-code', g: '', t: "  -d '{\"start\":\"2026-03-03\",\"n\":90}'" },
+                { cls: 'api-tl-note', g: '', t: 'Response' },
+                { cls: 'api-tl-code', g: '', t: '{ "result": "2026-07-08", "engine": "date.business_days" }' },
+                { cls: 'api-tl-done', g: '✓', t: 'One call, one exact answer.' }
+              ]
+            }
+          };
+
+          function makeTermLine(line) {
+            var el = document.createElement('div');
+            el.className = 'api-term-line ' + line.cls;
+            var g = document.createElement('span');
+            g.className = 'api-term-glyph';
+            g.textContent = line.g || '';
+            el.appendChild(g);
+            var t = document.createElement('span');
+            t.className = 'api-term-text';
+            el.appendChild(t);
+            return { el: el, textEl: t };
+          }
+
+          function renderInstant(key) {
+            var script = SCRIPTS[key];
+            termLines.replaceChildren();
+            for (var i = 0; i < script.lines.length; i += 1) {
+              var made = makeTermLine(script.lines[i]);
+              made.textEl.textContent = script.lines[i].t;
+              termLines.appendChild(made.el);
+            }
+          }
+
+          function play(key) {
+            var script = SCRIPTS[key];
+            if (!script) return;
+            current = key;
+            if (termTitle) termTitle.textContent = script.title;
+            runToken += 1;
+            var token = runToken;
+            termLines.replaceChildren();
+            if (reduce) { renderInstant(key); return; }
+            var cursor = document.createElement('span');
+            cursor.className = 'api-term-cursor';
+            var li = 0;
+            function nextLine() {
+              if (token !== runToken) return;
+              if (li >= script.lines.length) return;
+              var line = script.lines[li];
+              var made = makeTermLine(line);
+              termLines.appendChild(made.el);
+              made.el.appendChild(cursor);
+              var text = line.t;
+              var ci = 0;
+              (function typeChar() {
+                if (token !== runToken) return;
+                if (ci <= text.length) {
+                  made.textEl.textContent = text.slice(0, ci);
+                  ci += 1;
+                  termLines.scrollTop = termLines.scrollHeight;
+                  window.setTimeout(typeChar, CHAR_MS);
+                } else {
+                  li += 1;
+                  window.setTimeout(nextLine, LINE_MS);
+                }
+              })();
+            }
+            nextLine();
+          }
+
+          for (const chip of chips) {
+            chip.addEventListener('click', function () {
+              var key = chip.getAttribute('data-agent');
+              if (!key) return;
+              for (const c of chips) {
+                var on = c === chip;
+                c.classList.toggle('is-active', on);
+                c.setAttribute('aria-pressed', on ? 'true' : 'false');
+              }
+              play(key);
+            });
+          }
+
+          // The terminal copy control hands over the active agent's payload (the
+          // MCP URL, the Cursor config, or the curl), not the on-screen decoration.
+          var termCopy = document.getElementById('api-term-copy');
+          if (termCopy) {
+            termCopy.addEventListener('click', function () {
+              var label = termCopy.querySelector('.api-copy-label');
+              copyText(SCRIPTS[current].copy).then(function () {
+                termCopy.classList.add('is-copied');
+                if (label) label.textContent = 'Copied';
+                window.clearTimeout(termCopy._reset);
+                termCopy._reset = window.setTimeout(function () {
+                  termCopy.classList.remove('is-copied');
+                  if (label) label.textContent = 'Copy';
+                }, 1600);
+              }, function () {});
+            });
+          }
+
+          // Type the default agent once the terminal scrolls into view, so the
+          // reveal reads as a live session rather than a page already filled in.
+          if (reduce) {
+            renderInstant(current);
+          } else if ('IntersectionObserver' in window) {
+            var seen = false;
+            var io = new IntersectionObserver(function (entries) {
+              if (entries[0] && entries[0].isIntersecting && !seen) {
+                seen = true;
+                play(current);
+                io.disconnect();
+              }
+            }, { threshold: 0.35 });
+            io.observe(termLines);
+          } else {
+            play(current);
+          }
         }
 
         // ===== Connect terminal: chips switch the agent, and each agent's

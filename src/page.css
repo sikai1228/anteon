@@ -1610,7 +1610,8 @@ body {
  * terminal a component surface like the landing one. */
 
 /* Shared display heading and its subheading, centered, Hanken not serif. */
-.api-display-h {
+.api-display-h,
+.page-main h1.api-display-h {
   max-width: var(--width-narrow);
   margin: 0 auto var(--space-4);
   font-family: var(--sans);

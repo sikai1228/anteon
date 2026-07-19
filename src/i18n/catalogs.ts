@@ -29,6 +29,7 @@ export interface Catalog {
   pricing: string;
   support: string;
   bookCall: string;
+  getApiKey: string;
   /* The film's skip control. */
   skipFilm: string;
   introTitle: string;
@@ -262,6 +263,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     pricing: 'Pricing',
     support: 'Support',
     bookCall: 'Book a call',
+    getApiKey: 'Get your API key',
     skipFilm: 'Skip the film',
     introTitle: 'Anteon',
     introSub: 'The determinism layer your AI stands on',
@@ -450,6 +452,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     pricing: 'Precios',
     support: 'Soporte',
     bookCall: 'Reserva una llamada',
+    getApiKey: 'Obtén tu clave de API',
     skipFilm: 'Salta la película',
     introTitle: 'Anteon',
     introSub: 'La capa de determinismo sobre la que se apoya tu IA',
