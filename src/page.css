@@ -1615,10 +1615,12 @@ body {
   max-width: var(--width-narrow);
   margin: 0 auto var(--space-4);
   font-family: var(--sans);
-  font-size: var(--type-display);
-  line-height: var(--leading-tight);
-  letter-spacing: var(--tracking-tight);
-  font-weight: var(--weight-display);
+  /* The section-heading scale, identical to .section-title on the landing.
+   * The display size is the hero's alone; at that size these headings
+   * outweighed their sections and stranded a word on its own line. */
+  font-size: var(--type-title);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-medium);
   color: var(--ink);
 }
 
@@ -1632,7 +1634,9 @@ body {
 
 .api-connect,
 .api-ask {
-  margin-top: var(--space-section);
+  /* Two units: the landing's sections meet at padding + padding, and this is
+   * the same gap without the padding. */
+  margin-top: calc(var(--space-section) * 2);
   text-align: center;
 }
 
