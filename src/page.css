@@ -2010,3 +2010,6 @@ body {
 @media (max-width: 640px) {
   .pricing-grid { grid-template-columns: 1fr; }
 }
+
+/* The header pins, so the Enterprise card clears it when linked to directly. */
+#enterprise { scroll-margin-top: calc(var(--chrome-header) + var(--space-6)); }
