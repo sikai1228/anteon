@@ -114,6 +114,9 @@ body {
   font-size: var(--type-nav);
   letter-spacing: var(--tracking-wide);
   color: var(--ink);
+  /* It is a link on these pages and a button on the landing; the rule covers
+   * both, so the pill never picks up a link underline. */
+  text-decoration: none;
   background: var(--paper);
   border: var(--border-control) solid var(--ink);
   border-radius: var(--radius-control);
@@ -1638,6 +1641,14 @@ body {
    * the same gap without the padding. */
   margin-top: calc(var(--space-section) * 2);
   text-align: center;
+}
+
+/* The page's first section answers to the header, not to the section rhythm.
+ * Subtracting .page-main's own top padding lands the headline exactly 120 below
+ * the header, matching the landing hero at every viewport (the token clamps,
+ * this difference cancels it). */
+.page-main > .api-connect:first-child {
+  margin-top: calc(120px - var(--space-section-sm));
 }
 
 /* The agent chips: a centered, wrapping row of fully-round pills, each a
