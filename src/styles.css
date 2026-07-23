@@ -1420,10 +1420,6 @@ html[data-boot="site"] #skip {
 .closing-enterprise:hover { opacity: 1; }
 .closing-enterprise:hover::after { transform: scaleX(1); }
 
-.site-closing .book-call {
-  font-size: var(--type-body-lg);
-  padding: calc(var(--control-pad-y) * 1.5) calc(var(--control-pad-x) * 1.5);
-}
 
 /* Below --bp-md the cells pair up and the steps stack, the connector hidden
  * since there is no longer a row to thread. */

@@ -40,50 +40,48 @@
   <main class="page-main">
     <h1 class="pricing-title">You only pay after we save you money</h1>
 
-    <!-- The mechanic, depicted: the flow is the section's visual, one quiet
-         caption under it carrying the price line. -->
+    <!-- One composition: the flow diagram tells the story in its own boxes,
+         the final box drops straight into the ledger's pay block, and the
+         claim closes it. Boxes and drawn connectors, no prose between. -->
     <section class="pricing-how" aria-labelledby="pricing-how-h">
       <h2 id="pricing-how-h">How it works</h2>
-      <figure class="pricing-flow-fig">
-        <div class="pricing-flow">
-          <span class="pc-step">prompt</span>
-          <span class="pc-arrow" aria-hidden="true">&rarr;</span>
-          <span class="pc-step">checked &middot; free</span>
-          <span class="pc-arrow" aria-hidden="true">&rarr;</span>
-          <span class="pf-routes">
-            <span class="pc-step">engine</span>
-            <span class="pc-step">proven API</span>
-            <span class="pc-step">your small software</span>
-          </span>
-          <span class="pc-arrow" aria-hidden="true">&rarr;</span>
-          <span class="pc-step pc-step-final">a fifth</span>
+      <div class="pricing-flowd">
+        <div class="pfd-box">A prompt comes in</div>
+        <svg class="pfd-conn" viewBox="0 0 48 180" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="90" x2="48" y2="90" vector-effect="non-scaling-stroke" /></svg>
+        <div class="pfd-box">Checked for free</div>
+        <svg class="pfd-conn" viewBox="0 0 48 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 90 H24 M24 90 V30 H48 M24 90 H48 M24 90 V150 H48" fill="none" vector-effect="non-scaling-stroke" /></svg>
+        <div class="pfd-fork">
+          <div class="pfd-box">A determinism engine</div>
+          <div class="pfd-box">A proven API</div>
+          <div class="pfd-box">Your compiled software</div>
         </div>
-        <figcaption>Every prompt is checked free; exact answers route at a fifth.</figcaption>
-      </figure>
-
-      <!-- The page's strongest argument, drawn as a ledger: the charge is a
-           fifth of a saving that has already happened. -->
-      <div class="pricing-ledger">
-        <p class="pl-claim">You cannot lose money here.</p>
+        <svg class="pfd-conn" viewBox="0 0 48 180" preserveAspectRatio="none" aria-hidden="true"><path d="M0 30 H24 V90 M0 150 H24 V90 M0 90 H48" fill="none" vector-effect="non-scaling-stroke" /></svg>
+        <div class="pfd-box pfd-box-final">Answered exactly, at a fifth of your model&rsquo;s price</div>
+        <div class="pfd-drop" aria-hidden="true"></div>
         <figure class="pl-fig">
           <svg viewBox="0 0 560 112" role="img" aria-labelledby="pl-title">
-            <title id="pl-title">What your model would have spent, split into the fifth you pay and the four fifths you keep</title>
+            <title id="pl-title">What your model would have spent, split into the four fifths you keep and the fifth you pay</title>
             <text class="pl-ground-label" x="0" y="12">what your model would have spent</text>
             <line class="pl-ground" x1="0" y1="26" x2="560" y2="26" />
             <line class="pl-ground-tick" x1="0" y1="20" x2="0" y2="32" />
             <line class="pl-ground-tick" x1="560" y1="20" x2="560" y2="32" />
-            <rect class="pl-pay" x="1" y="46" width="111" height="56" />
-            <rect class="pl-keep" x="112" y="46" width="447" height="56" />
-            <text class="pl-pay-label" x="56" y="79" text-anchor="middle">what you pay</text>
-            <text class="pl-keep-label" x="335" y="80" text-anchor="middle">what you keep</text>
+            <rect class="pl-keep" x="1" y="46" width="447" height="56" />
+            <rect class="pl-pay" x="448" y="46" width="111" height="56" />
+            <text class="pl-keep-label" x="224" y="80" text-anchor="middle">what you keep</text>
+            <text class="pl-pay-label" x="503" y="79" text-anchor="middle">what you pay</text>
           </svg>
         </figure>
+        <p class="pl-claim">You cannot lose money here.</p>
         <p class="pl-support">The fifth is only charged after the full price was saved; the other four fifths are yours, every time.</p>
       </div>
     </section>
 
-    <section class="pricing-chart" aria-labelledby="pricing-chart-h">
-      <h2 id="pricing-chart-h">The same solved task, what it costs</h2>
+    <!-- The receipts and the horizon, side by side: the table proves the
+         fifth today, the graph shows where it goes with use. -->
+    <section class="pricing-proof" aria-labelledby="pricing-proof-h">
+      <h2 id="pricing-proof-h">The price, and where it goes</h2>
+      <div class="pricing-proof-grid">
+        <div class="pp-left">
       <table>
         <thead>
           <tr>
@@ -101,11 +99,8 @@
         </tbody>
       </table>
       <p class="pricing-chart-note">Model prices as of Jul 24, 2026; Cursor&rsquo;s row is its Composer 2.5 at standard rates.</p>
-    </section>
-
-    <section class="pricing-compound" aria-labelledby="pricing-compound-h">
-      <h2 id="pricing-compound-h">Savings compound</h2>
-      <p class="pricing-lede-line">Routing saves once; compiled software saves every run.</p>
+        </div>
+        <div class="pp-right">
       <figure class="pricing-diagram">
         <svg viewBox="0 0 560 240" role="img" aria-labelledby="pd-title">
           <title id="pd-title">Cumulative cost over time, your model alone against with Anteon</title>
@@ -132,10 +127,13 @@
         <span class="pc-arrow" aria-hidden="true">&rarr;</span>
         <span class="pc-step pc-step-final">every repeat, engine price</span>
       </div>
+        </div>
+      </div>
       <div class="pricing-cta-row">
         <a class="pricing-cta-link" href="./api-key.html" data-i18n="apiKey">API / MCP</a>
         <button type="button" class="book-call" data-auth="open"><span class="bc-label" data-i18n="getStarted">Get started</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
       </div>
+      <p class="pricing-ent-note">Enterprise terms can be bespoke; see the <a class="pricing-cta-link" href="./enterprise.html">enterprise page</a>.</p>
     </section>
 
     <section class="pricing-faq" aria-labelledby="pricing-faq-h">

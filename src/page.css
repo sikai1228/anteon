@@ -1207,8 +1207,7 @@ body {
 /* The section titles speak the landing's register; the FAQ block sets its
  * own margin later, so this only carries the type. */
 .pricing-how h2,
-.pricing-chart h2,
-.pricing-compound h2,
+.pricing-proof h2,
 .pricing-faq h2 {
   margin: 0;
   font-size: var(--type-title);
@@ -1217,66 +1216,87 @@ body {
   letter-spacing: var(--tracking-tight);
 }
 
-/* The quiet line under a title, the landing lede's register. */
-.pricing-lede-line {
-  margin: var(--space-5) 0 0;
-  font-size: var(--type-body-lg);
-  line-height: var(--leading-body);
-  color: var(--ink-muted);
-}
-
-/* The landing's 80/80 rhythm: every section carries the section unit as
- * padding above and below, so neighbors meet at twice the unit. */
+/* The landing's 80/80 rhythm: every real section carries the section unit
+ * as padding above and below, so neighbors meet at twice the unit. */
 .pricing-how,
-.pricing-chart,
-.pricing-compound,
+.pricing-proof,
 .pricing-faq { padding-block: var(--space-section); }
 
-/* The mechanic depicted, the page's primary diagram: the flow spreads
- * across the full column inside a framed panel, the fork stacked
- * mid-stream, one quiet caption below on the figure seam. */
-.pricing-flow-fig { margin: var(--space-8) 0 0; }
-
-.pricing-flow {
-  display: flex;
-  flex-wrap: wrap;
+/* One composition under one title: a real flow diagram in boxes and drawn
+ * connectors (the landing's stroke register), the final box dropping
+ * straight into the ledger's pay block, the claim closing it. The grid's
+ * connector columns carry the lines; the fork column carries the stack. */
+.pricing-flowd {
+  margin-top: var(--space-10);
+  display: grid;
+  grid-template-columns: 1fr var(--space-12) 1fr var(--space-12) 1.3fr var(--space-12) 1.3fr;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-12) var(--space-10);
-  border: var(--border-hair) solid var(--line);
+}
+
+.pfd-box {
+  border: var(--border-control) solid var(--ink);
   border-radius: var(--radius-frame);
+  padding: var(--space-5) var(--space-6);
+  font-family: var(--sans);
+  font-size: var(--type-nav);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-heading);
+  color: var(--ink);
+  background: var(--paper);
+  text-align: center;
 }
 
-.pf-routes {
-  display: inline-flex;
+.pfd-box-final {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+  font-size: var(--type-body);
+}
+
+.pfd-fork {
+  display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
 
-.pricing-flow-fig figcaption {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: var(--border-hair) solid var(--line);
-  font-family: var(--mono);
-  font-size: var(--type-micro);
-  color: var(--ink-faint);
+/* The connectors stretch their cell, so the elbow fractions track the
+ * fork's thirds at any height; non-scaling strokes stay uniform. */
+.pfd-conn {
+  align-self: stretch;
+  width: 100%;
+  height: 100%;
 }
 
-/* The ledger: the whole spend as a dashed ground above, the fifth you pay
- * in solid ink, and the four fifths you keep as the dominant outlined
- * block. Direct mono labels inside the blocks; both themes by token. */
-.pricing-ledger { margin-top: var(--space-16); }
+.pfd-conn line,
+.pfd-conn path {
+  stroke: var(--ink-faint);
+  stroke-width: var(--border-control);
+}
+
+/* The drop from the answer into the pay block below it. */
+.pfd-drop {
+  grid-column: 7;
+  justify-self: center;
+  width: var(--border-control);
+  height: var(--space-12);
+  background: var(--ink-faint);
+}
+
+/* The ledger rides inside the composition: the whole spend as a dashed
+ * ground, the four fifths you keep dominant and outlined, the fifth you
+ * pay in solid ink under the answer box that feeds it. */
+.pl-fig {
+  grid-column: 1 / -1;
+  margin: 0;
+}
 
 .pl-claim {
-  margin: 0;
+  grid-column: 1 / -1;
+  margin: var(--space-8) 0 0;
   font-size: var(--type-body-lg);
   font-weight: var(--weight-semibold);
   color: var(--ink);
 }
-
-.pl-fig { margin: var(--space-8) 0 0; }
 
 .pl-fig svg {
   display: block;
@@ -1323,23 +1343,32 @@ body {
 }
 
 .pl-support {
-  margin: var(--space-6) 0 0;
+  grid-column: 1 / -1;
+  margin: var(--space-2) 0 0;
   font-size: var(--type-body);
   line-height: var(--leading-body);
   color: var(--ink-muted);
   max-width: var(--width-prose);
 }
 
-/* The comparison: one solved task, their per-token price, and the fifth.
- * A monochrome table on hairlines, numbers in mono on the right, the
- * Anteon column carried by weight alone. */
-.pricing-chart table {
+/* The merged proof: receipts on the left, the horizon on the right, one
+ * title over both, stacking on a narrow screen. */
+.pricing-proof-grid {
+  margin-top: var(--space-10);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-16);
+  align-items: start;
+}
+
+/* The receipts table: monochrome on hairlines, numbers in mono on the
+ * right, the Anteon column carried by weight alone. */
+.pricing-proof table {
   width: 100%;
-  margin-top: var(--space-8);
   border-collapse: collapse;
 }
 
-.pricing-chart th {
+.pricing-proof th {
   padding: 0 0 var(--space-4);
   border-bottom: var(--border-hair) solid var(--line);
   text-align: left;
@@ -1348,29 +1377,29 @@ body {
   color: var(--ink-muted);
 }
 
-.pricing-chart td {
+.pricing-proof td {
   padding: var(--space-5) 0;
   border-bottom: var(--border-hair) solid var(--line);
   color: var(--ink-muted);
 }
 
-.pricing-chart th + th,
-.pricing-chart td + td {
+.pricing-proof th + th,
+.pricing-proof td + td {
   text-align: right;
   padding-left: var(--space-6);
 }
 
-.pricing-chart td + td {
+.pricing-proof td + td {
   font-family: var(--mono);
   font-size: var(--type-nav);
 }
 
-.pricing-chart td:last-child {
+.pricing-proof td:last-child {
   color: var(--ink);
   font-weight: var(--weight-semibold);
 }
 
-.pricing-chart tr:last-child td { border-bottom: 0; }
+.pricing-proof tr:last-child td { border-bottom: 0; }
 
 .pricing-chart-note {
   margin: var(--space-4) 0 0;
@@ -1379,16 +1408,22 @@ body {
   color: var(--ink-faint);
 }
 
+/* The quiet enterprise aside under the close. */
+.pricing-ent-note {
+  margin: var(--space-8) 0 0;
+  text-align: center;
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
+}
+
 /* The compounding close: three escalating beats, the divergence figure, the
  * compile lifecycle, and the standard way in. */
 /* The divergence figure: two schematic curves, no data, no scales. The
  * model line runs faint and dashed; the Anteon line holds full ink and
  * bends flatter at each compiled task. Identity is carried by weight,
- * dash, and the direct labels, never by hue. The figure fills the column,
- * so every stroke, marker, and label scales up with it. */
-.pricing-diagram {
-  margin: var(--space-10) 0 0;
-}
+ * dash, and the direct labels, never by hue. It fills its column, so
+ * every stroke, marker, and label scales with it. */
+.pricing-diagram { margin: 0; }
 
 .pricing-diagram svg {
   display: block;
@@ -1442,16 +1477,15 @@ body {
   color: var(--ink-faint);
 }
 
-/* The compile lifecycle: terminal-register chips centered on one row, the
- * final state inverted to ink, the arrows staying quiet text. Scaled with
- * the figure above it. */
+/* The compile lifecycle: terminal-register chips under the figure, the
+ * final state inverted to ink, the arrows staying quiet text. */
 .pricing-cycle {
   margin: var(--space-8) 0 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .pc-step {
