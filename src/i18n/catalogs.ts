@@ -261,6 +261,11 @@ export interface Catalog {
   ariaChangeLanguage: string;
   ariaMenu: string;
   metaDescription: string;
+  /* The enterprise and docs stub pages. */
+  enterpriseLine: string;
+  docs: string;
+  docsLine: string;
+  docsCta: string;
   /* The compiler diagram's one label, riding the library slab. */
   diagramLabel: string;
   /* The hero terminal demo. The two pane heads (name and the API cost seed),
@@ -564,6 +569,10 @@ const CHROME: Record<Locale, ChromeStrings> = {
     ariaChangeLanguage: 'Change language',
     ariaMenu: 'Menu',
     metaDescription: 'If I have seen further, it is by standing on the shoulders of Giants.',
+    enterpriseLine: 'A dedicated enterprise plan is on its way. Talk to us in the meantime.',
+    docs: 'Docs',
+    docsLine: 'The full documentation is being written. The API / MCP page covers everything you need to connect today.',
+    docsCta: 'See how to connect',
     diagramLabel: 'Firm knowledge library',
     withAnteon: 'With Anteon',
     withoutAnteon: 'Without Anteon',
@@ -840,6 +849,10 @@ const CHROME: Record<Locale, ChromeStrings> = {
     ariaChangeLanguage: 'Cambiar idioma',
     ariaMenu: 'Menú',
     metaDescription: 'Si he visto más lejos, es porque me he subido a hombros de gigantes.',
+    enterpriseLine: 'Un plan empresarial dedicado está en camino. Mientras tanto, habla con nosotros.',
+    docs: 'Documentación',
+    docsLine: 'La documentación completa está en proceso. La página de API / MCP cubre todo lo que necesitas para conectarte hoy.',
+    docsCta: 'Ver cómo conectarte',
     diagramLabel: 'Biblioteca de conocimiento de la firma',
     withAnteon: 'Con Anteon',
     withoutAnteon: 'Sin Anteon',

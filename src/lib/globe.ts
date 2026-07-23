@@ -207,17 +207,11 @@ export function initGlobe(): void {
 
     // One label per marker. Each reads cobe's own facing signal for that id
     // through --v, so the shared class fades it in as the marker rounds to front.
+    // cobe emits its 1px marker-anchor divs inside the figure, so the chips resolve
+    // their anchors against the figure directly, no move needed.
     const supportsAnchor =
       typeof CSS !== 'undefined' && CSS.supports && CSS.supports('position-anchor: --x');
     if (supportsAnchor) {
-      // cobe drops its 1px marker-anchor divs into its own canvas wrapper. Move
-      // them into the label layer so they share its containing block: a chip's
-      // position-anchor only resolves when the anchor sits inside the chip's
-      // containing block, and the layer is absolutely positioned to carry the soft
-      // mask. cobe keeps updating the moved divs by reference, so they still track.
-      for (const anchor of figure.querySelectorAll<HTMLElement>('[style*="anchor-name"]')) {
-        labelLayer.append(anchor);
-      }
       PLACES.forEach((p, i) => {
         // A clean DOM pin sitting on the marker's anchor point: an ink dot with a
         // paper ring so it never merges with the halftone beneath it. It fades on

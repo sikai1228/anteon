@@ -20,6 +20,8 @@ export default defineConfig({
         privacy: new URL('privacy.html', import.meta.url).pathname,
         terms: new URL('terms.html', import.meta.url).pathname,
         cookiePolicy: new URL('cookie-policy.html', import.meta.url).pathname,
+        enterprise: new URL('enterprise.html', import.meta.url).pathname,
+        docs: new URL('docs.html', import.meta.url).pathname,
       },
     },
   },

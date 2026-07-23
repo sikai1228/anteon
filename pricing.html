@@ -38,75 +38,194 @@
 <body>
   <header id="site-header"></header>
   <main class="page-main">
-    <h1>Pricing</h1>
-    <p class="pricing-lede">Pay for what you run. Nothing to license, nothing per seat.</p>
+    <h1 class="pricing-title">You only pay after we save you money</h1>
 
-    <!-- The unit, first: usage pricing only works when the unit is obvious. -->
-    <div class="pricing-unit">
-      <p>The unit is a run. One engine, called once. A quick lookup draws a little from your balance; a heavy conversion draws more. Cached repeats return from memory and draw less.</p>
-      <code class="pricing-unit-ex">date.business_days &rarr; "2026-07-07" &middot; one run</code>
-    </div>
-
-    <div class="pricing-grid">
-      <article class="pricing-card">
-        <div class="pricing-card-head">
-          <h2>API / MCP</h2>
-          <span class="api-soon">Self serve</span>
+    <!-- The mechanic, depicted first in the chip register the compound
+         section's lifecycle uses, then spelled out as numbered beats. -->
+    <section class="pricing-how" aria-labelledby="pricing-how-h">
+      <h2 id="pricing-how-h">How it works</h2>
+      <div class="pricing-flow" aria-hidden="true">
+        <span class="pc-step">prompt</span>
+        <span class="pc-arrow">&rarr;</span>
+        <span class="pc-step">checked &middot; free</span>
+        <span class="pc-arrow">&rarr;</span>
+        <span class="pf-routes">
+          <span class="pc-step">engine</span>
+          <span class="pc-step">proven API</span>
+          <span class="pc-step">your small software</span>
+        </span>
+        <span class="pc-arrow">&rarr;</span>
+        <span class="pc-step pc-step-final">a fifth</span>
+      </div>
+      <ol class="pricing-steps">
+        <li>Every prompt you run is checked for free.</li>
+        <li>When Anteon can answer it exactly, we route it to a determinism engine, a proven API, or reusable small software compiled from your own work.</li>
+        <li>That answer costs a fifth of what your model would have spent generating it.</li>
+      </ol>
+      <p class="pricing-floor">On free or local models, a small per-answer floor applies.</p>
+      <div class="pricing-tiers">
+        <p class="pricing-tiers-lede">Rates are indexed to the model tier you declare.</p>
+        <div class="pricing-tier">
+          <span class="pt-name">Frontier</span>
+          <span class="pt-chips"><span class="pt-chip">Fable</span><span class="pt-chip">OpenAI&rsquo;s top models</span></span>
         </div>
-        <p class="pricing-price">Pay per run</p>
-        <p class="pricing-price-sub">Rates publish at launch. A free allowance from day one.</p>
-        <ul class="pricing-list">
-          <li>Metered by the run, to the exact call</li>
-          <li>One key for the API and the MCP server, one rate</li>
-          <li>Load a balance when you need to; no subscription</li>
-          <li>Cached repeats cost less and return in milliseconds</li>
-          <li>Sign-ups open the day the API does</li>
-        </ul>
-        <a class="api-btn" href="./api-key.html">
-          <span class="api-btn-label">See how to connect</span>
-          <span class="api-btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-        </a>
-      </article>
-
-      <article class="pricing-card" id="enterprise">
-        <div class="pricing-card-head">
-          <h2>Enterprise</h2>
-          <span class="api-soon">For firms</span>
+        <div class="pricing-tier">
+          <span class="pt-name">Standard</span>
+          <span class="pt-chips"><span class="pt-chip">Opus</span><span class="pt-chip">Sonnet</span><span class="pt-chip">GPT mid-tiers</span></span>
         </div>
-        <p class="pricing-price">Custom</p>
-        <p class="pricing-price-sub">Volume rates, invoiced on your terms.</p>
-        <ul class="pricing-list">
-          <li>Run Anteon inside your own cloud</li>
-          <li>Private engines, compiled from your firm&rsquo;s own work</li>
-          <li>Tenant isolation and a security review</li>
-          <li>Priority support and an SLA</li>
-          <li>Volume rates and invoicing</li>
-        </ul>
-        <a class="api-btn api-btn-solid" href="./contact.html">
-          <span class="api-btn-label">Book a call</span>
-          <span class="api-btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
-        </a>
-      </article>
-    </div>
+        <div class="pricing-tier">
+          <span class="pt-name">Budget and local</span>
+          <span class="pt-chips"><span class="pt-chip">DeepSeek</span><span class="pt-chip">Grok</span><span class="pt-chip">Llama</span></span>
+          <span class="pt-note">The per-answer floor lives here.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing-chart" aria-labelledby="pricing-chart-h">
+      <h2 id="pricing-chart-h">The same solved task, what it costs</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Your model</th>
+            <th scope="col">Per 1M output tokens</th>
+            <th scope="col">Anteon, displacing it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Claude Fable 5</td><td>$50</td><td>$10</td></tr>
+          <tr><td>GPT-5.6 Sol</td><td>$30</td><td>$6</td></tr>
+          <tr><td>Cursor Composer 2.5</td><td>$2.50</td><td>$0.50</td></tr>
+          <tr><td>DeepSeek V4 Pro</td><td>$0.87</td><td>$0.174</td></tr>
+          <tr><td>Grok 4.5</td><td>$6</td><td>$1.20</td></tr>
+        </tbody>
+      </table>
+      <p class="pricing-chart-note">Model prices as of Jul 24, 2026. Cursor&rsquo;s row is its first-party Composer 2.5 model at its standard usage rates.</p>
+    </section>
+
+    <section class="pricing-compound" aria-labelledby="pricing-compound-h">
+      <h2 id="pricing-compound-h">Savings compound</h2>
+      <ol class="pricing-steps">
+        <li>Routing saves once per answer. A solved question costs a fifth instead of a full generation.</li>
+        <li>A recommended proven API saves the whole cost of a rebuilt integration, the building and the babysitting alike.</li>
+        <li>When Anteon sees work your team runs again and again, it compiles that work into your own small software. From then on every repeat is an engine call, not a fresh generation. The savings recur every time, and they grow with how often you run it.</li>
+      </ol>
+      <figure class="pricing-diagram">
+        <svg viewBox="0 0 560 240" role="img" aria-labelledby="pd-title">
+          <title id="pd-title">Cumulative cost over time, your model alone against with Anteon</title>
+          <line class="pd-axis" x1="40" y1="24" x2="40" y2="208" />
+          <line class="pd-axis" x1="40" y1="208" x2="536" y2="208" />
+          <text class="pd-axis-label" x="40" y="14">cost</text>
+          <text class="pd-axis-label" x="536" y="228" text-anchor="end">time</text>
+          <path class="pd-model" d="M40 200 L536 40" />
+          <path class="pd-anteon" d="M40 200 L120 174 L240 151 L380 136 L536 128" />
+          <circle class="pd-marker" cx="120" cy="174" r="4" />
+          <circle class="pd-marker" cx="240" cy="151" r="4" />
+          <circle class="pd-marker" cx="380" cy="136" r="4" />
+          <text class="pd-line-label" x="524" y="34" text-anchor="end">your model alone</text>
+          <text class="pd-line-label pd-line-label-strong" x="524" y="120" text-anchor="end">with Anteon</text>
+        </svg>
+        <figcaption>Each marker is a task compiled into software; every repeat after it runs at engine price.</figcaption>
+      </figure>
+      <div class="pricing-cycle" aria-label="The compile lifecycle">
+        <span class="pc-step">prompt</span>
+        <span class="pc-arrow" aria-hidden="true">&rarr;</span>
+        <span class="pc-step">generated once</span>
+        <span class="pc-arrow" aria-hidden="true">&rarr;</span>
+        <span class="pc-step">compiled</span>
+        <span class="pc-arrow" aria-hidden="true">&rarr;</span>
+        <span class="pc-step pc-step-final">every repeat, engine price</span>
+      </div>
+      <div class="pricing-cta-row">
+        <a class="pricing-cta-link" href="./api-key.html" data-i18n="apiKey">API / MCP</a>
+        <button type="button" class="book-call" data-auth="open"><span class="bc-label" data-i18n="getStarted">Get started</span><span class="bc-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span></button>
+      </div>
+    </section>
 
     <section class="pricing-faq" aria-labelledby="pricing-faq-h">
-      <h2 id="pricing-faq-h">Questions, answered</h2>
-      <details class="pricing-faq-item">
-        <summary>What counts as a run?</summary>
-        <p>One engine, called once. Convert a file, run one; extract a table, run one. A repeat of the same call returns from cache and draws less.</p>
-      </details>
-      <details class="pricing-faq-item">
-        <summary>When do the rates publish?</summary>
-        <p>With the API launch. The numbers land on this page before sign-ups open, and the free allowance is there from day one.</p>
-      </details>
-      <details class="pricing-faq-item">
-        <summary>Is MCP priced differently from the API?</summary>
-        <p>No. They are two doors to the same engines. One key, one balance, one rate.</p>
-      </details>
-      <details class="pricing-faq-item">
-        <summary>What does Enterprise add?</summary>
-        <p>Anteon in your own cloud, private engines from your firm&rsquo;s own work, a security review, an SLA, and volume rates. Book a call and we will scope it with you.</p>
-      </details>
+      <div class="pricing-faq-intro">
+        <h2 id="pricing-faq-h">Questions, answered</h2>
+      </div>
+      <div class="pricing-faq-list">
+        <button class="pricing-faq-expand" type="button" data-expand="Expand all" data-collapse="Collapse all">Expand all</button>
+        <div class="pricing-faq-item">
+          <h3 class="pf-q">
+            <button class="pf-trigger" type="button" aria-expanded="false" aria-controls="pf-a1" id="pf-q1">
+              <span class="pf-q-text">What counts as an answer?</span>
+              <span class="pf-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+            </button>
+          </h3>
+          <div class="pf-answer" id="pf-a1" role="region" aria-labelledby="pf-q1">
+            <div class="pf-answer-inner"><p>One prompt, answered exactly once, by an engine, a proven API, or software compiled from your own work. A repeat of the same call returns from cache and draws less. Runs of your compiled software bill as engine calls too, which is why frequent work is where the savings pile up.</p></div>
+          </div>
+        </div>
+        <div class="pricing-faq-item">
+          <h3 class="pf-q">
+            <button class="pf-trigger" type="button" aria-expanded="false" aria-controls="pf-a2" id="pf-q2">
+              <span class="pf-q-text">What if you don&rsquo;t save me money?</span>
+              <span class="pf-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+            </button>
+          </h3>
+          <div class="pf-answer" id="pf-a2" role="region" aria-labelledby="pf-q2">
+            <div class="pf-answer-inner"><p>If a month&rsquo;s measured savings come in under your bill, we credit the difference. Savings are measured against the same auditable KPIs we report.</p></div>
+          </div>
+        </div>
+        <div class="pricing-faq-item">
+          <h3 class="pf-q">
+            <button class="pf-trigger" type="button" aria-expanded="false" aria-controls="pf-a3" id="pf-q3">
+              <span class="pf-q-text">How do you know which model I run?</span>
+              <span class="pf-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+            </button>
+          </h3>
+          <div class="pf-answer" id="pf-a3" role="region" aria-labelledby="pf-q3">
+            <div class="pf-answer-inner"><p>You declare your tier on your key. Your savings dashboard is computed at the same declared prices, so under-declaring only shrinks your own measured savings.</p></div>
+          </div>
+        </div>
+        <div class="pricing-faq-item">
+          <h3 class="pf-q">
+            <button class="pf-trigger" type="button" aria-expanded="false" aria-controls="pf-a4" id="pf-q4">
+              <span class="pf-q-text">Is MCP priced differently from the API?</span>
+              <span class="pf-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+            </button>
+          </h3>
+          <div class="pf-answer" id="pf-a4" role="region" aria-labelledby="pf-q4">
+            <div class="pf-answer-inner"><p>No. They are two doors to the same engines. One key, one balance, one rate.</p></div>
+          </div>
+        </div>
+      </div>
+      <script>
+        // The FAQ list, ported from the reference build: any number of items
+        // open at once, closed answers staying in the DOM (height zero through
+        // the grid rows), and one control that expands or collapses the lot.
+        (function () {
+          var list = document.querySelector('.pricing-faq-list');
+          if (!list) return;
+          var items = [].slice.call(list.querySelectorAll('.pricing-faq-item'));
+          var all = list.querySelector('.pricing-faq-expand');
+          function setOpen(item, open) {
+            item.classList.toggle('is-open', open);
+            var t = item.querySelector('.pf-trigger');
+            if (t) t.setAttribute('aria-expanded', open ? 'true' : 'false');
+          }
+          function anyClosed() {
+            return items.some(function (i) { return !i.classList.contains('is-open'); });
+          }
+          function sync() {
+            if (all) all.textContent = anyClosed() ? all.dataset.expand : all.dataset.collapse;
+          }
+          items.forEach(function (item) {
+            var t = item.querySelector('.pf-trigger');
+            if (t) t.addEventListener('click', function () {
+              setOpen(item, !item.classList.contains('is-open'));
+              sync();
+            });
+          });
+          if (all) all.addEventListener('click', function () {
+            var open = anyClosed();
+            items.forEach(function (i) { setOpen(i, open); });
+            sync();
+          });
+        })();
+      </script>
     </section>
   </main>
   <footer class="site-footer"></footer>

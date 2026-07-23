@@ -415,7 +415,11 @@ html.bedded .intro-hand { position: fixed; }
 }
 
 
-#logo {
+/* The hero h1 and the closing line share this one display treatment, so the
+ * page's two biggest lines carry the same size, weight, leading, and tracking
+ * and can never drift apart. */
+#logo,
+.closing-line {
   font-size: var(--type-display);
   /* The Linear-tight display treatment: close leading, negative tracking, a
    * pulled-in word gap (word spacing has no token family), and the display
@@ -1084,6 +1088,12 @@ html[data-boot="site"] #skip {
 @media (min-width: 1025px) {
   .apis-container {
     position: relative;
+    /* Own stacking context so the globe's z-index:-1 stays local: it paints above
+     * this container's (transparent) background and below the copy, and can never
+     * sink behind #site's paper fill. The context itself sits at the auto level in
+     * #site, so it stays under the sticky header (z-index:1). Only the globe drops,
+     * never the text — no section content may out-stack the header. */
+    isolation: isolate;
     overflow: hidden;
     min-height: var(--globe-radius);
   }
@@ -1102,23 +1112,25 @@ html[data-boot="site"] #skip {
   }
 
   /* Lines run until they meet the curve, not a straight column edge. The copy
-   * stacks above the label layer so a chip drifting left never sits over the
-   * text; the text always wins, fully legible in front. */
+   * carries no z-index of its own: it stays in normal flow so it can never rise
+   * above the sticky header (an earlier z-index:1 here painted the headline over the
+   * header on scroll). The globe drops below instead — see its z-index:-1 — so the
+   * text still wins every chip collision, fully legible in front. */
   .apis-container .section-head {
     max-width: none;
-    position: relative;
-    z-index: 1;
   }
 
   .apis-container .section-explore {
     display: block;
     max-width: none;
-    position: relative;
-    z-index: 1;
   }
 
   .globe-figure {
     position: absolute;
+    /* Below the copy in the section's own stacking context (see .apis-container's
+     * isolation), so normal-flow text paints over the sphere and its chips with no
+     * z-index on the copy to fight the header. Still clipped to the quarter cut. */
+    z-index: -1;
     right: calc(var(--globe-size) * -0.5);
     /* Nudged down (--space-12 + --space-16 = 112px total) so less of the sphere's
      * top shows and more hides below the section's bottom cut. */
@@ -1136,19 +1148,15 @@ html[data-boot="site"] #skip {
  * signal through --v. Ink ground with paper text, so they read as struck marks on
  * the pale sphere. Gated behind anchor positioning, so a browser without it shows
  * the globe alone rather than labels adrift. */
-/* The label layer fills the figure so its mask has an area to work on, and a soft
- * radial ramp keyed to the sphere's own circle (centre = figure centre = sphere
- * centre, edge = --globe-radius) dissolves any chip or pin to transparent as it
- * nears the sphere's edge toward the copy, rather than a hard underlap. The canvas
- * halftone is not masked; only this layer is. pointer-events stay off so the drag
- * reaches the canvas beneath. */
+/* The label layer just holds the chips and pins; its positioned children ride
+ * cobe's anchors against the figure, so the layer itself needs no box of its own.
+ * It carries no mask: a chip that drifts under the copy simply passes behind the
+ * text with a clean hard edge, because the whole figure sits at z-index:-1 and the
+ * text wins the overlap. It stays fully solid everywhere else. pointer-events stay
+ * off so the drag reaches the canvas beneath. */
 .globe-labels {
-  position: absolute;
-  inset: 0;
   display: none;
   pointer-events: none;
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 calc(var(--globe-radius) - var(--space-24)), transparent var(--globe-radius));
-  mask-image: radial-gradient(circle at 50% 50%, #000 calc(var(--globe-radius) - var(--space-24)), transparent var(--globe-radius));
 }
 
 @supports (position-anchor: --x) {
@@ -1362,14 +1370,23 @@ html[data-boot="site"] #skip {
   align-items: center;
 }
 
+/* Box and colour only; the display type comes from the shared rule up with
+ * #logo, so the closing line renders at the hero h1's exact scale. */
 .closing-line {
   max-width: var(--width-narrow);
   margin: 0 0 var(--space-8);
-  font-size: var(--type-card);
-  line-height: var(--leading-heading);
-  font-weight: var(--weight-medium);
   color: var(--ink);
   text-wrap: balance;
+}
+
+/* The one oversized pill: the closing CTA's Book a call steps up a type token
+ * and half-again the standard control padding, so the page's final call reads
+ * louder than the header pills. Border, radius, and the label-step / arrow-
+ * reveal hover are the base .book-call, inherited unchanged; scoping to
+ * .site-closing keeps every other book-call instance standard. */
+.site-closing .book-call {
+  font-size: var(--type-body-lg);
+  padding: calc(var(--control-pad-y) * 1.5) calc(var(--control-pad-x) * 1.5);
 }
 
 /* Below --bp-md the cells pair up and the steps stack, the connector hidden
@@ -1425,12 +1442,6 @@ html[data-boot="site"] #skip {
   margin-right: auto;
 }
 
-.explore-toggle-less:hover .ex-arrow,
-.explore-toggle-less:focus-visible .ex-arrow {
-  margin-left: 0;
-  margin-right: var(--control-pad-y);
-}
-
 .explore-toggle {
   align-items: center;
   font-family: var(--sans);
@@ -1484,86 +1495,77 @@ html.static .caption {
 #debug input[type="range"] { flex: 1; }
 #debug .t { min-width: 64px; text-align: right; }
 
-/* --- The compiler diagram (compilerdiagram.ts): AI traffic over the layer. ---
- * A live simulation spanning the full container width between the section's
- * lede and its explore link. compilerdiagram.ts renders the SVG and runs the
- * whole field. Traffic lines enter on the left in green and red, fork into
- * DAG splitoffs with 45 degree elbows, and carry packet dots in the stroke's
- * current color. Red lines drop ink connectors into the solid library slab
- * below, the slab answers with ink connectors back up, and an answered line
- * runs green from the fix point on, so the right edge settles mostly green.
- * This sheet only names the figure's inks and type. */
-.compiler-diagram {
-  /* Green reuses the terminal's --t-ok because both figures depict a system
-   * view, while the page itself keeps its one-accent law. Red is the brand
-   * accent, and the connectors and slab hold to the page ink. The one hex
-   * below is that scoped green; everything else reads from tokens. */
-  --cd-green: #4a8f5f;
-  --cd-red: var(--flag-red);
+/* --- The particles network (particles-diagram.ts): the firm's small software.
+ * A living field of green and red nodes with links, spanning the full container
+ * width between the section's lede and its explore link. particles-diagram.ts
+ * renders and runs the field on the canvas; the cursor draws green links to the
+ * nearby nodes and converts the red clusters to green. This sheet only sets the
+ * box and names the two inks. */
+.particles-diagram {
+  /* The green reuses the terminal's --t-ok, both figures depicting a system
+   * view while the page keeps its one-accent law; the red is the brand/flag
+   * red. The one hex below is that scoped green; the alert reads from the flag
+   * token. The dark variants ride below with the other scoped figures. */
+  --pd-ok: #4a8f5f;
+  --pd-alert: var(--flag-red);
+  position: relative;
   display: block;
   /* Break out to the header and footer content span: the full viewport inset
-   * only by the chrome padding, so the traffic runs exactly as wide as the
-   * header and footer at any viewport, not capped to the 1200 content column.
-   * The box below stays inset (see cd-box geometry). margin is top / right /
-   * bottom / left; top is 0 because the figure's own empty band above the first
-   * lane already sets the gap under the subheader, tuned to equal the lane-to-
-   * box gap below; the left value is the standard centred full-bleed offset
-   * plus the chrome inset. */
+   * only by the chrome padding, so the field runs exactly as wide as the header
+   * and footer at any viewport, not capped to the 1200 content column. margin
+   * is top / right / bottom / left. The particles bounce at the canvas edges, so
+   * the container supplies the air: a generous, equal space-16 above and below
+   * (64px, read against the 80px section rhythm) makes lede-to-field equal to
+   * field-to-explore. The bottom space-16 wins the collapse over the section-
+   * explore's own space-6 margin. The left value is the standard centred full-
+   * bleed offset plus the chrome inset. */
   width: calc(100vw - var(--chrome-pad-x) * 2);
-  margin: 0 0 var(--space-2) calc(50% - 50vw + var(--chrome-pad-x));
+  margin: var(--space-16) 0 var(--space-16) calc(50% - 50vw + var(--chrome-pad-x));
+  /* The same box the old SVG figure held: its 1200x293 viewBox rendered at
+   * height = width * 293/1200, which this aspect-ratio reproduces exactly. */
+  aspect-ratio: 1200 / 293;
 }
 
-.compiler-diagram .cd-svg {
+/* Below 900px the old figure decoupled from the aspect lock and rendered at a
+ * flat 293px, compressing only horizontally; reproduce that footprint here. */
+@media (max-width: 899.98px) {
+  .particles-diagram {
+    aspect-ratio: auto;
+    height: 293px;
+  }
+}
+
+/* The canvas fills the box; it is absolutely placed so the box's height comes
+ * from the rules above, not from the canvas's own intrinsic size. */
+.pd-canvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
 }
 
-/* The traffic. Straight strokes in the two status inks only, with square
- * caps and mitered elbows so the branching reads technical, like a graph. */
-.cd-line {
-  fill: none;
-  stroke-width: 1.5;
-  stroke-linecap: butt;
-  stroke-linejoin: miter;
+/* The small-software footnote in the #compiler lede: the two words become a
+ * link out to the YC essay with a superscript 1. particles-diagram.ts injects
+ * the anchor after the i18n pass paints the lede (the paragraph is a single
+ * data-i18n string, so it cannot carry static markup); this only styles it. The
+ * mark inherits the lede's own ink, so at rest it is the same muted grey as the
+ * running text, not a brighter or darker tick; the words and the mark then share
+ * one hover, both settling to full ink together through the anchor's colour
+ * transition, the same brighten the text-link uses. */
+.ss-note {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--speed-quick) var(--ease);
 }
-.cd-line-green { stroke: var(--cd-green); }
-.cd-line-red { stroke: var(--cd-red); }
-
-/* The interaction connectors, the only ink strokes in the scene. A signal
- * drops from a line to the slab and an answer rises back up; the module
- * draws them in through the dash offset and fades them out. */
-.cd-link {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 1.25;
-  stroke-linecap: butt;
-}
-
-/* The knowledge layer. A solid ink slab with its label set in paper. */
-.cd-box { fill: var(--paper); stroke: var(--line); stroke-width: 1; }
-.cd-label {
-  fill: var(--ink);
-  font-family: var(--sans);
-  font-size: var(--type-label);
-  font-weight: var(--weight-medium);
-  letter-spacing: var(--tracking-wide);
-}
-
-/* The packet dots riding the lines, always in their line's current color. */
-.cd-packet { stroke: none; }
-.cd-packet-green { fill: var(--cd-green); }
-.cd-packet-red { fill: var(--cd-red); }
-
-/* The module steps the field only while compilerdiagram.ts holds the
- * is-animating class on through its IntersectionObserver, and under reduced
- * motion it renders one settled frame and never starts. Belt and braces
- * here too, in case any declarative motion ever lands inside the figure. */
-@media (prefers-reduced-motion: reduce) {
-  .compiler-diagram * {
-    animation: none !important;
-    transition: none !important;
-  }
+.ss-note:hover,
+.ss-note:focus-visible { color: var(--ink); }
+.ss-note-mark {
+  font-size: 0.72em;
+  /* Zero line height so the raised mark adds none, and the lede line never shifts. */
+  line-height: 0;
+  vertical-align: super;
+  margin-left: 1px;
 }
 
 /* --- Dark theme: what a token flip cannot reach ---------------------------
@@ -1591,10 +1593,10 @@ html.static .caption {
 }
 
 
-/* The terminal race and the compiler figure lighten their scoped green (and
+/* The terminal race and the particles field lighten their scoped green (and
  * the terminal's amber) for AA on the dark ground; the reds stay the flag red. */
 :root[data-theme="dark"] .hero-terminal { --t-ok: #5faa74; --t-warn: #cfa14a; }
-:root[data-theme="dark"] .compiler-diagram { --cd-green: #5faa74; }
+:root[data-theme="dark"] .particles-diagram { --pd-ok: #5faa74; }
 
 @media (prefers-color-scheme: dark) {
 
@@ -1616,6 +1618,6 @@ html.static .caption {
   :root[data-theme="system"] .hero-terminal,
   :root:not([data-theme]) .hero-terminal { --t-ok: #5faa74; --t-warn: #cfa14a; }
 
-  :root[data-theme="system"] .compiler-diagram,
-  :root:not([data-theme]) .compiler-diagram { --cd-green: #5faa74; }
+  :root[data-theme="system"] .particles-diagram,
+  :root:not([data-theme]) .particles-diagram { --pd-ok: #5faa74; }
 }

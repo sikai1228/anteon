@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Enterprise · Anteon</title>
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Anteon" />
+  <meta property="og:title" content="Anteon" />
+  <meta property="og:description" content="If I have seen further, it is by standing on the shoulders of Giants." />
+  <meta property="og:url" content="https://sikaidemo.com/" />
+  <meta property="og:image" content="https://sikaidemo.com/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Anteon" />
+  <meta name="twitter:description" content="If I have seen further, it is by standing on the shoulders of Giants." />
+  <meta name="twitter:image" content="https://sikaidemo.com/og-image.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/logo/favicon-16.png" />
+  <link rel="apple-touch-icon" href="/logo/apple-touch.png" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/hanken-grotesk-latin.woff2" />
+  <script>
+    /* Theme before first paint, so the shell never flashes the wrong ground:
+       a stored light or dark wins, and anything else follows the OS. */
+    try {
+      var t = localStorage.getItem('anteon-theme');
+      document.documentElement.setAttribute('data-theme', t === 'light' || t === 'dark' ? t : 'system');
+    } catch (e) {
+      document.documentElement.setAttribute('data-theme', 'system');
+    }
+  </script>
+  <link rel="stylesheet" href="/src/tokens.css" />
+  <link rel="stylesheet" href="/src/page.css" />
+  <link rel="stylesheet" href="/src/chrome.css" />
+</head>
+<body>
+  <header id="site-header"></header>
+  <main class="page-main">
+    <h1 data-i18n="enterprise">Enterprise</h1>
+    <p class="page-empty" data-i18n="enterpriseLine">A dedicated enterprise plan is on its way. Talk to us in the meantime.</p>
+    <a class="api-btn page-stub-cta" href="./contact.html">
+      <span class="api-btn-label" data-i18n="bookCall">Book a call</span>
+      <span class="api-btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
+    </a>
+  </main>
+  <footer class="site-footer"></footer>
+  <script type="module" src="/src/page.ts"></script>
+</body>
+</html>

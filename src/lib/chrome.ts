@@ -9,7 +9,7 @@
  */
 
 import { initCellGame } from './cellgame';
-import { initCompilerDiagram } from './compilerdiagram';
+import { initParticlesDiagram, initSmallSoftwareNote } from './particles-diagram';
 import { initTerminalDemo } from './demo';
 import { initGlobe } from './globe';
 import { initLibraryMore } from './librarymore';
@@ -199,10 +199,12 @@ tryInit('cell game', initCellGame);
 // reveals them once (no-ops off the landing, where the grid is absent).
 tryInit('library expand', initLibraryMore);
 
-// The compiler diagram in the #compiler section: AI traffic drawing on the
-// knowledge layer (no-ops off the landing, off screen, and under reduced
-// motion).
-tryInit('compiler diagram', initCompilerDiagram);
+// The particles network in the #compiler section: green and red nodes with the
+// cursor converting red clusters to green (no-ops off the landing, off screen,
+// and, for motion, under reduced motion). Its footnote wraps the two words
+// "small software" in the lede into the link out to the YC essay.
+tryInit('particles diagram', initParticlesDiagram);
+tryInit('small software note', initSmallSoftwareNote);
 
 // The API section's interactive globe: cobe sphere, city markers, router arcs
 // (no-ops off the landing, where the canvas is absent).
