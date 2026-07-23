@@ -11,6 +11,7 @@
 import { initCellGame } from './cellgame';
 import { initCompilerDiagram } from './compilerdiagram';
 import { initTerminalDemo } from './demo';
+import { initGlobe } from './globe';
 import { initLibraryMore } from './librarymore';
 import { wirePrefs } from './prefs';
 
@@ -202,6 +203,10 @@ tryInit('library expand', initLibraryMore);
 // knowledge layer (no-ops off the landing, off screen, and under reduced
 // motion).
 tryInit('compiler diagram', initCompilerDiagram);
+
+// The API section's interactive globe: cobe sphere, city markers, router arcs
+// (no-ops off the landing, where the canvas is absent).
+tryInit('api globe', initGlobe);
 
 // The hero word wheel, ported from EstateInventor's RotatingWord (a
 // Krea-style slot roll): the current and incoming words translate in

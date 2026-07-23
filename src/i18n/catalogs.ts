@@ -373,7 +373,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroSub:
       'Anteon runs above your AI and removes the overhead. Performance is measured against auditable KPIs: only pay after we save you money.',
     mediaStripLabel: 'Team from',
-    libraryTitle: '1,000+ engines,',
+    libraryTitle: '1,000+ engines, intelligently',
     libraryTitle2: 'preloaded to cut costs',
     libraryBody:
       'Most of what your AI rebuilds is deterministic work that was solved years ago. Anteon holds 1,000+ of those solutions as versioned engines and routes every request to the right one. The same call returns the same answer, faster and at a lower cost.',
@@ -648,8 +648,8 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroSub:
       'Anteon opera sobre tu IA y elimina la sobrecarga. El rendimiento se mide con KPI auditables: paga solo cuando ya te hemos ahorrado dinero.',
     mediaStripLabel: 'Equipo formado en',
-    libraryTitle: 'Más de 1.000 motores,',
-    libraryTitle2: 'precargados para reducir costos',
+    libraryTitle: 'Más de 1.000 motores, precargados',
+    libraryTitle2: 'de forma inteligente para reducir costos',
     libraryBody:
       'La mayor parte de lo que tu IA reconstruye es trabajo determinista que se resolvió hace años. Anteon guarda más de 1.000 de esas soluciones como motores versionados y dirige cada petición al correcto. La misma llamada devuelve la misma respuesta, más rápido y a menor costo.',
     cell1Name: 'Conversión',

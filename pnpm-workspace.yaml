@@ -1,0 +1,2 @@
+patchedDependencies:
+  cobe: patches/cobe.patch

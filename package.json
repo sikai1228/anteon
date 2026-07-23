@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "cobe": "^2.0.1",
     "lenis": "^1.1.0",
     "three": "^0.185.1"
   },
@@ -17,5 +18,10 @@
     "@types/three": "^0.185.1",
     "typescript": "^5.8.2",
     "vite": "^6.3.5"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "cobe": "patches/cobe.patch"
+    }
   }
 }

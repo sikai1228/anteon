@@ -167,6 +167,31 @@ body.auth-open { overflow: hidden; }
   border-color: var(--focus);
 }
 
+/* Autofill keeps the field's own skin: the browser's tinted ground is
+ * painted over by an inset fill of the paper token, the text and caret
+ * hold the ink, and the font stays the field's. The tokens resolve per
+ * theme, so a dark autofill stays dark. Only the fill is layered; the
+ * border is untouched, so the focus hairline recolor composes as normal.
+ * The standard :autofill sits in its own rule, so an engine that only
+ * knows the prefixed form never drops the pair. */
+.auth-form input:-webkit-autofill,
+.auth-form input:-webkit-autofill:hover,
+.auth-form input:-webkit-autofill:focus,
+.auth-form input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--paper) inset;
+  box-shadow: 0 0 0 1000px var(--paper) inset;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+  font: inherit;
+}
+
+.auth-form input:autofill {
+  box-shadow: 0 0 0 1000px var(--paper) inset;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+  font: inherit;
+}
+
 /* Full-width staged submit, outlined and hover-arrowed like the header's book
  * a call and the contact submit, so the three read as one control family. */
 .auth-submit {
