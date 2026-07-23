@@ -39,11 +39,135 @@
   <header id="site-header"></header>
   <main class="page-main">
     <h1 data-i18n="enterprise">Enterprise</h1>
-    <p class="page-empty" data-i18n="enterpriseLine">A dedicated enterprise plan is on its way. Talk to us in the meantime.</p>
-    <a class="api-btn page-stub-cta" href="./contact.html">
-      <span class="api-btn-label" data-i18n="bookCall">Book a call</span>
-      <span class="api-btn-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
-    </a>
+    <div class="contact-grid">
+      <div class="contact-intro">
+        <p class="contact-lede" data-i18n="enterpriseLine">Enterprise at Anteon is built around your firm. Pricing, integration, and the KPIs we&rsquo;re measured against are shaped in a conversation, not chosen from a page.</p>
+        <div class="contact-alt">
+          <span class="contact-alt-label" data-i18n="enterpriseCallLabel">Prefer a call?</span>
+          <p class="contact-alt-text"><button type="button" class="contact-here" data-i18n="enterpriseCallHere">Book one here</button></p>
+        </div>
+      </div>
+      <form
+        class="contact-form"
+        id="enterprise-form"
+        data-i18n-attr="data-msg-required:enterpriseErrorRequired;data-msg-email:enterpriseErrorEmail;data-msg-sent:enterpriseSent;data-msg-idle:enterpriseSubmit"
+      >
+        <div class="field">
+          <label for="enterprise-name" data-i18n="enterpriseNameLabel">Name</label>
+          <input id="enterprise-name" name="name" type="text" autocomplete="name" required />
+        </div>
+        <div class="field">
+          <label for="enterprise-email" data-i18n="enterpriseEmailLabel">Work email</label>
+          <input id="enterprise-email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="field">
+          <label for="enterprise-company" data-i18n="enterpriseCompanyLabel">Company</label>
+          <input id="enterprise-company" name="company" type="text" autocomplete="organization" required />
+        </div>
+        <div class="field">
+          <label for="enterprise-message" data-i18n="enterpriseMessageLabel">Message</label>
+          <textarea
+            id="enterprise-message"
+            name="message"
+            required
+            data-i18n-attr="placeholder:enterpriseMessagePlaceholder"
+            placeholder="Tell us what your teams run and where Anteon would fit"
+          ></textarea>
+        </div>
+        <button type="submit" class="contact-submit">
+          <span class="cs-label" data-i18n="enterpriseSubmit">Send message</span>
+          <span class="cs-arrow" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></span>
+        </button>
+        <p class="contact-status" role="status" aria-live="polite" hidden></p>
+      </form>
+    </div>
+    <script>
+      // Enterprise contact form interactions, the same staged behavior as the
+      // contact page: no backend is wired yet, so this validates the fields and
+      // confirms optimistically, and posts nowhere. When an endpoint exists,
+      // swap the success call below for a real POST and report its result here.
+      // The success, error, and idle-label strings ride the form as data
+      // attributes (set by i18n through data-i18n-attr), so a language switch
+      // carries them too; the script reads them at event time.
+      (function () {
+        var form = document.querySelector('.contact-form');
+        var status = document.querySelector('.contact-status');
+        if (!form || !status) return;
+
+        var nameEl = document.getElementById('enterprise-name');
+        var emailEl = document.getElementById('enterprise-email');
+        var companyEl = document.getElementById('enterprise-company');
+        var messageEl = document.getElementById('enterprise-message');
+        if (!nameEl || !emailEl || !companyEl || !messageEl) return;
+
+        var fields = [nameEl, emailEl, companyEl, messageEl];
+
+        var submitEl = form.querySelector('.contact-submit');
+        var labelEl = form.querySelector('.cs-label');
+
+        // Success lives in the button itself: the same box turns to the
+        // success tint and carries the confirmation. Typing anything new
+        // reopens the form and the button goes back to sending.
+        function sent(message) {
+          status.hidden = true;
+          if (!submitEl || !labelEl) return;
+          submitEl.classList.add('is-sent');
+          submitEl.disabled = true;
+          labelEl.textContent = message;
+        }
+
+        form.addEventListener('input', function () {
+          if (!submitEl || !submitEl.classList.contains('is-sent')) return;
+          submitEl.classList.remove('is-sent');
+          submitEl.disabled = false;
+          // The idle label is localized like the messages: read the current
+          // locale's value so a language switch is honored on revert too.
+          if (labelEl && form.dataset.msgIdle) labelEl.textContent = form.dataset.msgIdle;
+        });
+
+        // A deliberately simple shape check: some characters, an at sign, a
+        // dotted domain. It catches empty and obviously wrong addresses
+        // without rejecting valid ones the server would accept.
+        var emailPattern = /^\S+@\S+\.\S+$/;
+
+        function show(kind, message) {
+          status.classList.remove('is-success', 'is-error');
+          status.classList.add(kind === 'success' ? 'is-success' : 'is-error');
+          status.textContent = message;
+          status.hidden = false;
+        }
+
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+
+          var firstInvalid = null;
+          fields.forEach(function (el) {
+            var empty = el.value.trim() === '';
+            el.setAttribute('aria-invalid', empty ? 'true' : 'false');
+            if (empty && !firstInvalid) firstInvalid = el;
+          });
+
+          if (firstInvalid) {
+            show('error', form.dataset.msgRequired || '');
+            firstInvalid.focus();
+            return;
+          }
+
+          if (!emailPattern.test(emailEl.value.trim())) {
+            emailEl.setAttribute('aria-invalid', 'true');
+            show('error', form.dataset.msgEmail || '');
+            emailEl.focus();
+            return;
+          }
+
+          sent(form.dataset.msgSent || '');
+          form.reset();
+          fields.forEach(function (el) {
+            el.setAttribute('aria-invalid', 'false');
+          });
+        });
+      })();
+    </script>
   </main>
   <footer class="site-footer"></footer>
   <script type="module" src="/src/page.ts"></script>

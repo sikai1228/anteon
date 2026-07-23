@@ -261,8 +261,23 @@ export interface Catalog {
   ariaChangeLanguage: string;
   ariaMenu: string;
   metaDescription: string;
-  /* The enterprise and docs stub pages. */
+  /* The enterprise page: a lede, a book-a-call alt block, and a contact form
+     whose fields mirror the contact page. enterpriseSent, enterpriseErrorRequired,
+     and enterpriseErrorEmail drive the inline form script; they ride the form as
+     data attributes through data-i18n-attr so they swap with the locale. Docs
+     stays a stub below. */
   enterpriseLine: string;
+  enterpriseCallLabel: string;
+  enterpriseCallHere: string;
+  enterpriseNameLabel: string;
+  enterpriseEmailLabel: string;
+  enterpriseCompanyLabel: string;
+  enterpriseMessageLabel: string;
+  enterpriseMessagePlaceholder: string;
+  enterpriseSubmit: string;
+  enterpriseSent: string;
+  enterpriseErrorRequired: string;
+  enterpriseErrorEmail: string;
   docs: string;
   docsLine: string;
   docsCta: string;
@@ -569,7 +584,19 @@ const CHROME: Record<Locale, ChromeStrings> = {
     ariaChangeLanguage: 'Change language',
     ariaMenu: 'Menu',
     metaDescription: 'If I have seen further, it is by standing on the shoulders of Giants.',
-    enterpriseLine: 'A dedicated enterprise plan is on its way. Talk to us in the meantime.',
+    enterpriseLine:
+      'Enterprise at Anteon is built around your firm. Pricing, integration, and the KPIs we’re measured against are shaped in a conversation, not chosen from a page.',
+    enterpriseCallLabel: 'Prefer a call?',
+    enterpriseCallHere: 'Book one here',
+    enterpriseNameLabel: 'Name',
+    enterpriseEmailLabel: 'Work email',
+    enterpriseCompanyLabel: 'Company',
+    enterpriseMessageLabel: 'Message',
+    enterpriseMessagePlaceholder: 'Tell us what your teams run and where Anteon would fit',
+    enterpriseSubmit: 'Send message',
+    enterpriseSent: 'Your message is sent. We’ll reply within one business day.',
+    enterpriseErrorRequired: 'Please fill in every field before sending.',
+    enterpriseErrorEmail: 'That work email doesn’t look right. Please check it and try again.',
     docs: 'Docs',
     docsLine: 'The full documentation is being written. The API / MCP page covers everything you need to connect today.',
     docsCta: 'See how to connect',
@@ -849,7 +876,19 @@ const CHROME: Record<Locale, ChromeStrings> = {
     ariaChangeLanguage: 'Cambiar idioma',
     ariaMenu: 'Menú',
     metaDescription: 'Si he visto más lejos, es porque me he subido a hombros de gigantes.',
-    enterpriseLine: 'Un plan empresarial dedicado está en camino. Mientras tanto, habla con nosotros.',
+    enterpriseLine:
+      'En Anteon, la oferta para empresas se construye en torno a tu organización. El precio, la integración y los KPI con los que nos medimos se definen en una conversación, no se eligen de una página.',
+    enterpriseCallLabel: '¿Prefieres una llamada?',
+    enterpriseCallHere: 'Resérvala aquí',
+    enterpriseNameLabel: 'Nombre',
+    enterpriseEmailLabel: 'Correo de trabajo',
+    enterpriseCompanyLabel: 'Empresa',
+    enterpriseMessageLabel: 'Mensaje',
+    enterpriseMessagePlaceholder: 'Cuéntanos qué usan tus equipos y dónde encajaría Anteon',
+    enterpriseSubmit: 'Enviar mensaje',
+    enterpriseSent: 'Tu mensaje se envió. Te responderemos en un día hábil.',
+    enterpriseErrorRequired: 'Completa todos los campos antes de enviar.',
+    enterpriseErrorEmail: 'Ese correo de trabajo no parece correcto. Revísalo e inténtalo de nuevo.',
     docs: 'Documentación',
     docsLine: 'La documentación completa está en proceso. La página de API / MCP cubre todo lo que necesitas para conectarte hoy.',
     docsCta: 'Ver cómo conectarte',

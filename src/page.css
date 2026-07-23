@@ -690,11 +690,14 @@ body {
 .api-field input[aria-invalid="true"] { border-color: var(--status-error); }
 
 /* The staged buttons share the header's book-a-call idiom: outlined, muted at
- * rest, full ink on hover, with an arrow that arrives from the left. */
+ * rest, full ink on hover, with an arrow that arrives from the left. Some are
+ * links now (the docs control, the stub pages' ways out), so the underline is
+ * suppressed the way the chrome pill suppressed it after its own conversion. */
 .api-btn {
   position: relative;
   display: inline-flex;
   align-items: center;
+  text-decoration: none;
   font-family: var(--sans);
   font-size: var(--type-nav);
   letter-spacing: var(--tracking-wide);
@@ -1199,7 +1202,10 @@ body {
 
 /* The page's first words answer to the header, not the section rhythm:
  * subtracting .page-main's own top padding lands the title exactly 120
- * below the bar, the api-connect move. */
+ * below the bar, the api-connect move. The hero centers; section titles
+ * hold the column's left edge, the landing's own logic. */
+.pricing-title { text-align: center; }
+
 .page-main > .pricing-title:first-child {
   margin-top: calc(120px - var(--space-section-sm));
 }
@@ -1225,12 +1231,14 @@ body {
 /* One composition under one title: a real flow diagram in boxes and drawn
  * connectors (the landing's stroke register), the final box dropping
  * straight into the ledger's pay block, the claim closing it. The grid's
- * connector columns carry the lines; the fork column carries the stack. */
+ * three fork rows are the drawing's coordinate system: every connector
+ * piece is keyed to its own row's center and edges, so joins land on
+ * box-edge midpoints at any box height and the trunk stays continuous. */
 .pricing-flowd {
+  position: relative;
   margin-top: var(--space-10);
   display: grid;
-  grid-template-columns: 1fr var(--space-12) 1fr var(--space-12) 1.3fr var(--space-12) 1.3fr;
-  align-items: center;
+  grid-template-columns: 0.9fr var(--space-12) 0.9fr var(--space-12) 1.5fr var(--space-12) 1.3fr;
 }
 
 .pfd-box {
@@ -1253,33 +1261,63 @@ body {
   font-size: var(--type-body);
 }
 
-.pfd-fork {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+/* The single boxes ride the middle fork row, centered, so their edge
+ * midpoints sit exactly on the connectors' center line. */
+.pfd-a { grid-column: 1; grid-row: 2; align-self: center; }
+.pfd-b { grid-column: 3; grid-row: 2; align-self: center; }
+.pfd-z { grid-column: 7; grid-row: 2; align-self: center; }
+
+/* The fork boxes, one per row; margins carry the stack's air so the rows
+ * stay seamless for the trunk. */
+.pfd-r1 { grid-column: 5; grid-row: 1; }
+.pfd-r2 { grid-column: 5; grid-row: 2; }
+.pfd-r3 { grid-column: 5; grid-row: 3; }
+
+.pfd-r1,
+.pfd-r2,
+.pfd-r3 {
+  margin-block: var(--space-2);
+  align-self: center;
+  width: 100%;
 }
 
-/* The connectors stretch their cell, so the elbow fractions track the
- * fork's thirds at any height; non-scaling strokes stay uniform. */
+/* Each connector fills its own cell exactly, positioned absolutely inside
+ * its grid area so its intrinsic ratio never sizes the rows; the shared
+ * row edges make the trunk continuous, and non-scaling strokes keep one
+ * weight throughout. */
 .pfd-conn {
-  align-self: stretch;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
 }
 
-.pfd-conn line,
 .pfd-conn path {
-  stroke: var(--ink-faint);
+  stroke: var(--ink-muted);
   stroke-width: var(--border-control);
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
 }
 
-/* The drop from the answer into the pay block below it. */
+/* Absolutely positioned grid children bind to their area only when both
+ * lines are definite, so every placement names its end line. */
+.pfd-conn-in { grid-column: 2 / 3; grid-row: 2 / 3; }
+.pfd-split-t { grid-column: 4 / 5; grid-row: 1 / 2; }
+.pfd-split-m { grid-column: 4 / 5; grid-row: 2 / 3; }
+.pfd-split-b { grid-column: 4 / 5; grid-row: 3 / 4; }
+.pfd-join-t { grid-column: 6 / 7; grid-row: 1 / 2; }
+.pfd-join-m { grid-column: 6 / 7; grid-row: 2 / 3; }
+.pfd-join-b { grid-column: 6 / 7; grid-row: 3 / 4; }
+
+/* The drop from the answer into the pay block below it, the same stroke
+ * weight as the run above. */
 .pfd-drop {
   grid-column: 7;
+  grid-row: 4;
   justify-self: center;
   width: var(--border-control);
   height: var(--space-12);
-  background: var(--ink-faint);
+  background: var(--ink-muted);
 }
 
 /* The ledger rides inside the composition: the whole spend as a dashed
@@ -1408,12 +1446,45 @@ body {
   color: var(--ink-faint);
 }
 
-/* The quiet enterprise aside under the close. */
+/* The quiet enterprise aside under the close. Its link boxes as one unit
+ * so the drawn underline sits cleanly even when the line wraps. */
 .pricing-ent-note {
   margin: var(--space-8) 0 0;
   text-align: center;
   font-size: var(--type-nav);
   color: var(--ink-soft);
+}
+
+.pricing-ent-note .pricing-cta-link { display: inline-block; }
+
+/* Narrow: the flow stacks as plain boxes, the drop still leads into the
+ * bar, and the proof columns fold to one. */
+@media (max-width: 768px) {
+  .pricing-flowd {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-3);
+  }
+  .pfd-conn { display: none; }
+  .pfd-a,
+  .pfd-b,
+  .pfd-z,
+  .pfd-r1,
+  .pfd-r2,
+  .pfd-r3 {
+    grid-column: 1;
+    grid-row: auto;
+    margin-block: 0;
+  }
+  .pfd-drop {
+    grid-column: 1;
+    grid-row: auto;
+    height: var(--space-8);
+  }
+  .pl-fig { margin-top: var(--space-2); }
+  .pricing-proof-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-12);
+  }
 }
 
 /* The compounding close: three escalating beats, the divergence figure, the

@@ -23,9 +23,10 @@ import type { COBEOptions } from 'cobe';
 /** An API standard, where it was invented, and its year. The chip reads
  *  "name · year" in the site's terminal register (lowercase mono, a spaced middot
  *  like "anteon · engine database"); these never translate, so they live here
- *  rather than in the string catalog. Ordered so Seattle and SF (~1100km apart,
- *  face front together) land on different indices mod 3, so the label stagger
- *  keeps their chips off one line. */
+ *  rather than in the string catalog. Ordered so geographically near pairs that
+ *  face front together — SF/Seattle, NY/Boston, Beijing/Hangzhou, and the tight
+ *  Geneva/Walldorf/London trio — land on different indices mod 3, so the label
+ *  stagger keeps neighbouring chips off one line. */
 interface Place {
   id: string;
   location: [number, number];
@@ -33,15 +34,21 @@ interface Place {
 }
 
 const PLACES: Place[] = [
-  { id: 'geneva', location: [46.2044, 6.1432], label: 'http · 1989' },
+  { id: 'walldorf', location: [49.2933, 8.6428], label: 'sap · 1972' },
   { id: 'ny', location: [40.7128, -74.006], label: 'fix · 1992' },
-  { id: 'seattle', location: [47.6062, -122.3321], label: 'soap · 1998' },
-  { id: 'hangzhou', location: [30.2741, 120.1551], label: 'alipay · 2004' },
-  { id: 'sf', location: [37.7749, -122.4194], label: 'oauth · 2007' },
-  { id: 'nairobi', location: [-1.2864, 36.8172], label: 'm-pesa · 2007' },
+  { id: 'chicago', location: [41.8781, -87.6298], label: 'braintree · 2007' },
+  { id: 'boston', location: [42.3601, -71.0589], label: 'akamai · 1998' },
+  { id: 'geneva', location: [46.2044, 6.1432], label: 'http · 1989' },
   { id: 'london', location: [51.5074, -0.1278], label: 'open banking · 2016' },
+  { id: 'atlanta', location: [33.749, -84.388], label: 'mailchimp · 2001' },
+  { id: 'hangzhou', location: [30.2741, 120.1551], label: 'alipay · 2004' },
+  { id: 'seattle', location: [47.6062, -122.3321], label: 'soap · 1998' },
+  { id: 'sf', location: [37.7749, -122.4194], label: 'oauth · 2007' },
+  { id: 'moscow', location: [55.7558, 37.6173], label: 'yandex · 1997' },
   { id: 'bangalore', location: [12.9716, 77.5946], label: 'upi · 2016' },
+  { id: 'beijing', location: [39.9042, 116.4074], label: 'baidu · 2000' },
   { id: 'saopaulo', location: [-23.5505, -46.6333], label: 'pix · 2020' },
+  { id: 'nairobi', location: [-1.2864, 36.8172], label: 'm-pesa · 2007' },
 ];
 
 // A stately drift: the user asked for barely-moving.
