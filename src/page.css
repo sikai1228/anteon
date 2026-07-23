@@ -1203,11 +1203,18 @@ body {
 /* The page's first words answer to the header, not the section rhythm:
  * subtracting .page-main's own top padding lands the title exactly 120
  * below the bar, the api-connect move. The hero centers; section titles
- * hold the column's left edge, the landing's own logic. */
+ * hold the column's left edge, the landing's own logic.
+ *
+ * The centring needs both halves: the text centres inside the block, and
+ * the block itself centres in the page column. .page-main h1 outranks the
+ * shared narrow-column rule above (a class and a type beats one class), so
+ * its margin shorthand resets the auto side margins; this selector outranks
+ * both and restores them, holding the hero on the page's own axis. */
 .pricing-title { text-align: center; }
 
 .page-main > .pricing-title:first-child {
   margin-top: calc(120px - var(--space-section-sm));
+  margin-inline: auto;
 }
 
 /* The section titles speak the landing's register; the FAQ block sets its
@@ -1228,20 +1235,39 @@ body {
 .pricing-proof,
 .pricing-faq { padding-block: var(--space-section); }
 
+/* The hero is not a neighbouring section, it is this one's opening line, so
+ * the first composition rides up under it on the smaller unit. Every seam
+ * between two real sections keeps the full 80 above and below. */
+.pricing-how { padding-top: var(--space-10); }
+
+/* This section's title is the drawing's own title block, not a second
+ * headline stacked under the hero: it sits on a hairline that runs the
+ * composition's full width, and the lead-in stroke drops out of that
+ * hairline into the first box. The other two sections keep the plain
+ * title, so the rule reads as part of this drawing rather than a style. */
+.pricing-how h2 {
+  padding-bottom: var(--space-6);
+  border-bottom: var(--border-hair) solid var(--line);
+}
+
 /* One composition under one title: a real flow diagram in boxes and drawn
- * connectors (the landing's stroke register), the final box dropping
- * straight into the ledger's pay block, the claim closing it. The grid's
- * three fork rows are the drawing's coordinate system: every connector
- * piece is keyed to its own row's center and edges, so joins land on
- * box-edge midpoints at any box height and the trunk stays continuous. */
+ * connectors (the landing's stroke register), the title's rule dropping
+ * into the first box, the final box dropping straight into the ledger's
+ * pay block, the claim closing it. The grid's three fork rows are the
+ * drawing's coordinate system: every connector piece is keyed to its own
+ * row's center and edges, so joins land on box-edge midpoints at any box
+ * height and the trunk stays continuous. The grid opens flush against the
+ * title's rule, so the lead-in stroke starts on a drawn edge. */
 .pricing-flowd {
   position: relative;
-  margin-top: var(--space-10);
+  margin-top: 0;
   display: grid;
   grid-template-columns: 0.9fr var(--space-12) 0.9fr var(--space-12) 1.5fr var(--space-12) 1.3fr;
 }
 
 .pfd-box {
+  display: grid;
+  align-content: center;
   border: var(--border-control) solid var(--ink);
   border-radius: var(--radius-frame);
   padding: var(--space-5) var(--space-6);
@@ -1261,11 +1287,14 @@ body {
   font-size: var(--type-body);
 }
 
-/* The single boxes ride the middle fork row, centered, so their edge
- * midpoints sit exactly on the connectors' center line. */
-.pfd-a { grid-column: 1; grid-row: 2; align-self: center; }
-.pfd-b { grid-column: 3; grid-row: 2; align-self: center; }
-.pfd-z { grid-column: 7; grid-row: 2; align-self: center; }
+/* The single boxes ride the middle fork row and fill it, so their edge
+ * midpoints sit exactly on the connectors' center line (a filled box is
+ * centered by definition), all three stand at one height, and the row's
+ * own edges are box edges: the lead-in above the first box and the drop
+ * below the last one meet real ink instead of stopping in open space. */
+.pfd-a { grid-column: 1; grid-row: 2; align-self: stretch; }
+.pfd-b { grid-column: 3; grid-row: 2; align-self: stretch; }
+.pfd-z { grid-column: 7; grid-row: 2; align-self: stretch; }
 
 /* The fork boxes, one per row; margins carry the stack's air so the rows
  * stay seamless for the trunk. */
@@ -1309,16 +1338,13 @@ body {
 .pfd-join-m { grid-column: 6 / 7; grid-row: 2 / 3; }
 .pfd-join-b { grid-column: 6 / 7; grid-row: 3 / 4; }
 
-/* The drop from the answer into the pay block below it, the same stroke
- * weight as the run above. */
-.pfd-drop {
-  grid-column: 7;
-  grid-row: 4;
-  justify-self: center;
-  width: var(--border-control);
-  height: var(--space-12);
-  background: var(--ink-muted);
-}
+/* The two ends of the run, drawn as connectors like everything between
+ * them, each spanning whole rows so both of its ends land on an edge that
+ * is really there: the lead-in from the title's rule (the grid's own top)
+ * into the first box, and the drop from the last box into the ledger's top
+ * edge, where the figure carries the stroke on to the pay block. */
+.pfd-lead { grid-column: 1 / 2; grid-row: 1 / 2; }
+.pfd-exit { grid-column: 7 / 8; grid-row: 3 / 4; }
 
 /* The ledger rides inside the composition: the whole spend as a dashed
  * ground, the four fifths you keep dominant and outlined, the fifth you
@@ -1328,13 +1354,24 @@ body {
   margin: 0;
 }
 
+/* The claim and its terms are one run of prose across the column, not two
+ * blocks: the claim in full ink at the paragraph's weight, the terms
+ * following it inline, muted and regular. One paragraph, so it wraps as
+ * one sentence pair at any width. */
 .pl-claim {
   grid-column: 1 / -1;
   margin: var(--space-8) 0 0;
   font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+.pl-claim-lead {
   font-weight: var(--weight-semibold);
   color: var(--ink);
 }
+
+.pl-claim-support { font-weight: var(--weight-regular); }
 
 .pl-fig svg {
   display: block;
@@ -1380,24 +1417,46 @@ body {
   fill: var(--ink);
 }
 
-.pl-support {
-  grid-column: 1 / -1;
-  margin: var(--space-2) 0 0;
-  font-size: var(--type-body);
-  line-height: var(--leading-body);
-  color: var(--ink-muted);
-  max-width: var(--width-prose);
+/* The drop's last stretch, drawn inside the ledger so the connection is
+ * continuous: it starts on the figure's top edge, where the connector
+ * above hands it over, crosses the dashed ground, and stops on the pay
+ * block's top edge. Its x is the final box's center in the figure's own
+ * coordinates, so the two pieces are one straight line. */
+.pl-drop {
+  stroke: var(--ink-muted);
+  stroke-width: var(--border-control);
+  stroke-linecap: butt;
 }
 
 /* The merged proof: receipts on the left, the horizon on the right, one
- * title over both, stacking on a narrow screen. */
+ * title over both, stacking on a narrow screen. Both columns run the row's
+ * full height, and the figure inside the right one grows to fill it, so
+ * the table's last line and the figure's caption close together. */
 .pricing-proof-grid {
   margin-top: var(--space-10);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-16);
-  align-items: start;
+  align-items: stretch;
 }
+
+.pp-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.pp-right .pricing-diagram {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The figure is cut to close level with the receipts at the desktop
+ * column. Where a narrower column leaves the two uneven, the drawing's box
+ * takes the slack and seats the drawing at its foot (the figure's own
+ * xMidYMax fit), so the caption stays welded to the drawing by its seam
+ * and the slack falls in the empty air above the curves instead. */
+.pp-right .pricing-diagram svg { flex: 1 0 auto; }
 
 /* The receipts table: monochrome on hairlines, numbers in mono on the
  * right, the Anteon column carried by weight alone. */
@@ -1457,12 +1516,17 @@ body {
 
 .pricing-ent-note .pricing-cta-link { display: inline-block; }
 
-/* Narrow: the flow stacks as plain boxes, the drop still leads into the
- * bar, and the proof columns fold to one. */
+/* Narrow: the flow stacks as plain boxes and drops every drawn connector,
+ * the lead-in and the exit with them, since a lone stroke in a stack has
+ * nothing to run between. The figure's own drop goes with them, and the
+ * proof columns fold to one. */
 @media (max-width: 768px) {
+  /* No lead-in stroke to hold the gap open under the title's rule, so the
+   * stack takes plain air instead. */
   .pricing-flowd {
     grid-template-columns: 1fr;
     row-gap: var(--space-3);
+    margin-top: var(--space-8);
   }
   .pfd-conn { display: none; }
   .pfd-a,
@@ -1475,11 +1539,7 @@ body {
     grid-row: auto;
     margin-block: 0;
   }
-  .pfd-drop {
-    grid-column: 1;
-    grid-row: auto;
-    height: var(--space-8);
-  }
+  .pl-drop { display: none; }
   .pl-fig { margin-top: var(--space-2); }
   .pricing-proof-grid {
     grid-template-columns: 1fr;
@@ -1487,8 +1547,6 @@ body {
   }
 }
 
-/* The compounding close: three escalating beats, the divergence figure, the
- * compile lifecycle, and the standard way in. */
 /* The divergence figure: two schematic curves, no data, no scales. The
  * model line runs faint and dashed; the Anteon line holds full ink and
  * bends flatter at each compiled task. Identity is carried by weight,
@@ -1545,41 +1603,6 @@ body {
   border-top: var(--border-hair) solid var(--line);
   font-family: var(--mono);
   font-size: var(--type-micro);
-  color: var(--ink-faint);
-}
-
-/* The compile lifecycle: terminal-register chips under the figure, the
- * final state inverted to ink, the arrows staying quiet text. */
-.pricing-cycle {
-  margin: var(--space-8) 0 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-}
-
-.pc-step {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--mono);
-  font-size: var(--type-nav);
-  color: var(--ink-muted);
-  padding: var(--space-2) var(--space-5);
-  border: var(--border-hair) solid var(--line);
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-}
-
-.pc-step-final {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--paper);
-}
-
-.pc-arrow {
-  font-family: var(--mono);
-  font-size: var(--type-nav);
   color: var(--ink-faint);
 }
 
