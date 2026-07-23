@@ -892,6 +892,10 @@ body {
   text-align: center;
 }
 
+/* The page's last word: one more section unit above the footer, so the ask
+ * row floats in the same air below as above and the page closes like a CTA. */
+.api-ask { margin-bottom: var(--space-section); }
+
 /* The page's first section answers to the header, not to the section rhythm.
  * Subtracting .page-main's own top padding lands the headline exactly 120 below
  * the header, matching the landing hero at every viewport (the token clamps,

@@ -579,7 +579,9 @@ html.bedded .intro-hand { position: fixed; }
    * centered in equal air. */
   width: calc(50% + 50vw - var(--chrome-pad-x));
   margin-left: calc(25% - 25vw + var(--chrome-pad-x) / 2);
-  margin-top: var(--space-section);
+  /* One-off: the hero keeps its original 60 above the terminal; the 80px
+   * section token governs everywhere else. */
+  margin-top: 60px;
   border: var(--border-hair) solid var(--line);
   border-radius: var(--radius-frame);
   overflow: hidden;
@@ -1099,12 +1101,20 @@ html[data-boot="site"] #skip {
     shape-margin: var(--space-8);
   }
 
-  /* Lines run until they meet the curve, not a straight column edge. */
-  .apis-container .section-head { max-width: none; }
+  /* Lines run until they meet the curve, not a straight column edge. The copy
+   * stacks above the label layer so a chip drifting left never sits over the
+   * text; the text always wins, fully legible in front. */
+  .apis-container .section-head {
+    max-width: none;
+    position: relative;
+    z-index: 1;
+  }
 
   .apis-container .section-explore {
     display: block;
     max-width: none;
+    position: relative;
+    z-index: 1;
   }
 
   .globe-figure {
@@ -1126,7 +1136,20 @@ html[data-boot="site"] #skip {
  * signal through --v. Ink ground with paper text, so they read as struck marks on
  * the pale sphere. Gated behind anchor positioning, so a browser without it shows
  * the globe alone rather than labels adrift. */
-.globe-labels { display: none; }
+/* The label layer fills the figure so its mask has an area to work on, and a soft
+ * radial ramp keyed to the sphere's own circle (centre = figure centre = sphere
+ * centre, edge = --globe-radius) dissolves any chip or pin to transparent as it
+ * nears the sphere's edge toward the copy, rather than a hard underlap. The canvas
+ * halftone is not masked; only this layer is. pointer-events stay off so the drag
+ * reaches the canvas beneath. */
+.globe-labels {
+  position: absolute;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 calc(var(--globe-radius) - var(--space-24)), transparent var(--globe-radius));
+  mask-image: radial-gradient(circle at 50% 50%, #000 calc(var(--globe-radius) - var(--space-24)), transparent var(--globe-radius));
+}
 
 @supports (position-anchor: --x) {
   .globe-labels { display: block; }
@@ -1151,11 +1174,30 @@ html[data-boot="site"] #skip {
     opacity: var(--v, 0);
     transition: opacity 0.8s var(--ease);
   }
+
+  /* A clean ink pin with a paper ring on each marker, sitting on the marker's own
+   * anchor point (cobe draws nothing there now). The ring keeps it from merging
+   * with the halftone; it fades with its chip on the shared --cobe-visible. */
+  .globe-pin {
+    position: absolute;
+    top: anchor(center);
+    left: anchor(center);
+    translate: -50% -50%;
+    width: var(--space-2);
+    height: var(--space-2);
+    border-radius: var(--radius-pill);
+    background: var(--ink);
+    box-shadow: 0 0 0 var(--border-hair) var(--paper);
+    pointer-events: none;
+    opacity: var(--pv, 0);
+    transition: opacity 0.8s var(--ease);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .globe-canvas { transition: none; }
-  .globe-label { transition: none; }
+  .globe-label,
+  .globe-pin { transition: none; }
 }
 
 /* The explore link at each section's foot: a quiet text link at the right
@@ -1369,14 +1411,25 @@ html[data-boot="site"] #skip {
   .cell-more-region { transition: none; }
 }
 
-/* The library foot carries both controls: a See more button while the region is
- * collapsed, and the section's own Explore further link once it opens. Exactly
- * one shows at a time. The button mirrors the link's quiet type, hover, and
- * arrow-reveal choreography property for property; only the glyph differs, a
- * down arrow that stays hidden until hover the way every explore control does. */
+/* The library foot is a two-side stepper row: See less on the left (only once the
+ * grid has stepped past its first eight), See more or the Explore further link on
+ * the right. Both buttons mirror the link's quiet type, hover, and arrow-reveal
+ * choreography property for property; only the glyph differs (See more a down
+ * arrow after its label, See less an up arrow before its label so it reveals
+ * leftward and slides its label right, the mirror of See more). */
 .section-explore-lib .explore-toggle { display: none; }
-.section-explore-lib.is-collapsed .explore-toggle { display: inline-flex; }
+.section-explore-lib.is-collapsed .explore-toggle-more { display: inline-flex; }
 .section-explore-lib.is-collapsed .explore-link { display: none; }
+.section-explore-lib.is-stepped .explore-toggle-less {
+  display: inline-flex;
+  margin-right: auto;
+}
+
+.explore-toggle-less:hover .ex-arrow,
+.explore-toggle-less:focus-visible .ex-arrow {
+  margin-left: 0;
+  margin-right: var(--control-pad-y);
+}
 
 .explore-toggle {
   align-items: center;

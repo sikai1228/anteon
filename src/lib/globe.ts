@@ -193,7 +193,12 @@ export function initGlobe(): void {
       glowColor: [0, 0, 0],
       opacity: 0.7,
       markerElevation: 0.01,
-      markers: PLACES.map((p) => ({ location: p.location, size: 0.01, id: p.id })),
+      // size 0 makes cobe draw nothing for the marker (its quad degenerates), but
+      // the anchor-name and --cobe-visible-{id} vars still come from the marker's
+      // location in cobe's projection, so the DOM pin and chip keep their anchor.
+      // The pin is a clean DOM circle instead: a cobe-drawn marker lights lattice
+      // cells and fuses with the fine halftone into a blob.
+      markers: PLACES.map((p) => ({ location: p.location, size: 0, id: p.id })),
     });
     globe = g;
     // Paint the real, theme-derived palette in at once (createGlobe needs the
@@ -205,14 +210,32 @@ export function initGlobe(): void {
     const supportsAnchor =
       typeof CSS !== 'undefined' && CSS.supports && CSS.supports('position-anchor: --x');
     if (supportsAnchor) {
+      // cobe drops its 1px marker-anchor divs into its own canvas wrapper. Move
+      // them into the label layer so they share its containing block: a chip's
+      // position-anchor only resolves when the anchor sits inside the chip's
+      // containing block, and the layer is absolutely positioned to carry the soft
+      // mask. cobe keeps updating the moved divs by reference, so they still track.
+      for (const anchor of figure.querySelectorAll<HTMLElement>('[style*="anchor-name"]')) {
+        labelLayer.append(anchor);
+      }
       PLACES.forEach((p, i) => {
+        // A clean DOM pin sitting on the marker's anchor point: an ink dot with a
+        // paper ring so it never merges with the halftone beneath it. It fades on
+        // the same --cobe-visible-{id} signal as the chip, so pin and chip arrive
+        // together.
+        const pin = document.createElement('span');
+        pin.className = 'globe-pin';
+        pin.style.setProperty('position-anchor', '--cobe-' + p.id);
+        pin.style.setProperty('--pv', 'var(--cobe-visible-' + p.id + ', 0)');
+        labelLayer.append(pin);
+
         const el = document.createElement('span');
         el.className = 'globe-label';
         el.textContent = p.label;
         el.style.setProperty('position-anchor', '--cobe-' + p.id);
         el.style.setProperty('--v', 'var(--cobe-visible-' + p.id + ', 0)');
-        // A fixed per-marker lift so neighbours that face front together (London,
-        // Paris) stagger up instead of stacking on one line.
+        // A fixed per-marker lift so neighbours that face front together stagger up
+        // instead of stacking on one line.
         el.style.setProperty('--lift', (i % 3) * 16 + 'px');
         labelLayer.append(el);
       });

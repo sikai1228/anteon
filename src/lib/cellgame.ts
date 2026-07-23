@@ -20,6 +20,9 @@ const IN_VIEW = 0.2;
 export function initCellGame(): void {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   for (const grid of document.querySelectorAll<HTMLElement>('.cell-grid')) {
+    // A section can opt its grids out of the idle puff (the library grid does):
+    // hover and focus still work, only the ambient auto-select is skipped.
+    if (grid.closest('[data-no-cellgame]')) continue;
     wireGrid(grid);
   }
 }

@@ -26,6 +26,7 @@ export interface Catalog {
   megaLibrarySub: string;
   explore: string;
   seeMore: string;
+  seeLess: string;
   apiKey: string;
   enterprise: string;
   pricing: string;
@@ -353,6 +354,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     megaLibrarySub: 'Unique engines, compiled from your firm\u2019s unique work and shared across your team',
     explore: 'Explore further',
     seeMore: 'See more',
+    seeLess: 'See less',
     apiKey: 'API / MCP',
     enterprise: 'Enterprise',
     pricing: 'Pricing',
@@ -628,6 +630,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     megaLibrarySub: 'Motores únicos, compilados desde el trabajo único de tu empresa y compartidos con tu equipo',
     explore: 'Explorar más',
     seeMore: 'Ver más',
+    seeLess: 'Ver menos',
     apiKey: 'API / MCP',
     enterprise: 'Empresas',
     pricing: 'Precios',

@@ -138,7 +138,7 @@
 
   /* Section rhythm for the site's pages: one flat 80px above and below
    * every section boundary, identical at every viewport. */
-  --space-section: 60px;
+  --space-section: 80px;
   --space-section-sm: clamp(40px, 5vw, 64px);
   --space-gutter: clamp(20px, 3vw, 40px);
 

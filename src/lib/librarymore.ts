@@ -1,44 +1,56 @@
 /**
- * The library grid's See more, a progressive disclosure in three steps. The grid
- * ships four card-count groups of eight (8 / 16 / 24 / 32): the first eight always
- * show, the other three wait in regions below. Each click on the See more button
- * reveals the next group; after the third the control hands back to the section's
- * own Explore further link, its destination and behavior intact.
+ * The library grid's See more / See less, a two-way progressive disclosure over
+ * four card-count groups of eight (8 / 16 / 24 / 32). The first eight always show;
+ * See more reveals the next group, See less collapses the last one. See less
+ * appears once the grid has stepped past eight and hides again back at eight; at
+ * the full 32 the right-hand control becomes the section's own Explore further
+ * link. Each step runs a measure, transition, release reveal (or its reverse for a
+ * collapse); reduced motion snaps.
  *
  * The regions ship open in the markup, so with no script the full grid and the
- * Explore link both stand. This module collapses them into the stepper on init
- * (the section is far below the film on load, so the collapse is never seen). One
- * way throughout: no collapse back. Each reveal runs the same choreography a
- * one-shot would (measure, transition, release to auto); reduced motion snaps.
- *
- * A11y: the button is not a binary disclosure, so it carries no aria-expanded;
- * instead aria-controls names the next region it will reveal (updated each step),
- * and each region stays aria-hidden until it opens, so the newly shown cards join
- * the tree as they appear. After the last step the button gives way to the link
- * and focus follows to it.
+ * Explore link both stand. This module collapses them into the stepper on init.
+ * A11y: neither button is a binary disclosure, so no aria-expanded; each carries
+ * aria-controls naming the region it acts on (See more the next to open, See less
+ * the last open), and each region stays aria-hidden until it opens. Focus stays on
+ * the button in play and moves to the control that replaces it when one vanishes
+ * (to the link when See more gives way at 32, to See more when See less vanishes
+ * at 8). Collapsing never yanks the viewport: the section top holds, natural
+ * reflow only.
  */
 
 export function initLibraryMore(): void {
   const foot = document.querySelector<HTMLElement>('.section-explore-lib');
-  const toggle = foot?.querySelector<HTMLButtonElement>('.explore-toggle');
+  const more = foot?.querySelector<HTMLButtonElement>('.explore-toggle-more');
+  const less = foot?.querySelector<HTMLButtonElement>('.explore-toggle-less');
   const link = foot?.querySelector<HTMLAnchorElement>('.explore-link');
   const regions = ['library-more-1', 'library-more-2', 'library-more-3'].map((id) =>
     document.getElementById(id),
   );
-  if (!foot || !toggle || !link || regions.some((r) => !r)) return;
+  if (!foot || !more || !less || !link || regions.some((r) => !r)) return;
   const steps = regions as HTMLElement[];
 
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  // Collapse every waiting group into the stepper and swap the Explore link for
-  // the See more button, which controls the first group next.
+  // Collapse every waiting group and drop it from the a11y tree; neither button is
+  // a binary disclosure, so clear aria-expanded.
   for (const region of steps) {
     region.classList.add('is-collapsed');
     region.setAttribute('aria-hidden', 'true');
   }
-  foot.classList.add('is-collapsed');
-  toggle.removeAttribute('aria-expanded');
-  toggle.setAttribute('aria-controls', steps[0].id);
+  more.removeAttribute('aria-expanded');
+
+  let step = 0;
+
+  // Reflect the step in the foot: See less shows past the first group, See more
+  // shows until the last, the Explore link takes over at the last, and each button
+  // points at the region it will act on.
+  const sync = (): void => {
+    foot.classList.toggle('is-stepped', step >= 1);
+    foot.classList.toggle('is-collapsed', step < steps.length);
+    if (step < steps.length) more.setAttribute('aria-controls', steps[step].id);
+    if (step >= 1) less.setAttribute('aria-controls', steps[step - 1].id);
+  };
+  sync();
 
   const reveal = (region: HTMLElement): void => {
     region.removeAttribute('aria-hidden');
@@ -47,9 +59,6 @@ export function initLibraryMore(): void {
       region.classList.add('is-open');
       return;
     }
-    // Measure the group's natural height, snap it to zero, then transition up and
-    // release to auto, so a last-row cell's hover shadow is not clipped and a
-    // later reflow (a locale swap, a resize) costs nothing.
     region.style.height = 'auto';
     const target = region.offsetHeight;
     region.style.height = '0px';
@@ -67,21 +76,44 @@ export function initLibraryMore(): void {
     });
   };
 
-  let step = 0;
-  const onClick = (): void => {
+  const collapse = (region: HTMLElement): void => {
+    region.setAttribute('aria-hidden', 'true');
+    if (reduce.matches) {
+      region.classList.remove('is-open');
+      region.classList.add('is-collapsed');
+      region.style.height = '';
+      return;
+    }
+    // Reverse of reveal: overflow hides again so the shrinking content clips, then
+    // from its current height transition down to zero and clamp with is-collapsed.
+    region.classList.remove('is-open');
+    region.style.height = region.offsetHeight + 'px';
+    void region.offsetHeight;
+    const settle = (event: TransitionEvent): void => {
+      if (event.propertyName !== 'height') return;
+      region.removeEventListener('transitionend', settle);
+      region.classList.add('is-collapsed');
+      region.style.height = '';
+    };
+    region.addEventListener('transitionend', settle);
+    requestAnimationFrame(() => {
+      region.style.height = '0px';
+    });
+  };
+
+  more.addEventListener('click', () => {
+    if (step >= steps.length) return;
     reveal(steps[step]);
     step += 1;
-    if (step >= steps.length) {
-      // Last group shown: hand the foot back to the Explore further link and move
-      // focus to it so the tab order stays continuous. preventScroll keeps the
-      // jump away from Lenis, which owns the page's scroll.
-      foot.classList.remove('is-collapsed');
-      toggle.removeEventListener('click', onClick);
-      link.focus({ preventScroll: true });
-    } else {
-      // Point the button at the group it will reveal on the next click.
-      toggle.setAttribute('aria-controls', steps[step].id);
-    }
-  };
-  toggle.addEventListener('click', onClick);
+    sync();
+    if (step >= steps.length) link.focus({ preventScroll: true });
+  });
+
+  less.addEventListener('click', () => {
+    if (step <= 0) return;
+    step -= 1;
+    collapse(steps[step]);
+    sync();
+    if (step === 0) more.focus({ preventScroll: true });
+  });
 }
