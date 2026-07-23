@@ -1204,139 +1204,143 @@ body {
   margin-top: calc(120px - var(--space-section-sm));
 }
 
-.pricing-how { margin-top: var(--space-12); }
+/* The section titles speak the landing's register; the FAQ block sets its
+ * own margin later, so this only carries the type. */
+.pricing-how h2,
+.pricing-chart h2,
+.pricing-compound h2,
+.pricing-faq h2 {
+  margin: 0;
+  font-size: var(--type-title);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-tight);
+}
 
-.pricing-how h2 { margin: 0 0 var(--space-6); }
+/* The quiet line under a title, the landing lede's register. */
+.pricing-lede-line {
+  margin: var(--space-5) 0 0;
+  font-size: var(--type-body-lg);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
 
-/* The mechanic depicted: the same chip register as the compile lifecycle,
- * with the three routes forking as a stacked cluster mid-stream. */
+/* The landing's 80/80 rhythm: every section carries the section unit as
+ * padding above and below, so neighbors meet at twice the unit. */
+.pricing-how,
+.pricing-chart,
+.pricing-compound,
+.pricing-faq { padding-block: var(--space-section); }
+
+/* The mechanic depicted, the page's primary diagram: the flow spreads
+ * across the full column inside a framed panel, the fork stacked
+ * mid-stream, one quiet caption below on the figure seam. */
+.pricing-flow-fig { margin: var(--space-8) 0 0; }
+
 .pricing-flow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
-  margin-bottom: var(--space-8);
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-10);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-frame);
 }
 
 .pf-routes {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-1);
-}
-
-/* The three beats: numbered mono steps on hairlines, the connect
- * terminal's register. */
-.pricing-steps {
-  list-style: none;
-  counter-reset: beat;
-  margin: 0;
-  padding: 0;
-}
-
-.pricing-steps li {
-  counter-increment: beat;
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-4);
-  padding: var(--space-3) 0;
-  border-bottom: var(--border-hair) solid var(--line);
-  font-size: var(--type-body);
-  line-height: var(--leading-body);
-  color: var(--ink);
-}
-
-.pricing-steps li::before {
-  content: counter(beat, decimal-leading-zero);
-  flex: none;
-  font-family: var(--mono);
-  font-size: var(--type-micro);
-  color: var(--ink-faint);
-}
-
-.pricing-steps li:last-child { border-bottom: 0; }
-
-/* The one quiet caveat under the beats. */
-.pricing-floor {
-  margin: var(--space-2) 0 0;
-  font-size: var(--type-nav);
-  color: var(--ink-soft);
-}
-
-/* The declared tiers: three hairline cards, the tier name over its models
- * as mono chips, never a second pricing table. The mechanic above stays
- * the star. */
-.pricing-tiers {
-  margin-top: var(--space-10);
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-4);
-}
-
-.pricing-tiers-lede {
-  grid-column: 1 / -1;
-  margin: 0 0 var(--space-1);
-  font-size: var(--type-nav);
-  color: var(--ink-muted);
-}
-
-.pricing-tier {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-6);
-  border: var(--border-hair) solid var(--line);
-  border-radius: var(--radius-frame);
-}
-
-.pt-name {
-  font-size: var(--type-nav);
-  font-weight: var(--weight-medium);
-  color: var(--ink);
-}
-
-.pt-chips {
-  display: flex;
-  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
-.pt-chip {
-  font-family: var(--mono);
-  font-size: var(--type-micro);
-  color: var(--ink-muted);
-  padding: var(--space-1) var(--space-3);
-  border: var(--border-hair) solid var(--line);
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-}
-
-/* The floor note rides the Budget card's foot as a proper mono footnote. */
-.pt-note {
-  margin-top: auto;
+.pricing-flow-fig figcaption {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-hair) solid var(--line);
   font-family: var(--mono);
   font-size: var(--type-micro);
   color: var(--ink-faint);
 }
 
-@media (max-width: 640px) {
-  .pricing-tiers { grid-template-columns: 1fr; }
+/* The ledger: the whole spend as a dashed ground above, the fifth you pay
+ * in solid ink, and the four fifths you keep as the dominant outlined
+ * block. Direct mono labels inside the blocks; both themes by token. */
+.pricing-ledger { margin-top: var(--space-16); }
+
+.pl-claim {
+  margin: 0;
+  font-size: var(--type-body-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--ink);
+}
+
+.pl-fig { margin: var(--space-8) 0 0; }
+
+.pl-fig svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.pl-ground-label {
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  fill: var(--ink-soft);
+}
+
+.pl-ground {
+  stroke: var(--ink-faint);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+.pl-ground-tick {
+  stroke: var(--ink-faint);
+  stroke-width: 1.5;
+}
+
+.pl-pay { fill: var(--ink); }
+
+.pl-keep {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+
+.pl-pay-label {
+  font-family: var(--mono);
+  font-size: var(--type-micro);
+  fill: var(--paper);
+}
+
+.pl-keep-label {
+  font-family: var(--mono);
+  font-size: var(--type-nav);
+  font-weight: var(--weight-medium);
+  fill: var(--ink);
+}
+
+.pl-support {
+  margin: var(--space-6) 0 0;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+  max-width: var(--width-prose);
 }
 
 /* The comparison: one solved task, their per-token price, and the fifth.
  * A monochrome table on hairlines, numbers in mono on the right, the
  * Anteon column carried by weight alone. */
-.pricing-chart { margin-top: var(--space-section-sm); }
-
-.pricing-chart h2 { margin: 0 0 var(--space-6); }
-
 .pricing-chart table {
   width: 100%;
+  margin-top: var(--space-8);
   border-collapse: collapse;
 }
 
 .pricing-chart th {
-  padding: 0 0 var(--space-3);
+  padding: 0 0 var(--space-4);
   border-bottom: var(--border-hair) solid var(--line);
   text-align: left;
   font-size: var(--type-nav);
@@ -1345,7 +1349,7 @@ body {
 }
 
 .pricing-chart td {
-  padding: var(--space-4) 0;
+  padding: var(--space-5) 0;
   border-bottom: var(--border-hair) solid var(--line);
   color: var(--ink-muted);
 }
@@ -1377,18 +1381,13 @@ body {
 
 /* The compounding close: three escalating beats, the divergence figure, the
  * compile lifecycle, and the standard way in. */
-.pricing-compound { margin-top: var(--space-section-sm); }
-
-.pricing-compound h2 { margin: 0 0 var(--space-6); }
-
 /* The divergence figure: two schematic curves, no data, no scales. The
  * model line runs faint and dashed; the Anteon line holds full ink and
  * bends flatter at each compiled task. Identity is carried by weight,
- * dash, and the direct labels, never by hue. The figure is the section's
- * centered anchor; the lifecycle and the close ride its measure. */
+ * dash, and the direct labels, never by hue. The figure fills the column,
+ * so every stroke, marker, and label scales up with it. */
 .pricing-diagram {
-  margin: var(--space-10) auto 0;
-  max-width: var(--width-prose);
+  margin: var(--space-10) 0 0;
 }
 
 .pricing-diagram svg {
@@ -1443,23 +1442,25 @@ body {
   color: var(--ink-faint);
 }
 
-/* The compile lifecycle: terminal-register chips on one row, the final
- * state inverted to ink, the arrows staying quiet text. Aligned to the
- * figure's measure above it. */
+/* The compile lifecycle: terminal-register chips centered on one row, the
+ * final state inverted to ink, the arrows staying quiet text. Scaled with
+ * the figure above it. */
 .pricing-cycle {
-  max-width: var(--width-prose);
-  margin: var(--space-8) auto 0;
+  margin: var(--space-8) 0 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2);
+  justify-content: center;
+  gap: var(--space-3);
 }
 
 .pc-step {
+  display: inline-flex;
+  align-items: center;
   font-family: var(--mono);
-  font-size: var(--type-micro);
+  font-size: var(--type-nav);
   color: var(--ink-muted);
-  padding: var(--space-1) var(--space-3);
+  padding: var(--space-2) var(--space-5);
   border: var(--border-hair) solid var(--line);
   border-radius: var(--radius-pill);
   white-space: nowrap;
@@ -1473,15 +1474,14 @@ body {
 
 .pc-arrow {
   font-family: var(--mono);
-  font-size: var(--type-micro);
+  font-size: var(--type-nav);
   color: var(--ink-faint);
 }
 
 /* The close: the API / MCP text link paired with the standard way in,
- * centered under the figure's measure. */
+ * centered under the figure. */
 .pricing-cta-row {
-  max-width: var(--width-prose);
-  margin: var(--space-10) auto 0;
+  margin: var(--space-12) 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1511,7 +1511,6 @@ body {
  * answers stay in the DOM, and one control that expands or collapses the
  * lot. Their flow, our tokens. */
 .pricing-faq {
-  margin-top: var(--space-section);
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
   gap: var(--space-16);
