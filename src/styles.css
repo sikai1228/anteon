@@ -1384,6 +1384,42 @@ html[data-boot="site"] #skip {
  * louder than the header pills. Border, radius, and the label-step / arrow-
  * reveal hover are the base .book-call, inherited unchanged; scoping to
  * .site-closing keeps every other book-call instance standard. */
+/* The closing pair: the quiet Enterprise word beside the oversized pill,
+ * centered as one row. The link draws the header nav's underline: a 1px
+ * ink line growing from the left on the chrome's move tokens. */
+.closing-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.closing-enterprise {
+  position: relative;
+  font-family: var(--sans);
+  font-size: var(--type-nav);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  opacity: var(--o-muted);
+  text-decoration: none;
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.closing-enterprise::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1px;
+  background: var(--ink);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--speed-move) var(--ease);
+}
+
+.closing-enterprise:hover { opacity: 1; }
+.closing-enterprise:hover::after { transform: scaleX(1); }
+
 .site-closing .book-call {
   font-size: var(--type-body-lg);
   padding: calc(var(--control-pad-y) * 1.5) calc(var(--control-pad-x) * 1.5);

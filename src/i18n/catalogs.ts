@@ -550,7 +550,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8ExB: 'ranked, then routed',
     compilerTitle: 'A personal, self-improving library precision-built for your firm',
     compilerBody:
-      'Your team already writes small software, the one-off scripts every project leaves behind. Anteon compiles it into versioned engines the whole firm shares, and the same auditable KPIs show it paying for itself.',
+      'Your team already writes small software, the workflows only your firm runs. Anteon compiles it into versioned engines the whole firm shares, and the same auditable KPIs show it paying for itself.',
     smallSoftware: 'Small software, explained',
     footerTag: 'Solved problems should stay solved',
     company: 'Company',
@@ -830,7 +830,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8ExB: 'clasificada y enrutada',
     compilerTitle: 'Una biblioteca personal y autooptimizable, hecha a la medida de tu empresa',
     compilerBody:
-      'Tu equipo ya escribe small software, los scripts puntuales que cada proyecto deja atrás. Anteon lo compila en motores versionados que toda la empresa comparte, y los mismos KPI auditables demuestran cómo se amortiza solo.',
+      'Tu equipo ya escribe small software, los flujos de trabajo que solo tu empresa ejecuta. Anteon lo compila en motores versionados que toda la empresa comparte, y los mismos KPI auditables demuestran cómo se amortiza solo.',
     smallSoftware: 'Small software, explicado',
     footerTag: 'Los problemas resueltos deberían seguir resueltos',
     company: 'Empresa',
