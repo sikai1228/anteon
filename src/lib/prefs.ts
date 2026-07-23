@@ -86,7 +86,7 @@ export function wirePrefs(): void {
     trigger.setAttribute('aria-expanded', 'false');
   };
   for (const mega of document.querySelectorAll<HTMLElement>('.nav-mega')) {
-    const header = mega.closest('#chrome, #site-header, .page-header');
+    const header = mega.closest('#chrome, #site-header');
     const trigger = mega.querySelector<HTMLElement>('.nav-mega-trigger');
     if (!header || !trigger) continue;
     const openMega = (): void => {

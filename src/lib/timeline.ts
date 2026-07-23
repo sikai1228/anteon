@@ -53,6 +53,12 @@ export function createTimeline(filmEl: HTMLElement): TimelineApi {
     lenis = new Lenis({ autoRaf: false, lerp: 0.1, smoothWheel: true });
   }
 
+  // The auth dialog owns the viewport while it is open: stop Lenis so wheel
+  // and touch cannot move the film behind the modal, and resume on close.
+  // The shells have no Lenis; their lock is the body class alone.
+  window.addEventListener('auth-open', () => lenis?.stop());
+  window.addEventListener('auth-close', () => lenis?.start());
+
   function progress(): number {
     const pos = lenis ? lenis.scroll : window.scrollY;
     return clamp01(pos / spanPx);

@@ -25,6 +25,7 @@ export interface Catalog {
   megaLibraryTitle: string;
   megaLibrarySub: string;
   explore: string;
+  seeMore: string;
   apiKey: string;
   enterprise: string;
   pricing: string;
@@ -60,10 +61,11 @@ export interface Catalog {
   /* The hero's subheadline and the team band's provenance label. */
   heroSub: string;
   mediaStripLabel: string;
-  /* The library section: heading and lede, then a 16-cell grid of deterministic
-     work. Each cell carries a name, a one-line description, and two mono
-     examples (ExA at rest, ExB on hover). Cells 15 and 16 are the boundary and
-     the buy-not-build case. */
+  /* The library section: heading and lede, then a 32-cell grid of deterministic
+     work. The first sixteen show; the rest wait in a region a See more control
+     reveals. Each cell carries a name, a one-line description, and two mono
+     examples (ExA at rest, ExB on hover). Cell 16, the And more boundary, moves
+     to the very end; cells 17 through 32 are the added categories. */
   libraryTitle: string;
   libraryTitle2: string;
   libraryBody: string;
@@ -131,6 +133,70 @@ export interface Catalog {
   cell16Desc: string;
   cell16ExA: string;
   cell16ExB: string;
+  cell17Name: string;
+  cell17Desc: string;
+  cell17ExA: string;
+  cell17ExB: string;
+  cell18Name: string;
+  cell18Desc: string;
+  cell18ExA: string;
+  cell18ExB: string;
+  cell19Name: string;
+  cell19Desc: string;
+  cell19ExA: string;
+  cell19ExB: string;
+  cell20Name: string;
+  cell20Desc: string;
+  cell20ExA: string;
+  cell20ExB: string;
+  cell21Name: string;
+  cell21Desc: string;
+  cell21ExA: string;
+  cell21ExB: string;
+  cell22Name: string;
+  cell22Desc: string;
+  cell22ExA: string;
+  cell22ExB: string;
+  cell23Name: string;
+  cell23Desc: string;
+  cell23ExA: string;
+  cell23ExB: string;
+  cell24Name: string;
+  cell24Desc: string;
+  cell24ExA: string;
+  cell24ExB: string;
+  cell25Name: string;
+  cell25Desc: string;
+  cell25ExA: string;
+  cell25ExB: string;
+  cell26Name: string;
+  cell26Desc: string;
+  cell26ExA: string;
+  cell26ExB: string;
+  cell27Name: string;
+  cell27Desc: string;
+  cell27ExA: string;
+  cell27ExB: string;
+  cell28Name: string;
+  cell28Desc: string;
+  cell28ExA: string;
+  cell28ExB: string;
+  cell29Name: string;
+  cell29Desc: string;
+  cell29ExA: string;
+  cell29ExB: string;
+  cell30Name: string;
+  cell30Desc: string;
+  cell30ExA: string;
+  cell30ExB: string;
+  cell31Name: string;
+  cell31Desc: string;
+  cell31ExA: string;
+  cell31ExB: string;
+  cell32Name: string;
+  cell32Desc: string;
+  cell32ExA: string;
+  cell32ExB: string;
   /* The API index section: a two-line heading, a lede, and an eight-cell
      grid of famous APIs, the eighth being the more box. */
   apiIndexTitle: string;
@@ -168,9 +234,11 @@ export interface Catalog {
   apiCell8Desc: string;
   apiCell8ExA: string;
   apiCell8ExB: string;
-  /* The compiler section: heading, lede, and the three steps. */
+  /* The compiler section: heading, lede, and a small external link out to the
+     small-software idea. */
   compilerTitle: string;
   compilerBody: string;
+  smallSoftware: string;
   /* The footer: tagline, the three column headings and their links, and the
      rights line. The Product column reuses product/pricing/support/bookCall. */
   footerTag: string;
@@ -233,6 +301,30 @@ export interface Catalog {
   demoBSay7: string;
   demoBWork6: string;
   demoBSay8: string;
+  /* The auth screens: sign in, create account, and reset password. Standalone
+     shell pages whose flow mirrors the account screens ported from the app;
+     the forms carry real fields but post nowhere until an auth backend exists.
+     emailLabel and passwordLabel are shared across the three. */
+  authEmailLabel: string;
+  authPasswordLabel: string;
+  signinTitle: string;
+  signinSubtitle: string;
+  signinForgot: string;
+  rememberMe: string;
+  signinSubmit: string;
+  signinNoAccount: string;
+  signinNoAccountLink: string;
+  signupTitle: string;
+  signupSubtitle: string;
+  signupSubmit: string;
+  signupHaveAccount: string;
+  signupHaveAccountLink: string;
+  forgotTitle: string;
+  forgotSubtitle: string;
+  forgotSubmit: string;
+  forgotBackToSignin: string;
+  /* The auth dialog's close control. */
+  ariaClose: string;
 }
 
 /** The strings this file owns; the rest of a Catalog is folded from the film copy. */
@@ -260,6 +352,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     megaLibraryTitle: 'Personal database',
     megaLibrarySub: 'Unique engines, compiled from your firm\u2019s unique work and shared across your team',
     explore: 'Explore further',
+    seeMore: 'See more',
     apiKey: 'API / MCP',
     enterprise: 'Enterprise',
     pricing: 'Pricing',
@@ -278,12 +371,12 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel5: 'effort',
     siteNote: 'The site begins here.',
     heroSub:
-      "Your AI rebuilds solved algorithms, uses them once, and trashes them. Anteon preloads 1,000+ and grows your firm's own proprietary library.",
+      'Anteon runs above your AI and removes the overhead. Performance is measured against auditable KPIs: only pay after we save you money.',
     mediaStripLabel: 'Team from',
-    libraryTitle: '1,000+ preloaded engines and the',
-    libraryTitle2: 'framework to call them',
+    libraryTitle: '1,000+ engines,',
+    libraryTitle2: 'preloaded to cut costs',
     libraryBody:
-      'There are thousands of tasks that are deterministic and should invoke a pre-written algorithm. Yet modern AI systems continue to reinvent them from scratch, often inaccurately, and discard the result immediately after one use. Anteon preloads 1,000+ engines and trains your AI to call them intelligently, so every request runs faster, breaks less, and costs less.',
+      'Most of what your AI rebuilds is deterministic work that was solved years ago. Anteon holds 1,000+ of those solutions as versioned engines and routes every request to the right one. The same call returns the same answer, faster and at a lower cost.',
     cell1Name: 'Conversion',
     cell1Desc: 'Any format into any other, whether files, images, code, or encodings.',
     cell1ExA: 'docx → pdf',
@@ -348,10 +441,74 @@ const CHROME: Record<Locale, ChromeStrings> = {
     cell16Desc: 'The library runs far past this page, and the compiler keeps adding to it.',
     cell16ExA: 'timezones, checksums, ocr',
     cell16ExB: 'tax math, dedupe, redlines',
-    apiIndexTitle: 'A continuously updated index',
-    apiIndexTitle2: 'of the top APIs on the internet',
+    cell17Name: 'Diff & merge',
+    cell17Desc: 'Text and structured diff, three-way merge, and patch application.',
+    cell17ExA: 'v1.docx vs v2 → tracked changes',
+    cell17ExB: 'merge 3 branches → 0 conflicts',
+    cell18Name: 'Units & measures',
+    cell18Desc: 'Unit conversion and dimensional analysis, exact.',
+    cell18ExA: '14 psi → kPa',
+    cell18ExB: '27 mi/gal → L/100km',
+    cell19Name: 'Billing math',
+    cell19Desc: 'Proration, tiered pricing, and tax lines, to the cent.',
+    cell19ExA: 'prorate $300/yr from Mar 3',
+    cell19ExB: '12 seats, tier 2 → $1,080',
+    cell20Name: 'Sign & verify',
+    cell20Desc: 'Signatures, certificates, and token verification.',
+    cell20ExA: 'JWT → valid, expires in 3d',
+    cell20ExB: 'cert chain → trusted',
+    cell21Name: 'Compression & archives',
+    cell21Desc: 'Pack, unpack, and list, byte-stable.',
+    cell21ExA: 'logs/ → logs.tar.gz',
+    cell21ExB: 'unzip report.zip → 42 files',
+    cell22Name: 'Media mechanics',
+    cell22Desc: 'Resize, crop, transcode, and strip metadata.',
+    cell22ExA: 'strip EXIF from 400 photos',
+    cell22ExB: 'mp4 → webm, 1080p',
+    cell23Name: 'Color math',
+    cell23Desc: 'Color spaces, contrast ratios, and palette tokens.',
+    cell23ExA: '#0b0b0d on #eceae4 → 15.2:1',
+    cell23ExB: 'hex → oklch',
+    cell24Name: 'Parsing & grammars',
+    cell24Desc: 'Cron, CSV dialects, URLs, and user agents, parsed strictly.',
+    cell24ExA: 'cron 0 9 * * 1-5 → next 3 runs',
+    cell24ExB: 'user agent → os, browser',
+    cell25Name: 'Ranking & scoring',
+    cell25Desc: 'Weighted scores, stable sorts, and tie-break rules.',
+    cell25ExA: 'rank vendors by 4 criteria',
+    cell25ExB: 'score leads 0-100',
+    cell26Name: 'Exact statistics',
+    cell26Desc: 'Percentiles, correlations, and aggregates on full data.',
+    cell26ExA: 'p95 latency from 2M rows',
+    cell26ExB: 'corr(spend, revenue)',
+    cell27Name: 'Network math',
+    cell27Desc: 'CIDR splits, subnet planning, and range membership.',
+    cell27ExA: '10.0.0.0/16 → 4 /18s',
+    cell27ExB: 'is 10.2.4.9 in 10.2.0.0/20',
+    cell28Name: 'Fuzzy matching',
+    cell28Desc: 'Similarity with fixed thresholds and phonetic keys.',
+    cell28ExA: 'dedupe CRM at 0.92 match',
+    cell28ExB: '"Jon Smith" ~ "John Smyth"',
+    cell29Name: 'Contact normalization',
+    cell29Desc: 'Addresses, phones, and names, brought to standard.',
+    cell29ExA: '(415) 555-0134 → E.164',
+    cell29ExB: 'normalize 5,000 addresses',
+    cell30Name: 'Allocation & packing',
+    cell30Desc: 'FIFO and LIFO costing, bin packing, and reorder points.',
+    cell30ExA: 'allocate 1,240 units FIFO',
+    cell30ExB: 'pack 38 items → 4 bins',
+    cell31Name: 'Graph mechanics',
+    cell31Desc: 'Dependency order, shortest paths, and cycle detection.',
+    cell31ExA: 'build order for 87 packages',
+    cell31ExB: 'shortest path A → K',
+    cell32Name: 'Redaction & masking',
+    cell32Desc: 'Format-preserving masking and deterministic PII removal.',
+    cell32ExA: 'mask SSNs, keep last 4',
+    cell32ExB: 'redact PII from 60 pages',
+    apiIndexTitle: 'The internet’s best APIs,',
+    apiIndexTitle2: 'indexed and ranked',
     apiIndexLede:
-      'Not everything deserves a new engine. Anteon collates the internet\u2019s best APIs, ranks them with its own quality metrics, and when your AI is about to build something an API already does, recommends the right one.',
+      'Not every task deserves a new engine. Anteon maintains a live index of the internet\u2019s strongest APIs, ranked on our own quality metrics. When your AI starts building what an API already does, Anteon recommends the proven one instead.',
     apiCell1Name: 'Stripe',
     apiCell1Desc: 'Payments, billing, and invoicing, from checkout to payout.',
     apiCell1ExA: 'invoice → paid',
@@ -386,7 +543,8 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8ExB: 'ranked, then routed',
     compilerTitle: 'A personal, self-improving library precision-built for your firm',
     compilerBody:
-      'Anteon compiles unique algorithms from the work your firm actually does and shares them across every employee. The library grows continuously, and a backend tracks usage and KPIs so you can watch it pay for itself.',
+      'Your team already writes small software, the one-off scripts every project leaves behind. Anteon compiles it into versioned engines the whole firm shares, and the same auditable KPIs show it paying for itself.',
+    smallSoftware: 'Small software, explained',
     footerTag: 'Solved problems should stay solved',
     company: 'Company',
     legal: 'Legal',
@@ -440,6 +598,25 @@ const CHROME: Record<Locale, ChromeStrings> = {
     demoBWork6: 'Checking…',
     demoBSay8:
       'All done. supplier_q2.csv is ready, the spend totals and variance are computed, and an audit of the procurement team is required under §7.2(b), Vendor Audit Policy.',
+    authEmailLabel: 'Email',
+    authPasswordLabel: 'Password',
+    signinTitle: 'Sign in',
+    signinSubtitle: 'Welcome back. Sign in to pick up where you left off.',
+    signinForgot: 'Forgot your password?',
+    rememberMe: 'Remember me',
+    signinSubmit: 'Sign in',
+    signinNoAccount: 'New here?',
+    signinNoAccountLink: 'Create an account',
+    signupTitle: 'Create your account',
+    signupSubtitle: 'Start with 1,000+ deterministic engines and a library that grows with your firm.',
+    signupSubmit: 'Create account',
+    signupHaveAccount: 'Already have an account?',
+    signupHaveAccountLink: 'Sign in',
+    forgotTitle: 'Reset your password',
+    forgotSubtitle: 'Enter your email and we’ll send a link to set a new password.',
+    forgotSubmit: 'Send reset link',
+    forgotBackToSignin: 'Back to sign in',
+    ariaClose: 'Close',
   },
   es: {
     product: 'Solutions',
@@ -450,6 +627,7 @@ const CHROME: Record<Locale, ChromeStrings> = {
     megaLibraryTitle: 'Base de datos personal',
     megaLibrarySub: 'Motores únicos, compilados desde el trabajo único de tu empresa y compartidos con tu equipo',
     explore: 'Explorar más',
+    seeMore: 'Ver más',
     apiKey: 'API / MCP',
     enterprise: 'Empresas',
     pricing: 'Precios',
@@ -468,12 +646,12 @@ const CHROME: Record<Locale, ChromeStrings> = {
     heroWheel5: 'esfuerzo',
     siteNote: 'Aquí empieza el sitio.',
     heroSub:
-      'Tu IA reconstruye algoritmos resueltos, los usa una vez y los tira. Anteon precarga 1.000+ y cultiva la biblioteca propietaria de tu empresa.',
+      'Anteon opera sobre tu IA y elimina la sobrecarga. El rendimiento se mide con KPI auditables: paga solo cuando ya te hemos ahorrado dinero.',
     mediaStripLabel: 'Equipo formado en',
-    libraryTitle: 'Más de 1.000 motores precargados y el',
-    libraryTitle2: 'marco para llamarlos',
+    libraryTitle: 'Más de 1.000 motores,',
+    libraryTitle2: 'precargados para reducir costos',
     libraryBody:
-      'Hay miles de tareas que son deterministas y deberían invocar un algoritmo ya escrito. Aun así, los sistemas de IA modernos siguen reinventándolas desde cero, a menudo con errores, y descartan el resultado tras un solo uso. Anteon precarga más de 1.000 motores y entrena a tu IA para llamarlos con inteligencia, de modo que cada petición es más rápida, falla menos y cuesta menos.',
+      'La mayor parte de lo que tu IA reconstruye es trabajo determinista que se resolvió hace años. Anteon guarda más de 1.000 de esas soluciones como motores versionados y dirige cada petición al correcto. La misma llamada devuelve la misma respuesta, más rápido y a menor costo.',
     cell1Name: 'Conversión',
     cell1Desc: 'Cualquier formato a cualquier otro, ya sean archivos, imágenes, código o codificaciones.',
     cell1ExA: 'docx → pdf',
@@ -538,10 +716,74 @@ const CHROME: Record<Locale, ChromeStrings> = {
     cell16Desc: 'La biblioteca va mucho más allá de esta página, y el compilador no deja de ampliarla.',
     cell16ExA: 'husos horarios, checksums, ocr',
     cell16ExB: 'cálculo fiscal, dedupe, cotejos',
-    apiIndexTitle: 'Un índice en continua actualización',
-    apiIndexTitle2: 'de las principales API de internet',
+    cell17Name: 'Comparar y fusionar',
+    cell17Desc: 'Diferencias de texto y estructura, fusión a tres vías y aplicación de parches.',
+    cell17ExA: 'v1.docx vs v2 → tracked changes',
+    cell17ExB: 'merge 3 branches → 0 conflicts',
+    cell18Name: 'Unidades y medidas',
+    cell18Desc: 'Conversión de unidades y análisis dimensional, exacto.',
+    cell18ExA: '14 psi → kPa',
+    cell18ExB: '27 mi/gal → L/100km',
+    cell19Name: 'Cálculo de facturación',
+    cell19Desc: 'Prorrateo, precios por tramos y líneas de impuestos, al céntimo.',
+    cell19ExA: 'prorratea $300/año desde el 3 de marzo',
+    cell19ExB: '12 licencias, nivel 2 → $1,080',
+    cell20Name: 'Firmar y verificar',
+    cell20Desc: 'Firmas, certificados y verificación de tokens.',
+    cell20ExA: 'JWT → valid, expires in 3d',
+    cell20ExB: 'cert chain → trusted',
+    cell21Name: 'Compresión y archivos',
+    cell21Desc: 'Empaqueta, extrae y lista, con bytes estables.',
+    cell21ExA: 'logs/ → logs.tar.gz',
+    cell21ExB: 'unzip report.zip → 42 files',
+    cell22Name: 'Mecánica multimedia',
+    cell22Desc: 'Redimensiona, recorta, transcodifica y elimina metadatos.',
+    cell22ExA: 'elimina EXIF de 400 fotos',
+    cell22ExB: 'mp4 → webm, 1080p',
+    cell23Name: 'Cálculo de color',
+    cell23Desc: 'Espacios de color, ratios de contraste y tokens de paleta.',
+    cell23ExA: '#0b0b0d on #eceae4 → 15.2:1',
+    cell23ExB: 'hex → oklch',
+    cell24Name: 'Análisis y gramáticas',
+    cell24Desc: 'Cron, dialectos CSV, URLs y user agents, analizados con rigor.',
+    cell24ExA: 'cron 0 9 * * 1-5 → next 3 runs',
+    cell24ExB: 'user agent → os, browser',
+    cell25Name: 'Clasificación y puntuación',
+    cell25Desc: 'Puntuaciones ponderadas, ordenaciones estables y reglas de desempate.',
+    cell25ExA: 'clasifica proveedores por 4 criterios',
+    cell25ExB: 'puntúa leads 0-100',
+    cell26Name: 'Estadística exacta',
+    cell26Desc: 'Percentiles, correlaciones y agregados sobre todos los datos.',
+    cell26ExA: 'p95 de latencia en 2M filas',
+    cell26ExB: 'corr(spend, revenue)',
+    cell27Name: 'Cálculo de redes',
+    cell27Desc: 'División de CIDR, planificación de subredes y pertenencia a rangos.',
+    cell27ExA: '10.0.0.0/16 → 4 /18s',
+    cell27ExB: 'is 10.2.4.9 in 10.2.0.0/20',
+    cell28Name: 'Coincidencia difusa',
+    cell28Desc: 'Similitud con umbrales fijos y claves fonéticas.',
+    cell28ExA: 'dedupe CRM at 0.92 match',
+    cell28ExB: '"Jon Smith" ~ "John Smyth"',
+    cell29Name: 'Normalización de contactos',
+    cell29Desc: 'Direcciones, teléfonos y nombres, llevados al estándar.',
+    cell29ExA: '(415) 555-0134 → E.164',
+    cell29ExB: 'normaliza 5.000 direcciones',
+    cell30Name: 'Asignación y empaquetado',
+    cell30Desc: 'Costeo FIFO y LIFO, empaquetado en contenedores y puntos de pedido.',
+    cell30ExA: 'asigna 1.240 unidades FIFO',
+    cell30ExB: 'empaqueta 38 artículos → 4 contenedores',
+    cell31Name: 'Mecánica de grafos',
+    cell31Desc: 'Orden de dependencias, rutas más cortas y detección de ciclos.',
+    cell31ExA: 'orden de compilación de 87 paquetes',
+    cell31ExB: 'ruta más corta A → K',
+    cell32Name: 'Ocultación y enmascarado',
+    cell32Desc: 'Enmascarado que preserva el formato y eliminación determinista de PII.',
+    cell32ExA: 'enmascara SSN, conserva los 4 últimos',
+    cell32ExB: 'oculta PII de 60 páginas',
+    apiIndexTitle: 'Las mejores API de internet,',
+    apiIndexTitle2: 'indexadas y clasificadas',
     apiIndexLede:
-      'No todo merece un motor nuevo. Anteon reúne las mejores API de internet, las clasifica con sus propias métricas de calidad y, cuando tu IA está a punto de construir algo que una API ya hace, te recomienda la adecuada.',
+      'No toda tarea merece un motor nuevo. Anteon mantiene un índice vivo de las API más potentes de internet, clasificadas según nuestras propias métricas de calidad. Cuando tu IA empieza a construir algo que una API ya hace, Anteon te recomienda la que ya está probada.',
     apiCell1Name: 'Stripe',
     apiCell1Desc: 'Pagos, facturación y cobros, del checkout al abono.',
     apiCell1ExA: 'factura → pagada',
@@ -576,7 +818,8 @@ const CHROME: Record<Locale, ChromeStrings> = {
     apiCell8ExB: 'clasificada y enrutada',
     compilerTitle: 'Una biblioteca personal y autooptimizable, hecha a la medida de tu empresa',
     compilerBody:
-      'Anteon compila algoritmos únicos a partir del trabajo real de tu empresa y los comparte con todos tus empleados. La biblioteca crece sin parar, y un backend registra el uso y los KPI, para que veas cómo se amortiza sola.',
+      'Tu equipo ya escribe small software, los scripts puntuales que cada proyecto deja atrás. Anteon lo compila en motores versionados que toda la empresa comparte, y los mismos KPI auditables demuestran cómo se amortiza solo.',
+    smallSoftware: 'Small software, explicado',
     footerTag: 'Los problemas resueltos deberían seguir resueltos',
     company: 'Empresa',
     legal: 'Legal',
@@ -631,6 +874,25 @@ const CHROME: Record<Locale, ChromeStrings> = {
     demoBWork6: 'Comprobando…',
     demoBSay8:
       'Todo terminado. supplier_q2.csv está listo, los totales de gasto y la variación ya están calculados, y se requiere una auditoría del equipo de compras según §7.2(b), Política de Auditoría de Proveedores.',
+    authEmailLabel: 'Correo electrónico',
+    authPasswordLabel: 'Contraseña',
+    signinTitle: 'Iniciar sesión',
+    signinSubtitle: 'Te damos la bienvenida de nuevo. Inicia sesión y continúa donde lo dejaste.',
+    signinForgot: '¿Olvidaste tu contraseña?',
+    rememberMe: 'Recuérdame',
+    signinSubmit: 'Iniciar sesión',
+    signinNoAccount: '¿Primera vez aquí?',
+    signinNoAccountLink: 'Crea una cuenta',
+    signupTitle: 'Crea tu cuenta',
+    signupSubtitle: 'Empieza con más de 1.000 motores deterministas y una biblioteca que crece con tu empresa.',
+    signupSubmit: 'Crear cuenta',
+    signupHaveAccount: '¿Ya tienes una cuenta?',
+    signupHaveAccountLink: 'Iniciar sesión',
+    forgotTitle: 'Restablece tu contraseña',
+    forgotSubtitle: 'Introduce tu correo y te enviaremos un enlace para establecer una nueva contraseña.',
+    forgotSubmit: 'Enviar enlace de restablecimiento',
+    forgotBackToSignin: 'Volver a iniciar sesión',
+    ariaClose: 'Cerrar',
   },
 };
 

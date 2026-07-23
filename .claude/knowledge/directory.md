@@ -16,3 +16,4 @@
 
 - The Newton quote attribution uses an em dash and the date style "5 February 1675". User-authored quotation typography; kept verbatim although fixed rules 2 and 3 would reformat it. Needs /standardize to resolve.
 - "Giants" capitalized mid-sentence inside the quote: historical quotation, kept verbatim.
+- Hero subheader colon: "auditable KPIs: only pay after we save you money" keeps its colon-plus-imperative on user decision (Jul 23, 2026), although fixed-rule validation flags the pattern as a colon-splice. Scope: this string only, not a general license. Needs /standardize to make canonical.

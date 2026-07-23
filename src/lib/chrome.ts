@@ -11,6 +11,7 @@
 import { initCellGame } from './cellgame';
 import { initCompilerDiagram } from './compilerdiagram';
 import { initTerminalDemo } from './demo';
+import { initLibraryMore } from './librarymore';
 import { wirePrefs } from './prefs';
 
 const EXPAND_IN = 0.015;
@@ -189,9 +190,13 @@ tryInit('prefs', wirePrefs);
 // The hero terminal demo: the split-screen race (no-ops off the landing).
 tryInit('terminal demo', initTerminalDemo);
 
-// The idle puff game on the two cell grids (no-ops off the landing, off
-// screen, and under reduced motion).
+// The idle puff game on the cell grids (no-ops off the landing, off screen,
+// and under reduced motion).
 tryInit('cell game', initCellGame);
+
+// The library grid's See more: collapses the added rows into a disclosure and
+// reveals them once (no-ops off the landing, where the grid is absent).
+tryInit('library expand', initLibraryMore);
 
 // The compiler diagram in the #compiler section: AI traffic drawing on the
 // knowledge layer (no-ops off the landing, off screen, and under reduced
@@ -288,7 +293,10 @@ tryInit('hero wheel', () => {
 // jump and re-arms the boundary latch; the static shell scrolls directly.
 tryInit('wordmark home', () => {
   for (const w of document.querySelectorAll('#wordmark, .site-wordmark, .footer-brand')) {
-    w.addEventListener('click', () => {
+    w.addEventListener('click', (e) => {
+      // The shared chrome renders these as real links home for the shells;
+      // on the landing the jump is local, so the navigation is cancelled.
+      e.preventDefault();
       if (document.documentElement.classList.contains('static')) {
         window.scrollTo(0, home());
       } else {

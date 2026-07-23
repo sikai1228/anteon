@@ -44,176 +44,6 @@ body {
   transition: z-index 0s linear var(--speed-settle);
 }
 
-#wordmark {
-  font-family: var(--sans);
-  font-size: var(--type-wordmark);
-  letter-spacing: var(--tracking-widest);
-  color: var(--ink);
-}
-
-/* Right-edge navigation, shared by the landing and site headers. */
-.header-nav {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: var(--chrome-nav-gap);
-  pointer-events: auto;
-}
-
-.header-nav a {
-  position: relative;
-  font-family: var(--sans);
-  font-size: var(--type-nav);
-  letter-spacing: var(--tracking-wide);
-  color: var(--ink);
-  text-decoration: none;
-  opacity: var(--o-muted);
-  transition: opacity var(--speed-quick) var(--ease);
-}
-
-/* The underline draws itself left to right, exactly the text's width. */
-.header-nav a::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -3px;
-  height: var(--border-hair);
-  background: var(--ink);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--speed-move) var(--ease);
-}
-
-.header-nav a:hover {
-  opacity: 1;
-}
-
-.header-nav a:hover::after {
-  transform: scaleX(1);
-}
-
-
-
-/* Outlined on white: black text, black border, white inside. On hover the
- * label steps left and an up-right arrow arrives on the right. */
-.book-call {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--sans);
-  font-size: var(--type-nav);
-  letter-spacing: var(--tracking-wide);
-  color: var(--ink);
-  background: var(--paper);
-  border: var(--border-control) solid var(--ink);
-  border-radius: var(--radius-control);
-  padding: var(--control-pad-y) var(--control-pad-x);
-  cursor: pointer;
-  /* One opacity mutes text and hairline to exactly the links' grey. */
-  opacity: var(--o-muted);
-  transition: opacity var(--speed-quick) var(--ease);
-}
-
-/* The header CTA is a link now (it goes to the API / MCP page). As an anchor
- * inside the nav it keeps the control look: no muting, no drawn underline. */
-a.book-call { text-decoration: none; }
-.header-nav a.book-call { opacity: 1; }
-.header-nav a.book-call::after { content: none; }
-
-.book-call:hover { opacity: 1; }
-
-.book-call .bc-arrow {
-  display: grid;
-  place-items: center;
-  width: 0;
-  margin-left: 0;
-  opacity: 0;
-  overflow: hidden;
-  transform: translateX(-5px);
-  transition:
-    width var(--speed-move) var(--ease),
-    margin-left var(--speed-move) var(--ease),
-    opacity var(--speed-quick) var(--ease),
-    transform var(--speed-move) var(--ease);
-}
-
-.book-call:hover .bc-arrow {
-  width: 15px;
-  margin-left: var(--control-pad-y);
-  opacity: 1;
-  transform: none;
-}
-
-/* The wordmark is the way home, in every chrome it appears in. */
-#wordmark,
-.site-wordmark,
-.footer-brand {
-  cursor: pointer;
-  pointer-events: auto;
-  /* The mark leads the name: one inline row, centered, a small gap before
-   * the letters. */
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-/* The mark rides the wordmark's own size, a hair under its cap height. It
- * is three stacked layers on one canvas: the left hand, the right hand,
- * and the spark between them, so the hands can move while the registration
- * holds. Each layer's box is doubled and scaled back down, so the GPU
- * keeps a sharp twice-size texture whether the hands rest or move. */
-.brand-mark {
-  position: relative;
-  height: 0.82em;
-  aspect-ratio: 436 / 256;
-}
-
-.brand-mark img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 200%;
-  height: 200%;
-  transform: scale(0.5);
-  transform-origin: 0 0;
-  will-change: transform;
-  transition: transform var(--speed-settle) var(--ease);
-  display: block;
-}
-
-/* On hover the fingers close the measured gap and stay touched at the
- * spark until the pointer leaves; leaving eases them open again. The
- * travel percentages are half the measured gap twice over: once because
- * each hand covers half the distance, once because the layer box is
- * doubled. Gated to real pointers: on a touch screen :hover sticks after
- * a tap with no pointer to leave, so touch runs on is-touched below. */
-@media (hover: hover) {
-  #wordmark:hover .brand-mark .hand-l,
-  .site-wordmark:hover .brand-mark .hand-l,
-  .footer-brand:hover .brand-mark .hand-l {
-    transform: translate(3.05%, -0.6%) scale(0.5);
-  }
-
-  #wordmark:hover .brand-mark .hand-r,
-  .site-wordmark:hover .brand-mark .hand-r,
-  .footer-brand:hover .brand-mark .hand-r {
-    transform: translate(-3.05%, 0.6%) scale(0.5);
-  }
-}
-
-/* The tap variant of the same touch: prefs.ts sets is-touched on the mark
- * for three seconds, or until the first scroll, so the hands close and
- * release on their own instead of holding a stuck hover. */
-.brand-mark.is-touched .hand-l { transform: translate(3.05%, -0.6%) scale(0.5); }
-.brand-mark.is-touched .hand-r { transform: translate(-3.05%, 0.6%) scale(0.5); }
-
-@media (prefers-reduced-motion: reduce) {
-  .brand-mark img { transition: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .header-nav { transition: none; }
-}
 
 /* The full-bleed band breaks out of its padded parent; clip the overshoot
  * so it can never widen the page (clip, not hidden: sticky stays alive). */
@@ -282,12 +112,8 @@ canvas#gl,
   border-radius: var(--radius-control);
 }
 
-/* One full spin per hover; ends where it began, so no exit snap, and a
- * fresh hover spins it again. */
-@keyframes skip-spin {
-  to { transform: rotate(360deg); }
-}
-
+/* The spin itself (skip-spin) is defined once in chrome.css, shared with
+ * the auth dialog's close control. */
 #skip:hover .skip-key svg {
   animation: skip-spin var(--speed-spin) var(--ease);
 }
@@ -572,44 +398,6 @@ html.bedded .intro-hand { position: fixed; }
   text-wrap: balance;
 }
 
-/* The site's own header: the wordmark lands where the standard header sits.
- * Sticky, so the moment the site's top reaches the viewport's top it pins
- * there for the rest of the scroll; frosted, so content reads through it. */
-#site-header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  height: var(--chrome-header);
-  display: flex;
-  align-items: center;
-  padding: 0 var(--chrome-pad-x);
-  text-align: left;
-  background: transparent;
-  /* Follow the box's top corners while it rises, square at full bleed. */
-  border-radius: var(--site-radius, var(--radius-rise)) var(--site-radius, var(--radius-rise)) 0 0;
-}
-
-/* The divider between header and body draws itself left to right as the
- * box finishes rising; chrome.ts feeds --site-line from the scroll. */
-#site-header::after { display: none; }
-
-/* Once the site has finished its climb, chrome.ts adds .pinned and the bar
- * stops being sticky. A sticky bar re-seats itself against the viewport on
- * every scroll step, and on a phone the URL bar's show and hide makes that
- * re-seating read as a few-pixel jitter; a pixel-top fixed bar never reflows.
- * The pin waits for the top of the climb because until then the header has to
- * ride the rising box. The padding holds the bar's lane, so the sections do
- * not jump up by its height the moment it leaves the flow. */
-#site.pinned {
-  padding-top: var(--chrome-header);
-}
-
-#site.pinned #site-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-}
 
 /* The opening of the site: the EstateInventor composition, left-aligned in the
  * page container under generous top padding. The headline sits top-left, the
@@ -626,15 +414,6 @@ html.bedded .intro-hand { position: fixed; }
   text-align: left;
 }
 
-/* One wordmark rule: the site header's and the footer's brand render
- * identically to the landing header's. */
-#site-header .site-wordmark,
-.footer-brand {
-  font-family: var(--sans);
-  font-size: var(--type-wordmark);
-  letter-spacing: var(--tracking-widest);
-  color: var(--ink);
-}
 
 #logo {
   font-size: var(--type-display);
@@ -1237,6 +1016,30 @@ html[data-boot="site"] #skip {
   color: var(--ink-muted);
 }
 
+/* A small external link under a section's copy: the label and its up-right arrow
+ * sit at the muted ink and brighten together on hover. The arrow marks the jump
+ * off site and stays in view. Left-aligned under the lede, like the copy above. */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+  font-family: var(--sans);
+  font-size: var(--type-nav);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink-muted);
+  text-decoration: none;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.text-link:hover,
+.text-link:focus-visible { color: var(--ink); }
+
+.text-link .text-link-arrow {
+  width: 1em;
+  height: 1em;
+}
+
 /* The explore link at each section's foot: a quiet text link at the right
  * edge that reveals an up-right arrow on hover. Right anchored, so the arrow
  * expanding pushes the label left, the hero's book a call slide. It sits
@@ -1423,287 +1226,59 @@ html[data-boot="site"] #skip {
   .cell-ex-b { transition: none; }
 }
 
-/* The site footer, ported from the kit's footer v0 (SiteFooter, PT2):
- * brand column, link columns with fixed-slot arrows, and a muted bottom
- * row with the language pill. Values translated onto this site's tokens;
- * it runs the full site width, sharing the header's edges. */
-.site-footer {
-  margin-top: auto;
-  border-top: var(--border-hair) solid var(--line);
+/* The library grid ships its first sixteen cells; the rest wait in this region
+ * below, revealed once by the See more control. Collapsed it clips to nothing;
+ * open it releases to its natural height. flow-root keeps the inner grid's seam
+ * gap contained even once overflow turns visible, so a last-row cell's hover
+ * shadow is never cut. The inner grid's top gap matches the grid's own row gap,
+ * so the eight rows read as one continuous grid. */
+.cell-more-region {
+  display: flow-root;
+  overflow: hidden;
+  transition: height var(--speed-settle) var(--ease);
 }
 
-/* One grid carries both footer rows, so the bottom row can align to the
- * column tracks: the rights line under the brand, the pills starting on
- * the first column's own left edge. */
-.footer-inner {
-  padding: var(--space-20) var(--chrome-pad-x) var(--space-20);
-  display: grid;
-  /* Equal column tracks: the header pitch stays constant (track plus gap)
-   * no matter how wide any column's links run; a track only grows if a
-   * label ever outruns the shared width. */
-  grid-template-columns: 1fr repeat(3, minmax(var(--space-40), max-content));
-  gap: var(--space-32) var(--space-24);
-}
-
-.footer-tag {
-  margin: var(--space-3) 0 0;
-  color: var(--ink-soft);
-  font-size: var(--type-nav);
-}
-
-/* Every column right-aligns its ink to its own track edge, the last one
- * to the page boundary; all arrows sit on the labels' left. */
-.footer-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--space-3);
-}
-
-.footer-h {
-  font-size: var(--type-nav);
-  font-weight: var(--weight-semibold);
-  color: var(--ink);
-  margin: 0 0 var(--space-1);
-}
-
-/* Column links: never underlined; on hover they darken to full ink and
- * reveal the up-right arrow in its fixed slot. */
-.footer-col a {
-  display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--ink-muted);
-  font-size: var(--type-nav);
-  text-decoration: none;
-  transition: color var(--speed-quick) var(--ease);
-}
-
-.footer-col a:hover { color: var(--ink); }
-
-/* The arrow occupies a fixed inline slot at all times (its space is always
- * reserved); only its opacity animates, so the label never shifts on hover. */
-.footer-arrow {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  opacity: 0;
-  transition: opacity var(--speed-quick) var(--ease);
-}
-
-.footer-col a:hover .footer-arrow,
-.footer-col a:focus-visible .footer-arrow { opacity: 1; }
-
-.footer-copy {
-  grid-column: 1;
-  align-self: center;
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: var(--type-nav);
-}
-
-/* The pills close the second row against the page boundary. */
-.footer-prefs {
-  grid-column: 2 / -1;
-  justify-self: end;
-  align-self: center;
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-/* Compact theme switch (kit PT2, ported): system, light, dark as a segmented
- * pill sitting left of the language pill. Visual only, no behavior is wired.
- * It borrows the language pill's shell exactly (28px tall, pill radius, ink
- * hairline on paper, one-opacity muting); the active mode is marked by ink
- * weight, not a fill, keeping the board's one-white-one-black discipline. */
-.theme-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  height: 28px;
-  padding-inline: var(--space-1);
-  /* The outline holds the muted grey at every state; hover feedback lives
-   * on the option circles, not the shell. */
-  border: var(--border-hair) solid var(--ink-muted);
-  border-radius: var(--radius-pill);
-  background: var(--paper);
-}
-
-.theme-opt {
-  display: inline-grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  border: none;
-  background: none;
-  border-radius: var(--radius-pill);
-  color: var(--ink-muted);
-  cursor: pointer;
-  transition:
-    color var(--speed-quick) var(--ease),
-    box-shadow var(--speed-quick) var(--ease);
-}
-
-/* The hovered option lifts as a circle: paper chip, shadow beneath. */
-.theme-opt:hover {
-  color: var(--ink);
-  background: var(--paper);
-  box-shadow: var(--shadow-2);
-}
-
-.theme-opt svg { width: 16px; height: 16px; }
-
-/* The active mode reads by ink weight alone: its icon is full ink while the
- * others stay muted. No fill or chip, so nothing renders as a solid block. */
-/* The chosen mode keeps its lifted circle: the hover puck, made persistent. */
-.theme-opt.is-active {
-  color: var(--ink);
-  background: var(--paper);
-  box-shadow: var(--shadow-2);
-}
-
-.theme-opt:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-
-/* The language pill, ported from the kit footer (PT4): a native details
- * menu opening upward. One opacity mutes the pill's text and hairline
- * together, the same rest-to-hover move as every outlined control here. */
-.lang { position: relative; display: inline-block; }
-
-.lang-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  height: 28px;
-  padding-inline: var(--space-3);
-  border: var(--border-hair) solid var(--ink);
-  border-radius: var(--radius-pill);
-  background: var(--paper);
-  color: var(--ink);
-  font-size: var(--type-nav);
-  font-weight: var(--weight-medium);
-  opacity: var(--o-muted);
-  cursor: pointer;
-  list-style: none;
-  transition: opacity var(--speed-quick) var(--ease);
-}
-
-.lang-toggle::-webkit-details-marker { display: none; }
-
-.lang-toggle:hover,
-.lang[open] .lang-toggle { opacity: 1; }
-
-.lang-toggle:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-
-.lang-globe, .lang-chev { width: 14px; height: 14px; }
-
-.lang-chev { transition: transform var(--speed-move) var(--ease); }
-
-.lang[open] .lang-chev { transform: rotate(180deg); }
-
-.lang-menu {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + var(--space-2));
-  z-index: 2;
-  min-width: 100%;
-  margin: 0;
-  padding: var(--space-1);
-  list-style: none;
-  background: var(--paper);
-  border: var(--border-hair) solid var(--line);
-  border-radius: var(--radius-control);
-  box-shadow: var(--shadow-2);
-}
-
-.lang-opt {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: var(--space-2) var(--space-3);
-  border: none;
-  background: none;
-  border-radius: var(--radius-control);
-  color: var(--ink-muted);
-  font-family: var(--sans);
-  font-size: var(--type-nav);
-  white-space: nowrap;
-  cursor: pointer;
-  transition: color var(--speed-quick) var(--ease);
-}
-
-.lang-opt:hover { color: var(--ink); }
-
-.lang-opt[aria-current="true"] {
-  color: var(--ink);
-  font-weight: var(--weight-semibold);
-}
-
-/* The middle widths: the desktop pitch would run past the page edge, so
- * the tracks drop their floor and the column gap tightens until the row
- * and the pills fit inside the container again. */
-@media (max-width: 1140px) {
-  .footer-inner {
-    grid-template-columns: 1fr repeat(3, max-content);
-    column-gap: var(--space-12);
-  }
-}
-
-@media (max-width: 768px) {
-  /* The brand takes its own full row; the three columns share the next in
-   * equal tracks; the pills close right, with the rights line under them. */
-  .footer-inner {
-    grid-template-columns: repeat(3, 1fr);
-    row-gap: var(--space-12);
-    column-gap: var(--space-4);
-  }
-  .footer-brandcol { grid-column: 1 / -1; }
-  .footer-prefs { grid-column: 1 / -1; justify-self: end; }
-  .footer-copy {
-    grid-column: 1 / -1;
-    order: 1;
-    justify-self: end;
-    text-align: right;
-    /* Tight under the pills: pull back most of the shared row gap. */
-    margin-top: calc(-1 * var(--space-8));
-  }
-}
-
-/* On a phone the shared tracks turn cramped and labels wrap mid-phrase, so
- * the columns stack under the brand instead, one per row and flush left.
- * The hover arrow slot leaves with no hover to serve, and the pills and the
- * rights line close the run on the same left edge. */
-@media (max-width: 640px) {
-  .footer-inner {
-    grid-template-columns: 1fr;
-    row-gap: var(--space-10);
-  }
-  .footer-col { align-items: flex-start; }
-  .footer-col a { flex-direction: row; }
-  .footer-arrow { display: none; }
-  /* The pills and the rights line close the run on the right edge; the stacked
-   * columns above keep their left edge. */
-  .footer-prefs { grid-column: 1; justify-self: end; }
-  .footer-copy {
-    grid-column: 1;
-    justify-self: end;
-    text-align: right;
-    /* Tight under the pills, on the smaller stacked row gap. */
-    margin-top: calc(-1 * var(--space-6));
-  }
-}
+.cell-more-region.is-collapsed { height: 0; }
+.cell-more-region.is-open { overflow: visible; }
+.cell-more-region .cell-grid { margin-top: var(--space-4); }
 
 @media (prefers-reduced-motion: reduce) {
-  .footer-arrow { transition: none; }
+  .cell-more-region { transition: none; }
 }
+
+/* The library foot carries both controls: a See more button while the region is
+ * collapsed, and the section's own Explore further link once it opens. Exactly
+ * one shows at a time. The button mirrors the link's quiet type and hover, but
+ * its arrow points down and stays in view as the reveal affordance. */
+.section-explore-lib .explore-toggle { display: none; }
+.section-explore-lib.is-collapsed .explore-toggle { display: inline-flex; }
+.section-explore-lib.is-collapsed .explore-link { display: none; }
+
+.explore-toggle {
+  align-items: center;
+  font-family: var(--sans);
+  font-size: var(--type-body);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: var(--o-muted);
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.explore-toggle:hover,
+.explore-toggle:focus-visible { opacity: 1; }
+
+.explore-toggle .ex-arrow {
+  display: grid;
+  place-items: center;
+  margin-left: var(--control-pad-y);
+}
+
+.explore-toggle .ex-arrow svg { width: 15px; height: 15px; }
+
 
 /* Static mode: reduced motion or no WebGL. The runtime adds .static to <html>. */
 html.static #film { height: auto; }
@@ -1739,328 +1314,6 @@ html.static .caption {
 
 #debug input[type="range"] { flex: 1; }
 #debug .t { min-width: 64px; text-align: right; }
-/* The Product mega menu. The trigger drops a panel that reads as the header
- * extending downward: three cards for the platform pillars. prefs.ts adds
- * mega-open to the header on hover, with a small close delay. */
-.nav-mega { display: flex; align-items: center; }
-
-.nav-mega-trigger {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-family: var(--sans);
-  font-size: var(--type-nav);
-  letter-spacing: var(--tracking-wide);
-  color: var(--ink);
-  opacity: var(--o-muted);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  pointer-events: auto;
-  transition: opacity var(--speed-quick) var(--ease);
-}
-
-.nav-mega-trigger:hover { opacity: 1; }
-
-.nav-mega-trigger::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -3px;
-  height: var(--border-hair);
-  background: var(--ink);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform var(--speed-move) var(--ease);
-}
-
-.nav-mega-trigger:hover::after { transform: scaleX(1); }
-
-.nav-mega-chev { transition: transform var(--speed-move) var(--ease); }
-
-.nav-mega-panel {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: -1;
-  max-height: var(--chrome-header);
-  overflow: hidden;
-  background: var(--frost);
-  -webkit-backdrop-filter: blur(var(--frost-blur));
-  backdrop-filter: blur(var(--frost-blur));
-  border-bottom: var(--border-hair) solid var(--line);
-  transition: max-height var(--speed-settle) var(--ease);
-}
-
-.mega-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-6);
-  max-width: var(--width-page);
-  margin: var(--chrome-header) auto 0;
-  padding: var(--space-8) var(--chrome-pad-x) var(--space-10);
-}
-
-.mega-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  text-decoration: none;
-  color: var(--ink);
-}
-
-.mega-card-media {
-  aspect-ratio: 16 / 10;
-  border-radius: var(--radius-frame);
-  background: color-mix(in srgb, var(--ink) 4%, var(--paper));
-  border: var(--border-hair) solid var(--line);
-  transition: border-color var(--speed-quick) var(--ease);
-}
-
-.mega-card:hover .mega-card-media { border-color: var(--ink-faint); }
-
-.mega-card-title {
-  font-family: var(--sans);
-  font-size: var(--type-body-lg);
-  font-weight: var(--weight-medium);
-  color: var(--ink);
-}
-
-.mega-card-sub {
-  font-size: var(--type-nav);
-  line-height: var(--leading-body);
-  color: var(--ink-muted);
-}
-
-/* The mega cards are anchors inside the nav, so the nav link underline
- * would draw a full width line at their base on hover. The cards carry
- * their own indicators (the media border), so that line is removed. */
-.header-nav .mega-card::after { content: none; }
-
-/* The film header has no divider on the trailer: its panel border stays
- * clear. The sticky site header keeps its line. */
-#chrome .nav-mega-panel {
-  border-bottom-color: transparent;
-  /* Over the black trailer the frosted (translucent) panel reads through to
-   * the film beneath it. Paint the film header's panel on the header's own
-   * solid ground so an open menu covers the trailer. The sticky site header
-   * keeps its frost, which reads solid over the paper page. */
-  background: var(--paper);
-}
-
-/* In the page's header the panel sits over the box's own top corners: it is
- * pinned to the header's box, is the header's full width, and is a solid sheet
- * whether the menu is open or shut. Square, it paints over the rounded corners
- * and the box reads as a rectangle no matter how round it measures. #site
- * cannot clip it away, because its overflow has to stay visible for the header
- * to stay sticky, so the panel follows the same corner the box does. */
-#site-header .nav-mega-panel {
-  border-radius: var(--site-radius, var(--radius-rise)) var(--site-radius, var(--radius-rise)) 0 0;
-}
-
-/* At rest the film header sits below the stage (--z-header < --z-stage) so the
- * rising box can cover it. Its mega panel is z-index:-1 inside that low context,
- * so an open panel would drop behind the stage and vanish over the trailer.
- * When the menu opens, lift the whole header above the stage (and the site
- * layer) so the panel drops over the film and its cards stay clickable. The
- * raise is immediate on open; the base #chrome transition delays the drop on
- * close until the panel has finished collapsing. The site header is unaffected;
- * it already sits above the stage. */
-#chrome.mega-open {
-  z-index: var(--z-overlay);
-  transition: z-index 0s linear 0s;
-}
-
-#chrome.mega-open .nav-mega-panel,
-#site-header.mega-open .nav-mega-panel {
-  max-height: calc(var(--chrome-header) + 460px);
-}
-
-#chrome.mega-open .nav-mega-chev,
-#site-header.mega-open .nav-mega-chev { transform: rotate(180deg); }
-
-#chrome.mega-open .nav-mega-trigger,
-#site-header.mega-open .nav-mega-trigger { opacity: 1; }
-#chrome.mega-open .nav-mega-trigger::after,
-#site-header.mega-open .nav-mega-trigger::after { transform: scaleX(1); }
-
-/* On small screens the nav folds into a three line menu. The sheet is one
- * panel that lives in the header at all times, covering just the bar when
- * closed and growing downward on open, so its bottom hairline is the
- * divider and travels down with the reveal. The paper and the frost sit on
- * the panel, warm from first paint, so opening never toggles a backdrop on
- * and the page never flashes through the bar. */
-.nav-toggle { display: none; }
-
-@media (max-width: 640px) {
-  .nav-toggle {
-    display: grid;
-    place-items: center;
-    margin-left: auto;
-    width: var(--control-key);
-    height: var(--control-key);
-    padding: 0;
-    background: none;
-    border: none;
-    color: var(--ink);
-    cursor: pointer;
-    pointer-events: auto;
-  }
-
-  /* In the hamburger sheet the mega is a stacked group: the trigger a
-   * label, its cards plain sub links, no media, no subs. */
-  .nav-mega { display: block; width: 100%; }
-  .nav-mega-trigger { width: 100%; justify-content: flex-start; }
-  .nav-mega-chev { display: none; }
-
-  .nav-mega-panel {
-    position: static;
-    max-height: none;
-    overflow: visible;
-    background: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    border-bottom: none;
-  }
-
-  .mega-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-4);
-    max-width: none;
-    margin: 0;
-    padding: var(--space-4) 0 0 var(--space-4);
-  }
-
-  .mega-card { gap: var(--space-1); }
-  .mega-card-media,
-  .mega-card-sub { display: none; }
-  .mega-card-title {
-    font-size: var(--type-nav);
-    font-weight: var(--weight-regular);
-    color: var(--ink-muted);
-  }
-
-  /* The trigger is a plain label in the sheet: full ink, no underline, no
-   * hover lift. The cards take a text-width underline on hover, like a nav
-   * link, rather than the full-row line. */
-  .nav-mega-trigger { opacity: 1; cursor: default; }
-  .nav-mega-trigger::after { display: none; }
-
-  .mega-card-title {
-    position: relative;
-    align-self: flex-start;
-  }
-  .mega-card-title::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -3px;
-    height: var(--border-hair);
-    background: var(--ink);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--speed-move) var(--ease);
-  }
-  .mega-card:hover .mega-card-title::after { transform: scaleX(1); }
-
-  .header-nav {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: -1;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-4);
-    margin: 0;
-    /* No top padding: it cannot compress under the closed max-height and
-     * would leave the panel hanging below the bar. The bar reservation is a
-     * margin on the first link instead, which the clip absorbs. */
-    padding: 0 var(--chrome-pad-x) var(--space-5);
-    max-height: var(--chrome-header);
-    overflow: hidden;
-    background: var(--paper);
-    border-bottom: var(--border-hair) solid var(--line);
-    transform: translateZ(0);
-    transition: max-height var(--speed-settle) var(--ease);
-  }
-
-  #chrome.nav-open .header-nav,
-  #site-header.nav-open .header-nav {
-    max-height: 520px;
-  }
-
-  /* On the landing the collapsed sheet's hairline would strike through the
-   * trailer's black box, so the film header keeps it clear at rest; opening
-   * the sheet fades it in and the divider travels with the reveal, and
-   * closing fades it out along the same settle. The site header and the
-   * shell pages keep their hairline untouched. */
-  #chrome .header-nav {
-    border-bottom-color: transparent;
-    transition:
-      max-height var(--speed-settle) var(--ease),
-      border-bottom-color var(--speed-settle) var(--ease);
-  }
-
-  #chrome.nav-open .header-nav { border-bottom-color: var(--line); }
-
-  /* The bar's reserved space: the first link clears the header height plus
-   * a step, and the panel clips it away while closed. */
-  .header-nav > :first-child {
-    margin-top: calc(var(--chrome-header) + var(--space-4));
-  }
-
-  #site-header {
-    background: transparent;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
-  #site-header::after { display: none; }
-
-  #site-header::before { display: none; }
-
-  #site-header .header-nav {
-    background: var(--frost);
-    -webkit-backdrop-filter: blur(var(--frost-blur));
-    backdrop-filter: blur(var(--frost-blur));
-  }
-
-  #chrome .header-nav .book-call,
-  #site-header .header-nav .book-call {
-    border: none;
-    background: none;
-    padding: 0;
-    border-radius: 0;
-    position: relative;
-  }
-
-  #chrome .header-nav .book-call .bc-arrow,
-  #site-header .header-nav .book-call .bc-arrow { display: none; }
-
-  #chrome .header-nav .book-call::after,
-  #site-header .header-nav .book-call::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -3px;
-    height: var(--border-hair);
-    background: var(--ink);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform var(--speed-move) var(--ease);
-  }
-
-  #chrome .header-nav .book-call:hover::after,
-  #site-header .header-nav .book-call:hover::after { transform: scaleX(1); }
-}
 
 /* --- The compiler diagram (compilerdiagram.ts): AI traffic over the layer. ---
  * A live simulation spanning the full container width between the section's
@@ -2151,11 +1404,6 @@ html.static .caption {
  * follows the OS in "computer decide" mode as well. The board, the chalk, and
  * the flag pair are never touched, so the trailer is identical in every mode. */
 
-/* The wordmark hands and the spark are black ink on transparent; invert all
- * three together so they read light on the black ground and stay in register
- * through the hover touch. The spark is a dark mark too, not a bright flash,
- * so it inverts with the hands rather than against them. */
-:root[data-theme="dark"] .brand-mark img { filter: invert(1); }
 
 /* Duke's wordmark is baked muted grey, so brightness lifts it. Wharton's mark
  * carries a shaded shield no filter reverses cleanly, so in dark it swaps to a
@@ -2173,12 +1421,6 @@ html.static .caption {
   opacity: 0.72;
 }
 
-/* The theme pill's chosen and hovered circle cannot lift on a shadow alone
- * against a black ground; a faint raised surface keeps the active mode legible. */
-:root[data-theme="dark"] .theme-opt:hover,
-:root[data-theme="dark"] .theme-opt.is-active {
-  background: rgba(255, 255, 255, 0.06);
-}
 
 /* The terminal race and the compiler figure lighten their scoped green (and
  * the terminal's amber) for AA on the dark ground; the reds stay the flag red. */
@@ -2186,8 +1428,6 @@ html.static .caption {
 :root[data-theme="dark"] .compiler-diagram { --cd-green: #5faa74; }
 
 @media (prefers-color-scheme: dark) {
-  :root[data-theme="system"] .brand-mark img,
-  :root:not([data-theme]) .brand-mark img { filter: invert(1); }
 
   :root[data-theme="system"] .media-strip img,
   :root:not([data-theme]) .media-strip img {
@@ -2203,12 +1443,6 @@ html.static .caption {
     opacity: 0.72;
   }
 
-  :root[data-theme="system"] .theme-opt:hover,
-  :root[data-theme="system"] .theme-opt.is-active,
-  :root:not([data-theme]) .theme-opt:hover,
-  :root:not([data-theme]) .theme-opt.is-active {
-    background: rgba(255, 255, 255, 0.06);
-  }
 
   :root[data-theme="system"] .hero-terminal,
   :root:not([data-theme]) .hero-terminal { --t-ok: #5faa74; --t-warn: #cfa14a; }

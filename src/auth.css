@@ -1,0 +1,332 @@
+/* ---- The auth dialog ----
+ * Sign in, create account, and reset password: three views inside one native
+ * dialog that site-chrome.ts appends to every page, opened by the Get started
+ * controls. The flow is ported from the account screens in the app (email and
+ * password, a forgot-password link by the password, the cross-links between
+ * the three views, now view switches); the skin is this site's, re-expressed
+ * in these tokens. Fields and the submit borrow the contact form and the
+ * header's book a call, so the controls read as one family.
+ *
+ * There is no auth backend this round, matching the rest of the site: the
+ * fields are real and the browser validates them, but a valid submit is
+ * prevented rather than faking a signed-in state, and the forms post nowhere.
+ * This sheet rides the site-chrome module, so it loads wherever the dialog
+ * renders. */
+
+/* The dialog box, presented per the header control's conventions: paper
+ * ground, the control border and radius, sized to the form column plus the
+ * panel's own padding and never past the page gutters. The type is pinned
+ * to the shell voice, because the landing body speaks the film's serif. */
+.auth-modal {
+  padding: 0;
+  border: var(--border-control) solid var(--ink);
+  border-radius: var(--radius-control);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: var(--type-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-body);
+  letter-spacing: normal;
+  /* The shells' prose measure, pulled in by one space step, lands the
+   * panel at the conventional auth-dialog width; the gutters cap it on a
+   * narrow screen. */
+  width: min(calc(var(--width-prose) - var(--space-16)), calc(100vw - var(--space-gutter) * 2));
+  overscroll-behavior: contain;
+}
+
+/* The scrim is defined with the header's frost in chrome.css (one frost
+ * rule, two consumers), so the backdrop and the mega panel are always the
+ * same glass. */
+
+/* The panel fills the dialog's box, so a click that reaches the dialog
+ * itself is a backdrop click (site-chrome.ts closes on it). */
+.auth-panel {
+  position: relative;
+  padding-inline: var(--space-10);
+}
+
+/* One view at a time; site-chrome.ts sets the active one on the dialog. */
+.auth-modal .auth { display: none; }
+.auth-modal[data-auth-view="signin"] .auth[data-auth-view="signin"],
+.auth-modal[data-auth-view="signup"] .auth[data-auth-view="signup"],
+.auth-modal[data-auth-view="forgot"] .auth[data-auth-view="forgot"] { display: block; }
+
+/* The dismiss control: a quiet ink glyph in the panel's corner. */
+.auth-close {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: grid;
+  place-items: center;
+  width: var(--control-key);
+  height: var(--control-key);
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.auth-close:hover { color: var(--ink); }
+
+/* On hover the glyph turns one full circle, the film skip control's own
+ * move: the shared skip-spin keyframes from chrome.css, at the same speed
+ * and ease, ending where it began. */
+.auth-close:hover svg {
+  animation: skip-spin var(--speed-spin) var(--ease);
+}
+
+.auth-close:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+
+.auth-close svg { width: 16px; height: 16px; }
+
+/* While the dialog is open the page behind holds still. Native scroll locks
+ * here; the landing's Lenis is stopped by the auth-open event instead. */
+body.auth-open { overflow: hidden; }
+
+/* The centered column fills the panel's content width, so the fields ride
+ * the full measure, with a comfortable band of space above and below. */
+.auth {
+  width: 100%;
+  margin-inline: auto;
+  padding-block: var(--space-12);
+}
+
+/* The view titles carry the shell page-title treatment the standalone pages
+ * inherited from .page-main h1, centered over the form. */
+.auth h2 {
+  margin: 0 0 var(--space-3);
+  font-size: var(--type-title);
+  line-height: var(--leading-heading);
+  font-weight: var(--weight-medium);
+  color: var(--ink);
+  text-align: center;
+}
+
+.auth-subtitle {
+  margin: 0 0 var(--space-8);
+  text-align: center;
+  font-size: var(--type-body);
+  line-height: var(--leading-body);
+  color: var(--ink-muted);
+}
+
+/* The form: labels stacked over inputs, a steady gap between fields. The
+ * contact form's field rhythm, in a single column. */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.auth-form .field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.auth-form label {
+  font-size: var(--type-nav);
+  font-weight: var(--weight-medium);
+  color: var(--ink-muted);
+}
+
+/* The password label shares its row with the forgot-password link, so the way
+ * to reset sits right by the field it belongs to. The label keeps the left,
+ * the link takes the right, both on one baseline. */
+.field-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.auth-form input {
+  width: 100%;
+  max-width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border-hair) solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-3) var(--space-4);
+  outline: none;
+  transition: border-color var(--speed-quick) var(--ease);
+}
+
+/* Focus recolors the hairline in place to the focus ink, with no outline and
+ * no width change, so the box never shifts and there is never a second
+ * parallel line. The contact form's focus move. */
+.auth-form input:focus {
+  border-color: var(--focus);
+}
+
+/* Full-width staged submit, outlined and hover-arrowed like the header's book
+ * a call and the contact submit, so the three read as one control family. */
+.auth-submit {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: var(--space-1);
+  font-family: var(--sans);
+  font-size: var(--type-nav);
+  letter-spacing: var(--tracking-wide);
+  color: var(--ink);
+  background: var(--paper);
+  border: var(--border-control) solid var(--ink);
+  border-radius: var(--radius-control);
+  padding: var(--control-pad-y) var(--control-pad-x);
+  cursor: pointer;
+  opacity: var(--o-muted);
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+.auth-submit:hover {
+  opacity: 1;
+}
+
+.auth-submit:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* The arrow rests at the right edge, nudged 4px left at zero opacity, and
+ * slides into place on hover and focus. The label stays centered the whole
+ * time. The 15px glyph is the header control's own size, taken from it. */
+.auth-submit .as-arrow {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  right: var(--control-pad-x);
+  top: 50%;
+  opacity: 0;
+  transform: translate(-4px, -50%);
+  transition:
+    opacity var(--speed-quick) var(--ease),
+    transform var(--speed-move) var(--ease);
+}
+
+.auth-submit:hover .as-arrow,
+.auth-submit:focus-visible .as-arrow {
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+.auth-submit .as-arrow svg {
+  width: 15px;
+  height: 15px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-submit .as-arrow {
+    transition: none;
+  }
+}
+
+/* The row under the password field: remember me holds the left edge, the
+ * way to reset holds the right. */
+.auth-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* The remember control: a native checkbox drives a drawn box, so keyboard
+ * toggling and label clicks keep their built-in behavior. The 16 and 12px
+ * are this control's own geometry, like the pills'; the corner is half the
+ * control radius, scaled to the box. */
+.auth-remember {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--type-nav);
+  color: var(--ink-muted);
+  cursor: pointer;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.auth-remember:hover { color: var(--ink); }
+
+.auth-remember input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.ar-box {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border: var(--border-hair) solid var(--ink);
+  border-radius: calc(var(--radius-control) / 2);
+  background: var(--paper);
+  color: var(--paper);
+  transition:
+    background var(--speed-quick) var(--ease),
+    border-color var(--speed-quick) var(--ease);
+}
+
+.ar-box svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  transition: opacity var(--speed-quick) var(--ease);
+}
+
+/* Checked reads as ink: the box fills and the paper check appears. */
+.auth-remember input:checked + .ar-box { background: var(--ink); }
+.auth-remember input:checked + .ar-box svg { opacity: 1; }
+
+.auth-remember input:focus-visible + .ar-box {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* The cross-links between screens: muted at rest, full ink on hover, no
+ * underline. The contact page's alternate-contact control, reused for the
+ * forgot-password link, the path to sign up, the path to sign in, and the way
+ * back to sign in. They are buttons now (view switches, not navigations), so
+ * the rule also clears the button chrome. */
+.auth-inline-link {
+  font-family: inherit;
+  font-size: var(--type-nav);
+  color: var(--ink-muted);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--speed-quick) var(--ease);
+}
+
+.auth-inline-link:hover {
+  color: var(--ink);
+}
+
+.auth-inline-link:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+
+/* The path to the sibling screen, centered on its own line below the form. */
+.auth-alt {
+  margin: var(--space-8) 0 0;
+  text-align: center;
+  font-size: var(--type-nav);
+  color: var(--ink-soft);
+}
